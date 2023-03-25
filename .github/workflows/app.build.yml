@@ -1,0 +1,50 @@
+name: GarethDuncanDev build
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/app/**"
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Pack package - Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: src/app/package-lock.json
+
+      - name: install
+        run: npm ci
+        working-directory: src/app
+
+      - name: get properties
+        id: json_properties
+        uses: zoexx/github-action-json-file-properties@release
+        with:
+          file_path: "src/app/package.json"
+
+      - name: Echo package version
+        run: |
+          echo "Committed version: ${{ steps.json_properties.outputs.version }}"
+
+      - name: build app
+        run: |
+          PUBLIC_API_URL=***REPLACE_API_URL***
+          PUBLIC_VERSION=${{ steps.json_properties.outputs.version }}.${{ github.run_number }}
+          npm run build
+        working-directory: src/app
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: garethduncandev-${{ steps.json_properties.outputs.version }}.${{ github.run_number }}
+          path: ./src/app/build

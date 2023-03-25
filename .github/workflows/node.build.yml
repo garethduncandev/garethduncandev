@@ -1,0 +1,54 @@
+name: garethduncandev node npm package build
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "src/node/**"
+
+defaults:
+  run:
+    working-directory: ./src/node
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Pack package - Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: src/node/package-lock.json
+
+      - name: pack
+        run: npm ci && npm pack
+
+      - name: Check package.json version
+        id: cpv
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./src/node
+
+      - name: Echo versions
+        run: |
+          echo "Committed version: ${{ steps.cpv.outputs.committed-version }}"
+          echo "Published version: ${{ steps.cpv.outputs.published-version }}"
+          echo "Is new version: ${{ steps.cpv.outputs.is-new-version }}"
+
+      - name: Validate package.json version
+        if: steps.cpv.outputs.is-new-version == 'false'
+        run: |
+          echo package.json version already exists in npm registry
+          exit 1
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: garethduncandev-${{ steps.cpv.outputs.committed-version }}
+          path: ./src/node/garethduncandev-${{ steps.cpv.outputs.committed-version }}.tgz

@@ -1,0 +1,50 @@
+{
+  "name": "garethduncandev",
+  "version": "0.0.22",
+  "description": "About garethduncandev",
+  "main": "dist/main.js",
+  "types": "dist/main.d.js",
+  "type": "module",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "prebuild": "node -p \"'export const GAZZDEV_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "npm run lint -- --fix",
+    "prettier": "prettier . --check",
+    "prettier:write": "prettier . --write",
+    "format:write": "npm run prettier:write && npm run lint:fix",
+    "publishLib": "npm run prepare && npm publish"
+  },
+  "bin": {
+    "garethduncandev": "./dist/index.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
+    "prettier": "^2.5.0",
+    "typescript": "^4.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garethduncandev/garethduncandev.git"
+  },
+  "keywords": [
+    "developer",
+    "c#",
+    "typescript",
+    "angular",
+    "aws"
+  ],
+  "author": "garethduncandev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/garethduncandev/garethduncandev/issues"
+  },
+  "homepage": "https://github.com/garethduncandev/garethduncandev#readme"
+}

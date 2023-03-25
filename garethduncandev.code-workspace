@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "path": ".github/workflows"
+    },
+    {
+      "path": "src/app"
+    },
+    {
+      "path": "src/cdk"
+    },
+    {
+      "path": "src/node"
+    },
+    {
+      "path": "src/webcomponents"
+    }
+  ],
+  "settings": {
+    "liveServer.settings.multiRootWorkspaceName": "app"
+  }
+}

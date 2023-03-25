@@ -1,0 +1,9 @@
+# Ignore these, for now at least.
+*.html
+*.json
+*.js
+*.d.ts
+
+# Ignore build folders
+cdk.out
+node_modules
