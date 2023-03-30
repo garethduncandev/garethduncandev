@@ -15,7 +15,7 @@ variables:
 steps:
   - task: Cache@2
     inputs:
-      key: "package-lock.json"
+      key: "src/app/package-lock.json"
       path: $(npm_config_cache)
     displayName: Cache NPM packages
   - script: npm ci --cache $(npm_config_cache)
