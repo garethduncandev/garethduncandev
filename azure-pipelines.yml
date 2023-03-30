@@ -10,7 +10,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: npm run i
+- task: Cache@2
+  inputs:
+    key: 'package-lock.json'
+    path: $(npm_config_cache)  
+  displayName: Cache NPM packages
+  workingDirectory: src/app
+- script: npm ci --cache $(npm_config_cache)
   workingDirectory: src/app
   displayName: 'Install npm modules'
 
