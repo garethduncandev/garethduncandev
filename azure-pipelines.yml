@@ -22,6 +22,14 @@ steps:
     workingDirectory: src/app
     displayName: "Install npm modules"
 
-  - script: npm run build
+  - script: |
+      PUBLIC_API_URL=***REPLACE_API_URL***
+      PUBLIC_VERSION=$(Date:yyyyMMdd).$(Rev:r)
+      PUBLIC_COMMIT=${BUILD_SOURCEVERSION}
+      PUBLIC_DOTNET_VERSION=***REPLACE_DOTNET_VERSION***
+      PUBLIC_SVELTEKIT_VERSION=***REPLACE_SVELTKIT_VERSION***
+      PUBLIC_ENVIRONMENT=***REPLACE_ENVIRONMENT***
+      PUBLIC_ENVIRONMENT_COLOR=***REPLACE_ENVIRONMENT_COLOR***
+      npm run build
     workingDirectory: src/app
     displayName: "Build sveltekit app"
