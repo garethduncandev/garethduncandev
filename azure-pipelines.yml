@@ -4,23 +4,24 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  - main
 
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
 steps:
-- task: Cache@2
-  inputs:
-    key: 'package-lock.json'
-    path: $(npm_config_cache)  
-  displayName: Cache NPM packages
-  workingDirectory: src/app
-- script: npm ci --cache $(npm_config_cache)
-  workingDirectory: src/app
-  displayName: 'Install npm modules'
+  - task: Cache@2
+    inputs:
+      key: "package-lock.json"
+      path: $(npm_config_cache)
+    displayName: Cache NPM packages
+  - script: npm ci --cache $(npm_config_cache)
+    workingDirectory: src/app
+    displayName: "Install npm modules"
 
-- script: npm run build
-  workingDirectory: src/app
-  displayName: 'Build sveltekit app'
-
+  - script: npm run build
+    workingDirectory: src/app
+    displayName: "Build sveltekit app"
