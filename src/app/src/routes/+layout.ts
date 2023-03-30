@@ -12,9 +12,7 @@ import { NavHelper } from '../helper/nav.helper';
 import type { AppSettings } from '../models/appsettings';
 import type { NavItem } from '../models/nav-item';
 
-// export const prerender = true;
-// export const ssr = true;
-// export const csr = true;
+export const prerender = true;
 export const load = async () => {
 	const appSettings: AppSettings = {
 		apiUrl: PUBLIC_API_URL,

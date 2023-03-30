@@ -20,7 +20,7 @@ export class NavHelper {
 					? this.mapPathTreeToMenuItem(path.children, markdownFiles)
 					: [];
 			const pageTitle =
-				markdownFiles.find((f) => f.path === path.path)?.meta.title ?? '';
+				markdownFiles.find((f) => f.path === path.path)?.metadata.title ?? '';
 			return new NavItem(pageTitle, path.path, children);
 		});
 	}

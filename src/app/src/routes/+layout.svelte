@@ -18,7 +18,7 @@
 	<title>Gareth Duncan | Developer</title>
 </svelte:head>
 <div class="container">
-	<Header {build} />
+	<Header />
 
 	<main>
 		<slot />

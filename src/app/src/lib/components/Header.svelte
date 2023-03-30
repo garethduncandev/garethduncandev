@@ -1,9 +1,8 @@
 <script lang="ts">
-	export let build: string;
 </script>
 
 <header>
-	<h1>Gareth Duncan</h1>
+	<h1><a href="/">Gareth Duncan</a></h1>
 	<nav>
 		<ul>
 			<li><a href="/posts">posts</a></li>

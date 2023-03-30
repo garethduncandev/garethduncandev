@@ -9,7 +9,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.title}</title>
+	<title>Gareth Duncan | {data.title}</title>
 </svelte:head>
 
 <article>

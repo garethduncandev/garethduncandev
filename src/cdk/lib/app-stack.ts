@@ -61,7 +61,7 @@ export class AppStack extends NestedStack {
       cloudFrontDistribution
     );
 
-    this.appDeployment(props, props.bucket);
+    this.appDeployment(stackName, props.bucket, cloudFrontDistribution);
   }
 
   private cloudFrontDistribution(
@@ -74,7 +74,7 @@ export class AppStack extends NestedStack {
   ): Distribution {
     const absoluteDomainNames: string[] = [absoluteDomainName];
 
-    const distibution = new Distribution(this, `${stackName}-distibution`, {
+    const distribution = new Distribution(this, `${stackName}-distibution`, {
       defaultBehavior: {
         origin: new S3Origin(bucket, {
           originAccessIdentity: originAccessIdentity,
@@ -110,7 +110,7 @@ export class AppStack extends NestedStack {
 
     bucket.grantRead(originAccessIdentity);
 
-    return distibution;
+    return distribution;
   }
 
   private cloudFrontDomainCertificate(
@@ -125,19 +125,18 @@ export class AppStack extends NestedStack {
   }
 
   private appDeployment(
-    props: RootNestedStackProps,
-    bucket: IBucket
+    stackName: string,
+    bucket: IBucket,
+    distribution: Distribution
   ): BucketDeployment {
-    return new BucketDeployment(
-      this,
-      `${props.environmentStackProps.stackName}-app-bucket-deployment`,
-      {
-        sources: [Source.asset(path.join(__dirname, '../../app/build'))],
-        destinationKeyPrefix: `app`,
-        destinationBucket: bucket,
-        prune: true,
-        exclude: [],
-      }
-    );
+    return new BucketDeployment(this, `${stackName}-app-bucket-deployment`, {
+      sources: [Source.asset(path.join(__dirname, '../../app/build'))],
+      destinationKeyPrefix: `app`,
+      destinationBucket: bucket,
+      prune: true,
+      exclude: [],
+      distribution: distribution,
+      distributionPaths: ['/index.html'],
+    });
   }
 }

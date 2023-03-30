@@ -1,15 +1,10 @@
 <script lang="ts">
+	import Posts from '../../components/posts.svelte';
 	import type { NavItem } from '../../models/nav-item';
 	export let data: { nav: NavItem[] };
 </script>
 
-<ul>
-	{#each data.nav as item}
-		<li>
-			<a href={item.url}><h2>{item.title}</h2></a>
-		</li>
-	{/each}
-</ul>
+<Posts nav={data.nav} />
 
 <style lang="scss">
 	ul {

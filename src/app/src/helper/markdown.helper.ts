@@ -1,29 +1,42 @@
-import type { MarkdownFile, MarkdownMetaData } from '../models/markdown-file';
+import type { ComponentType, SvelteComponentTyped } from 'svelte';
+import type { MarkdownFile, MarkdownMetadata } from '../models/markdown-file';
 
 export class MarkdownHelper {
 	public async loadMarkdownFiles(): Promise<MarkdownFile[]> {
-		const allPostFiles = import.meta.glob<Record<string, MarkdownMetaData>>(
+		const files = import.meta.glob<Record<string, MarkdownMetadata>>(
 			'/src/posts/**/*.md'
 		);
 
-		const iterablePostFiles = Object.entries(allPostFiles);
+		const iterableMarkdownFiles = Object.entries(files);
 
-		const posts = (await Promise.all(
-			iterablePostFiles.map(async ([path, resolver]) => {
-				const file = await resolver();
-				const metadata = file['metadata'];
+		const promises = iterableMarkdownFiles.map(async ([path, resolver]) =>
+			this.markdownFilesMap([path, resolver])
+		);
 
-				// clean the
-				const postPath = path.split('/posts')[1].replace('.md', '');
+		const markdownFiles = (await Promise.all(promises)) as MarkdownFile[];
 
-				return {
-					meta: metadata,
-					path: postPath,
-					filePath: path
-				} as MarkdownFile;
-			})
-		)) as MarkdownFile[];
+		return markdownFiles;
+	}
 
-		return posts;
+	private async markdownFilesMap([path, resolver]: [
+		string,
+		() => Promise<Record<string, MarkdownMetadata>>
+	]): Promise<MarkdownFile> {
+		const file = await resolver();
+		const metadata = file['metadata'];
+
+		const content = file[
+			'default'
+		] as unknown as ComponentType<SvelteComponentTyped>;
+
+		// clean the
+		const postPath = path.split('/posts')[1].replace('.md', '');
+
+		return {
+			metadata: metadata,
+			path: postPath,
+			filePath: path,
+			content: content
+		} as MarkdownFile;
 	}
 }
