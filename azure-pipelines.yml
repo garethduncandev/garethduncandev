@@ -22,7 +22,8 @@ steps:
     workingDirectory: src/app
     displayName: "Install npm modules"
 
-  - powershell: New-Item .env
+  - powershell: |
+      New-Item .env
       $contentToAdd = @"
       PUBLIC_API_URL=***REPLACE_API_URL***
       PUBLIC_VERSION=***REPLACE_BUILD***
