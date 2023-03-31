@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-import { GarethDuncanDev } from './garethduncandev.js';
-import { GAZZDEV_VERSION } from './version.js';
+import GarethDuncanDev from './garethduncandev.js';
 
-const version = GAZZDEV_VERSION;
+const dev = new GarethDuncanDev();
+
+const version = dev.version;
 console.log(`v${version}`);
 
-const gazzDev = new GarethDuncanDev();
-const message = gazzDev.readme();
+const message = dev.readme();
 console.log(message);

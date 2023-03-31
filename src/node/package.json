@@ -2,14 +2,15 @@
   "name": "garethduncandev",
   "version": "0.0.22",
   "description": "About garethduncandev",
-  "main": "dist/main.js",
-  "types": "dist/main.d.js",
+  "main": "dist/garethduncandev.js",
+  "types": "dist/garethduncandev.d.js",
   "type": "module",
   "files": [
     "dist/**/*"
   ],
   "scripts": {
-    "prebuild": "node -p \"'export const GAZZDEV_VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
+    "start": "npx ts-node --esm src/index.ts",
+    "prebuild": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
     "build": "tsc",
     "prepare": "npm run build",
     "test": "jest",
