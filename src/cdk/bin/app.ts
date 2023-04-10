@@ -1,60 +1,52 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { RemovalPolicy } from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
-import { EnvironmentStackProps, RootStack } from '../lib/root-stack';
+import { RootStack, RootStackProps } from '../lib/root-stack';
+import { EnvironmentVariables } from './environmentVariables';
 
 // load environment variables if .env file is present
 dotenv.config();
 
 const app = new cdk.App();
-const defaultAccount = getEnvironmentVariableValue('CDK_DEFAULT_ACCOUNT');
-const defaultRegion = getEnvironmentVariableValue('CDK_DEFAULT_REGION');
-const environment = getEnvironmentVariableValue('CDK_ENVIRONMENT');
-const color = getEnvironmentVariableValue('CDK_ENVIRONMENT_COLOR');
-const appName = getEnvironmentVariableValue('CDK_APP_NAME');
-const domain = getEnvironmentVariableValue('CDK_DOMAIN');
-const hostedZoneId = getEnvironmentVariableValue('CDK_HOSTED_ZONE_ID');
-const cloudFrontDomainCertificateArn = getEnvironmentVariableValue(
-  'CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN'
-);
-const removalPolicy =
-  getEnvironmentVariableValue('CDK_REMOVAL_POLICY') === 'DESTROY'
-    ? RemovalPolicy.DESTROY
-    : RemovalPolicy.RETAIN;
-const robotsNoIndex =
-  getEnvironmentVariableValue('CDK_ROBOTS_NO_INDEX') === 'true' ? true : false;
 
-const stackName = `${appName}-${environment}-${color}`;
+const environmentVariables = parseEnvironmentVariables();
 
-const absoluteDomainName =
-  process.env.CDK_ABSOLUTE_DOMAIN ?? `${environment}-${color}.${domain}`;
+const rootStackName = `${environmentVariables.CDK_APP_NAME}-${environmentVariables.CDK_ENVIRONMENT}-${environmentVariables.CDK_ENVIRONMENT_COLOR}`;
 
-const rootStackProps: EnvironmentStackProps = {
-  environment: environment,
-  color: color,
-  cloudFrontDomainCertificateArn: cloudFrontDomainCertificateArn,
-  appName: appName,
-  domain: domain,
-  hostedZoneId: hostedZoneId,
-  removalPolicy: removalPolicy,
-  bucketName: stackName,
-  env: {
-    account: defaultAccount,
-    region: defaultRegion,
-  },
-  absoluteDomainName: absoluteDomainName,
-  robotsNoIndex: robotsNoIndex,
+const rootStackProps: RootStackProps = {
+  environmentVariables: environmentVariables,
 };
 
-new RootStack(app, stackName, rootStackProps);
+new RootStack(app, rootStackName, rootStackProps);
 
-function getEnvironmentVariableValue(variableName: string): string {
-  const value = process.env[variableName];
+function parseEnvironmentVariables(): EnvironmentVariables {
+  return {
+    CDK_ROBOTS_NO_INDEX: process.env.CDK_ROBOTS_NO_INDEX === 'true',
+    CDK_APP_NAME: process.env.CDK_APP_NAME ?? '',
+    CDK_ENVIRONMENT: process.env.CDK_ENVIRONMENT ?? '',
+    CDK_ENVIRONMENT_COLOR: process.env.CDK_ENVIRONMENT_COLOR ?? '',
+    CDK_DOMAIN: process.env.CDK_DOMAIN ?? '',
+    CDK_ABSOLUTE_DOMAIN: process.env.CDK_ABSOLUTE_DOMAIN ?? '',
+    CDK_HOSTED_ZONE_ID: process.env.CDK_HOSTED_ZONE_ID ?? '',
+    CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN:
+      process.env.CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN ?? '',
+    CDK_REMOVAL_POLICY: cdk.RemovalPolicy.DESTROY,
+    CDK_DEFAULT_ACCOUNT: process.env.CDK_DEFAULT_ACCOUNT ?? '',
+    CDK_DEFAULT_REGION: process.env.CDK_DEFAULT_REGION ?? '',
+    CDK_API_TIMEOUT: process.env.CDK_API_TIMEOUT
+      ? parseInt(process.env.CDK_API_TIMEOUT)
+      : 0,
+    CDK_API_DEFAULTMEMORYALLOCATION: process.env.CDK_API_DEFAULTMEMORYALLOCATION
+      ? parseInt(process.env.CDK_API_DEFAULTMEMORYALLOCATION)
+      : 0,
+    CDK_API_CORS_ALLOWORIGINS: JSON.parse(
+      process.env.CDK_API_CORS_ALLOWORIGINS ?? '[]'
+    ),
+    CDK_API_CORS_ALLOWHEADERS: JSON.parse(
+      process.env.CDK_API_CORS_ALLOWHEADERS ?? '[]'
+    ),
 
-  if (!value) {
-    throw new Error(`${variableName} value is null or undefined`);
-  }
-
-  return value;
+    CDK_API_IMAGE_ASSET_DIRECTORY:
+      process.env.CDK_API_IMAGE_ASSET_DIRECTORY ?? '',
+  };
 }

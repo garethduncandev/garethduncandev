@@ -1,73 +1,64 @@
 import * as cdk from 'aws-cdk-lib';
-import { NestedStackProps, RemovalPolicy, StackProps } from 'aws-cdk-lib';
 import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
-import {
-  BlockPublicAccess,
-  Bucket,
-  HttpMethods,
-  IBucket,
-} from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { AppStack } from './app-stack';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-// Mapped to .env
-export interface EnvironmentStackProps extends StackProps {
-  environment: string;
-  color: string;
-  domain: string;
-  hostedZoneId: string;
-  cloudFrontDomainCertificateArn: string;
-  appName: string;
-  removalPolicy: RemovalPolicy;
-  bucketName: string;
-  absoluteDomainName: string;
-  robotsNoIndex: boolean;
-}
+import { EnvironmentVariables } from '../bin/environmentVariables';
 
-export interface RootNestedStackProps extends NestedStackProps {
-  environmentStackProps: EnvironmentStackProps;
-  bucket: IBucket;
-  hostedZone: IHostedZone;
+// nested stacks
+import { ApiGatewayStack } from './api-gateway-stack';
+import { ApiLambdaStack } from './api-lambda-function-stack';
+import { UiStack } from './ui-stack';
+import { CloudFrontDistributionStack } from './cloudfront-distribution-stack';
+
+export interface RootStackProps extends cdk.StackProps {
+  environmentVariables: EnvironmentVariables;
 }
 
 export class RootStack extends cdk.Stack {
   public constructor(
     scope: Construct,
-    stackName: string,
-    props: EnvironmentStackProps
+    rootStackName: string,
+    props: RootStackProps
   ) {
-    super(scope, stackName, props);
+    super(scope, rootStackName, props);
 
-    const hostedZone = this.getHostedZone(props.hostedZoneId, props.domain);
+    const hostedZone = this.getHostedZone(
+      props.environmentVariables.CDK_HOSTED_ZONE_ID,
+      props.environmentVariables.CDK_DOMAIN
+    );
 
-    // for cloudfront hosting and any storage for the api
-    const bucket = this.createBucket(props.bucketName, props.removalPolicy);
+    const apiLambdaStack = new ApiLambdaStack(this, `api-lambda`, {
+      rootStackName: rootStackName,
+      environmentVariables: props.environmentVariables,
+    });
 
-    const rootNestedStackProps = {
-      environmentStackProps: props,
-      bucket: bucket,
+    const apiGatewayStack = new ApiGatewayStack(this, `api-gateway`, {
+      rootStackName: rootStackName,
+      dockerImageLambdaFunction: apiLambdaStack.dockerImageLambdaFunction,
+      allowHeaders: props.environmentVariables.CDK_API_CORS_ALLOWHEADERS,
+      allowOrigins: props.environmentVariables.CDK_API_CORS_ALLOWORIGINS,
+    });
+
+    // for cloudfront distribution
+    const cloudFrontDistributionStack = new CloudFrontDistributionStack(
+      this,
+      `cloudfront`,
+      {
+        httpApi: apiGatewayStack.httpApi,
+        hostedZone: hostedZone,
+        environmentVariables: props.environmentVariables,
+        uiHostingS3Bucket: `${rootStackName}-ui-hosting`,
+        rootStackName: rootStackName,
+      }
+    );
+
+    // deploy UI static app to s3 bucket and cloudfront distribution
+    new UiStack(this, `ui`, {
+      environmentVariables: props.environmentVariables,
+      cloudFrontDistributionBucket:
+        cloudFrontDistributionStack.cloudFrontDistributionBucket,
       hostedZone: hostedZone,
-    } as RootNestedStackProps;
-
-    new AppStack(this, `${stackName}-app`, rootNestedStackProps);
-  }
-
-  private createBucket(
-    bucketName: string,
-    removalPolicy: RemovalPolicy
-  ): IBucket {
-    return new Bucket(this, `${bucketName}-bucket`, {
-      removalPolicy: removalPolicy,
-      bucketName: bucketName,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      cors: [
-        {
-          allowedMethods: [HttpMethods.GET],
-          allowedOrigins: ['*'],
-          allowedHeaders: ['*'],
-        },
-      ],
+      cloudFrontDistribution: cloudFrontDistributionStack.distribution,
     });
   }
 

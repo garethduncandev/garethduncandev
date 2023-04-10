@@ -21,7 +21,7 @@ steps:
   - script: npm ci --cache $(npm_config_cache)
     workingDirectory: src/app
     displayName: "Install npm modules"
-
+    
   - script: npm run build
     env:
       PUBLIC_API_URL: "***REPLACE_API_URL***"
@@ -33,3 +33,14 @@ steps:
       PUBLIC_ENVIRONMENT_COLOR: "***REPLACE_ENVIRONMENT_COLOR***"
     workingDirectory: src/app
     displayName: "Build sveltekit app"
+    
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk'
+    inputs:
+        packageType: sdk
+        version: 7.x
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+    
+  - script: dotnet publish --configuration "Release" /p:GenerateRuntimeConfigurationFiles=true --runtime linux-x64 --self-contained false
+    displayName: "Build .net api"
+    workingDirectory: src/api/src/WebUI
