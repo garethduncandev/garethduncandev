@@ -25,16 +25,22 @@ export class UiStack extends NestedStack {
 
     this.deployment(
       appStackProps.cloudFrontDistributionBucket,
-      appStackProps.cloudFrontDistribution
+      appStackProps.cloudFrontDistribution,
+      appStackProps.environmentVariables
     );
   }
 
   private deployment(
     bucket: IBucket,
-    distribution: Distribution
+    distribution: Distribution,
+    environmentVariables: EnvironmentVariables
   ): BucketDeployment {
     return new BucketDeployment(this, 'ui-deployment', {
-      sources: [Source.asset(path.join(__dirname, '../../app/build'))],
+      sources: [
+        Source.asset(
+          path.join(__dirname, environmentVariables.CDK_UI_OUTPUT_DIRECTOR)
+        ),
+      ],
       destinationKeyPrefix: `app`,
       destinationBucket: bucket,
       prune: true,

@@ -48,5 +48,10 @@ function parseEnvironmentVariables(): EnvironmentVariables {
 
     CDK_API_IMAGE_ASSET_DIRECTORY:
       process.env.CDK_API_IMAGE_ASSET_DIRECTORY ?? '',
+    CDK_UI_OUTPUT_DIRECTOR: process.env.CDK_UI_OUTPUT_DIRECTOR ?? '',
+    CDK_API_ASPNETCORE_ENVIRONMENT:
+      process.env.CDK_API_ASPNETCORE_ENVIRONMENT ?? '',
+    CDK_API_ASPNETCORE_ENVIRONMENT_COLOR:
+      process.env.CDK_API_ASPNETCORE_ENVIRONMENT_COLOR ?? '',
   };
 }

@@ -133,7 +133,6 @@ export class CloudFrontDistributionStack extends NestedStack {
         responseHeadersPolicy: responseHeadersPolicy,
       },
       domainNames: absoluteDomainNames,
-
       certificate: cloudFrontDomainCertificate,
       defaultRootObject: 'index.html',
       errorResponses: [

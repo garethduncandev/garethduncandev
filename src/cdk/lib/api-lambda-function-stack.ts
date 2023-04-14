@@ -51,14 +51,12 @@ export class ApiLambdaStack extends NestedStack {
       memorySize: props.environmentVariables.CDK_API_DEFAULTMEMORYALLOCATION,
       timeout: Duration.seconds(props.environmentVariables.CDK_API_TIMEOUT),
       environment: {
-        ASPNETCORE_ENVIRONMENT: this.capitalizeFirstLetter(
-          props.environmentVariables.CDK_ENVIRONMENT
-        ),
+        ASPNETCORE_ENVIRONMENT: 
+        
+          props.environmentVariables.CDK_API_ASPNETCORE_ENVIRONMENT,
+   
+          
       },
     });
-  }
-
-  private capitalizeFirstLetter(value: string): string {
-    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 }
