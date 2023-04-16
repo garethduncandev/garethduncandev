@@ -2,11 +2,11 @@ import { Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { DockerImageCode, DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { EnvironmentVariables } from '../bin/environmentVariables';
+import { StackVariables } from '../bin/stackVariables';
 
 export interface ApiLambdaStackProps extends NestedStackProps {
   rootStackName: string;
-  environmentVariables: EnvironmentVariables;
+  stackVariables: StackVariables;
 }
 
 export class ApiLambdaStack extends NestedStack {
@@ -21,7 +21,7 @@ export class ApiLambdaStack extends NestedStack {
 
     // create docker image function
     const dockerImageCode = this.createDockerImageCodeFromAsset(
-      apiStackProps.environmentVariables.CDK_API_IMAGE_ASSET_DIRECTORY
+      '../../api/src/WebUI/bin/Release/net7.0/linux-x64/publish'
     );
 
     this.dockerImageLambdaFunction = this.createDockerImageLambdaFunction(
@@ -48,14 +48,11 @@ export class ApiLambdaStack extends NestedStack {
     return new DockerImageFunction(this, functionName, {
       functionName: functionName,
       code: apiCode,
-      memorySize: props.environmentVariables.CDK_API_DEFAULTMEMORYALLOCATION,
-      timeout: Duration.seconds(props.environmentVariables.CDK_API_TIMEOUT),
+      memorySize: props.stackVariables.environment.apiDefaultMemoryAllocation,
+      timeout: Duration.seconds(props.stackVariables.environment.apiTimeout),
       environment: {
-        ASPNETCORE_ENVIRONMENT: 
-        
-          props.environmentVariables.CDK_API_ASPNETCORE_ENVIRONMENT,
-   
-          
+        ASPNETCORE_ENVIRONMENT:
+          props.stackVariables.environment.aspNetCoreEnvironment,
       },
     });
   }

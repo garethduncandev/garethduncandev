@@ -4,12 +4,12 @@ import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
-import { EnvironmentVariables } from '../bin/environmentVariables';
+import { StackVariables } from '../bin/stackVariables';
 
 import path = require('path');
 
 export interface UiStackProps extends NestedStackProps {
-  environmentVariables: EnvironmentVariables;
+  stackVariables: StackVariables;
   cloudFrontDistributionBucket: IBucket;
   hostedZone: IHostedZone;
   cloudFrontDistribution: Distribution;
@@ -25,22 +25,16 @@ export class UiStack extends NestedStack {
 
     this.deployment(
       appStackProps.cloudFrontDistributionBucket,
-      appStackProps.cloudFrontDistribution,
-      appStackProps.environmentVariables
+      appStackProps.cloudFrontDistribution
     );
   }
 
   private deployment(
     bucket: IBucket,
-    distribution: Distribution,
-    environmentVariables: EnvironmentVariables
+    distribution: Distribution
   ): BucketDeployment {
     return new BucketDeployment(this, 'ui-deployment', {
-      sources: [
-        Source.asset(
-          path.join(__dirname, environmentVariables.CDK_UI_OUTPUT_DIRECTORY)
-        ),
-      ],
+      sources: [Source.asset(path.join(__dirname, '../../app/build'))],
       destinationKeyPrefix: `app`,
       destinationBucket: bucket,
       prune: true,

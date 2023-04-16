@@ -1,0 +1,9 @@
+{
+    "environmentName": "development",
+    "removalPolicy": "destroy",
+    "robotsNoIndex": true,
+    "apiTimeout": 300,
+    "apiDefaultMemoryAllocation": 128,
+    "aspNetCoreEnvironment": "Development",
+    "production": false
+}

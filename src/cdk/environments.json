@@ -1,0 +1,46 @@
+[
+    {
+        "environmentName": "development",
+        "environmentColor": "blue",
+        "removalPolicy": "destroy",
+        "robotsNoIndex": true,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "aspNetCoreEnvironment": "Development",
+        "aspNetCoreEnvironmentColor": "Blue",
+        "production": false
+    },
+    {
+        "environmentName": "test",
+        "environmentColor": "blue",
+        "removalPolicy": "destroy",
+        "robotsNoIndex": true,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "aspNetCoreEnvironment": "Test",
+        "aspNetCoreEnvironmentColor": "Blue",
+        "production": false
+    },
+    {
+        "environmentName": "production",
+        "environmentColor": "blue",
+        "removalPolicy": "retain",
+        "robotsNoIndex": false,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "aspNetCoreEnvironment": "Production",
+        "aspNetCoreEnvironmentColor": "Blue",
+        "production": true
+    },
+    {
+        "environmentName": "production",
+        "environmentColor": "green",
+        "removalPolicy": "retain",
+        "robotsNoIndex": false,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "aspNetCoreEnvironment": "Production",
+        "aspNetCoreEnvironmentColor": "Green",
+        "production": true
+    }
+]

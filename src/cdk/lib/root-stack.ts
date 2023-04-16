@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 
-import { EnvironmentVariables } from '../bin/environmentVariables';
+import { StackVariables } from '../bin/stackVariables';
 
 // nested stacks
 import { ApiGatewayStack } from './api-gateway-stack';
@@ -11,7 +11,7 @@ import { UiStack } from './ui-stack';
 import { CloudFrontDistributionStack } from './cloudfront-distribution-stack';
 
 export interface RootStackProps extends cdk.StackProps {
-  environmentVariables: EnvironmentVariables;
+  stackVariables: StackVariables;
 }
 
 export class RootStack extends cdk.Stack {
@@ -23,20 +23,20 @@ export class RootStack extends cdk.Stack {
     super(scope, rootStackName, props);
 
     const hostedZone = this.getHostedZone(
-      props.environmentVariables.CDK_HOSTED_ZONE_ID,
-      props.environmentVariables.CDK_DOMAIN
+      props.stackVariables.appVariables.CDK_HOSTED_ZONE_ID,
+      props.stackVariables.appVariables.CDK_DOMAIN
     );
 
     const apiLambdaStack = new ApiLambdaStack(this, `api-lambda`, {
       rootStackName: rootStackName,
-      environmentVariables: props.environmentVariables,
+      stackVariables: props.stackVariables,
     });
 
     const apiGatewayStack = new ApiGatewayStack(this, `api-gateway`, {
       rootStackName: rootStackName,
       dockerImageLambdaFunction: apiLambdaStack.dockerImageLambdaFunction,
-      allowHeaders: props.environmentVariables.CDK_API_CORS_ALLOWHEADERS,
-      allowOrigins: props.environmentVariables.CDK_API_CORS_ALLOWORIGINS,
+      allowHeaders: ['*'],
+      allowOrigins: props.stackVariables.apiAllowedOrigins,
     });
 
     // for cloudfront distribution
@@ -46,7 +46,7 @@ export class RootStack extends cdk.Stack {
       {
         httpApi: apiGatewayStack.httpApi,
         hostedZone: hostedZone,
-        environmentVariables: props.environmentVariables,
+        stackVariables: props.stackVariables,
         uiHostingS3Bucket: `${rootStackName}-ui-hosting`,
         rootStackName: rootStackName,
       }
@@ -54,7 +54,7 @@ export class RootStack extends cdk.Stack {
 
     // deploy UI static app to s3 bucket and cloudfront distribution
     new UiStack(this, `ui`, {
-      environmentVariables: props.environmentVariables,
+      stackVariables: props.stackVariables,
       cloudFrontDistributionBucket:
         cloudFrontDistributionStack.cloudFrontDistributionBucket,
       hostedZone: hostedZone,
