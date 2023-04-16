@@ -38,7 +38,7 @@ export class UiStack extends NestedStack {
     return new BucketDeployment(this, 'ui-deployment', {
       sources: [
         Source.asset(
-          path.join(__dirname, environmentVariables.CDK_UI_OUTPUT_DIRECTOR)
+          path.join(__dirname, environmentVariables.CDK_UI_OUTPUT_DIRECTORY)
         ),
       ],
       destinationKeyPrefix: `app`,

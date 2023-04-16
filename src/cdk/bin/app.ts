@@ -39,16 +39,13 @@ function parseEnvironmentVariables(): EnvironmentVariables {
     CDK_API_DEFAULTMEMORYALLOCATION: process.env.CDK_API_DEFAULTMEMORYALLOCATION
       ? parseInt(process.env.CDK_API_DEFAULTMEMORYALLOCATION)
       : 0,
-    CDK_API_CORS_ALLOWORIGINS: JSON.parse(
-      process.env.CDK_API_CORS_ALLOWORIGINS ?? '[]'
-    ),
-    CDK_API_CORS_ALLOWHEADERS: JSON.parse(
-      process.env.CDK_API_CORS_ALLOWHEADERS ?? '[]'
-    ),
-
+    CDK_API_CORS_ALLOWORIGINS:
+      process.env.CDK_API_CORS_ALLOWORIGINS?.split(',') ?? [],
+    CDK_API_CORS_ALLOWHEADERS:
+      process.env.CDK_API_CORS_ALLOWHEADERS?.split(',') ?? [],
     CDK_API_IMAGE_ASSET_DIRECTORY:
       process.env.CDK_API_IMAGE_ASSET_DIRECTORY ?? '',
-    CDK_UI_OUTPUT_DIRECTOR: process.env.CDK_UI_OUTPUT_DIRECTOR ?? '',
+    CDK_UI_OUTPUT_DIRECTORY: process.env.CDK_UI_OUTPUT_DIRECTORY ?? '',
     CDK_API_ASPNETCORE_ENVIRONMENT:
       process.env.CDK_API_ASPNETCORE_ENVIRONMENT ?? '',
     CDK_API_ASPNETCORE_ENVIRONMENT_COLOR:

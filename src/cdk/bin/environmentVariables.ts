@@ -18,7 +18,7 @@ export class EnvironmentVariables {
     public CDK_API_CORS_ALLOWORIGINS: string[],
     public CDK_API_CORS_ALLOWHEADERS: string[],
     public CDK_API_IMAGE_ASSET_DIRECTORY: string,
-    public CDK_UI_OUTPUT_DIRECTOR: string,
+    public CDK_UI_OUTPUT_DIRECTORY: string,
     public CDK_API_ASPNETCORE_ENVIRONMENT: string,
     public CDK_API_ASPNETCORE_ENVIRONMENT_COLOR: string
   ) {}
