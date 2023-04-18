@@ -10,10 +10,11 @@ import { Construct } from 'constructs';
 export class ResponseHeadersPolicyHelper {
   public static getResponseHeaderPolicy(
     scope: Construct,
-    stackName: string,
+    rootStackName: string,
+    nestedStackName: string,
     robotsNoIndex: boolean
   ): IResponseHeadersPolicy {
-    const policyName = `${stackName}-response-headers-policy`;
+    const policyName = `${rootStackName}-${nestedStackName}-response-headers-policy`;
     return new ResponseHeadersPolicy(scope, policyName, {
       responseHeadersPolicyName: policyName,
       corsBehavior: this.corsBehaviour(),

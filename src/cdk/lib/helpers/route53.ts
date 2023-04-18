@@ -6,15 +6,20 @@ import { Construct } from 'constructs';
 export class Route53Helper {
   public static cloudFrontDistributionRoute53ARecord(
     scope: Construct,
-    stackName: string,
+    rootStackName: string,
+    nestedStackName: string,
     hostedZone: IHostedZone,
     recordName: string,
     distribution: Distribution
   ): ARecord {
-    return new ARecord(scope, `${stackName}-alias-record`, {
-      recordName: recordName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
-      zone: hostedZone,
-    });
+    return new ARecord(
+      scope,
+      `${rootStackName}-${nestedStackName}-alias-record`,
+      {
+        recordName: recordName,
+        target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+        zone: hostedZone,
+      }
+    );
   }
 }

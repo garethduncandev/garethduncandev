@@ -60,6 +60,7 @@ export class CloudFrontDistributionStack extends NestedStack {
     const responseHeadersPolicy =
       ResponseHeadersPolicyHelper.getResponseHeaderPolicy(
         this,
+        cloudFrontDistributionStackProps.rootStackName,
         nestedStackName,
         cloudFrontDistributionStackProps.stackVariables.environment
           .robotsNoIndex
@@ -78,6 +79,7 @@ export class CloudFrontDistributionStack extends NestedStack {
     // So we can query this to invalidate if required
     ExportHelper.createExport(
       this,
+      cloudFrontDistributionStackProps.rootStackName,
       nestedStackName,
       this.distribution.distributionId,
       'cloudfront distributionId',
@@ -86,6 +88,7 @@ export class CloudFrontDistributionStack extends NestedStack {
 
     Route53Helper.cloudFrontDistributionRoute53ARecord(
       this,
+      cloudFrontDistributionStackProps.rootStackName,
       nestedStackName,
       cloudFrontDistributionStackProps.hostedZone,
       cloudFrontDistributionStackProps.stackVariables.fullDomainName,
@@ -117,7 +120,7 @@ export class CloudFrontDistributionStack extends NestedStack {
       scope,
       `${rootStackName}-${nestedStackName}-OAI`,
       {
-        comment: `Createdby_${nestedStackName}_cdk-OAI`,
+        comment: `Createdby_${rootStackName}-${nestedStackName}_cdk-OAI`,
       }
     );
 
