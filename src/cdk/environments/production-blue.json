@@ -1,9 +1,0 @@
-{
-    "environmentName": "production-blue",
-    "removalPolicy": "retain",
-    "robotsNoIndex": false,
-    "apiTimeout": 300,
-    "apiDefaultMemoryAllocation": 128,
-    "aspNetCoreEnvironment": "Production",
-    "production": true
-}

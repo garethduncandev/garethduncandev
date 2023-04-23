@@ -7,18 +7,19 @@ export class StackVariables {
     public environment: Environment
   ) {}
   public get fullDomainName(): string {
-    return `${this.environment.environmentName}-${this.environment.environmentColor}.${this.appVariables.CDK_DOMAIN}`;
+    return `${this.environment.environmentName}-${this.environment.deploymentName}.${this.appVariables.CDK_DOMAIN}`;
   }
 
   public get apiAllowedOrigins(): string[] {
-    return this.environment.production
-      ? [
-          `https://${this.fullDomainName}`,
-          `https://${this.appVariables.CDK_DOMAIN}`,
-        ]
-      : [
-          `https://${this.fullDomainName}`,
-          `https://${this.appVariables.CDK_UI_LOCALHOST_URL}`,
-        ];
+    const origins = [
+      `https://${this.fullDomainName}`,
+      `https://${this.appVariables.CDK_DOMAIN}`,
+    ];
+
+    if (this.environment.allowLocalHostAccess) {
+      origins.push(this.appVariables.CDK_UI_LOCALHOST_URL);
+    }
+
+    return origins;
   }
 }

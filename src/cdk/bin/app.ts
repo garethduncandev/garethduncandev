@@ -24,7 +24,7 @@ function createStackEnvironment(
 ): void {
   const stackVariables = new StackVariables(appVariables, environment);
 
-  const rootStackName = `${appVariables.CDK_APP_NAME}-${environment.environmentName}-${environment.environmentColor}`;
+  const rootStackName = `${appVariables.CDK_APP_NAME}-${environment.environmentName}-${environment.deploymentName}`;
   const rootStackProps: RootStackProps = {
     stackVariables: stackVariables,
   };

@@ -1,46 +1,46 @@
 [
     {
         "environmentName": "development",
-        "environmentColor": "blue",
+        "deploymentName": "blue",
         "removalPolicy": "destroy",
         "robotsNoIndex": true,
         "apiTimeout": 300,
         "apiDefaultMemoryAllocation": 128,
         "aspNetCoreEnvironment": "Development",
         "aspNetCoreEnvironmentColor": "Blue",
-        "production": false
+        "allowLocalHostAccess": false
     },
     {
         "environmentName": "test",
-        "environmentColor": "blue",
+        "deploymentName": "blue",
         "removalPolicy": "destroy",
         "robotsNoIndex": true,
         "apiTimeout": 300,
         "apiDefaultMemoryAllocation": 128,
         "aspNetCoreEnvironment": "Test",
         "aspNetCoreEnvironmentColor": "Blue",
-        "production": false
+        "allowLocalHostAccess": false
     },
     {
         "environmentName": "production",
-        "environmentColor": "blue",
+        "deploymentName": "blue",
         "removalPolicy": "retain",
         "robotsNoIndex": false,
         "apiTimeout": 300,
         "apiDefaultMemoryAllocation": 128,
         "aspNetCoreEnvironment": "Production",
         "aspNetCoreEnvironmentColor": "Blue",
-        "production": true
+        "allowLocalHostAccess": false
     },
     {
         "environmentName": "production",
-        "environmentColor": "green",
+        "deploymentName": "green",
         "removalPolicy": "retain",
         "robotsNoIndex": false,
         "apiTimeout": 300,
         "apiDefaultMemoryAllocation": 128,
         "aspNetCoreEnvironment": "Production",
         "aspNetCoreEnvironmentColor": "Green",
-        "production": true
+        "allowLocalHostAccess": false
     }
 ]
