@@ -4,12 +4,12 @@ import { IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs';
-import { StackVariables } from '../bin/stackVariables';
+import { StackOptions } from '../bin/stackOptions';
 
 import path = require('path');
 
 export interface UiStackProps extends NestedStackProps {
-  stackVariables: StackVariables;
+  stackOptions: StackOptions;
   cloudFrontDistributionBucket: IBucket;
   hostedZone: IHostedZone;
   cloudFrontDistribution: Distribution;

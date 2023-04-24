@@ -1,46 +1,24 @@
 [
     {
         "environmentName": "development",
-        "deploymentName": "blue",
         "removalPolicy": "destroy",
         "robotsNoIndex": true,
-        "apiTimeout": 300,
-        "apiDefaultMemoryAllocation": 128,
-        "aspNetCoreEnvironment": "Development",
-        "aspNetCoreEnvironmentColor": "Blue",
-        "allowLocalHostAccess": false
-    },
-    {
-        "environmentName": "test",
-        "deploymentName": "blue",
-        "removalPolicy": "destroy",
-        "robotsNoIndex": true,
-        "apiTimeout": 300,
-        "apiDefaultMemoryAllocation": 128,
-        "aspNetCoreEnvironment": "Test",
-        "aspNetCoreEnvironmentColor": "Blue",
-        "allowLocalHostAccess": false
-    },
-    {
-        "environmentName": "production",
-        "deploymentName": "blue",
-        "removalPolicy": "retain",
-        "robotsNoIndex": false,
-        "apiTimeout": 300,
-        "apiDefaultMemoryAllocation": 128,
-        "aspNetCoreEnvironment": "Production",
-        "aspNetCoreEnvironmentColor": "Blue",
-        "allowLocalHostAccess": false
-    },
-    {
-        "environmentName": "production",
-        "deploymentName": "green",
-        "removalPolicy": "retain",
-        "robotsNoIndex": false,
-        "apiTimeout": 300,
-        "apiDefaultMemoryAllocation": 128,
-        "aspNetCoreEnvironment": "Production",
-        "aspNetCoreEnvironmentColor": "Green",
-        "allowLocalHostAccess": false
+         "apiTimeout": 300,
+         "apiDefaultMemoryAllocation": 128,
+         "allowLocalHostAccess": false,
+         "domainName": "{environmentName}.{domainName}",
+         "deployments":[
+            {
+                "deploymentName": "blue",
+                "aspNetCoreEnvironment": "Development",
+                "aspNetCoreEnvironmentDeploymentName": "Blue"
+            },
+            {
+                "deploymentName": "green",
+                "aspNetCoreEnvironment": "Development",
+                "aspNetCoreEnvironmentDeploymentName": "Green"
+
+            }
+         ]
     }
 ]

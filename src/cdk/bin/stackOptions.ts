@@ -1,13 +1,18 @@
 import { AppVariables } from './appVariables';
-import { Environment } from './environment';
+import {
+  DeploymentStackOptionsModel,
+  EnvironmentOptionsModel,
+} from './environment-deployment';
 
-export class StackVariables {
+export class StackOptions {
   public constructor(
     public appVariables: AppVariables,
-    public environment: Environment
+    public environment: EnvironmentOptionsModel,
+    public deploymentOptions: DeploymentStackOptionsModel
   ) {}
+
   public get fullDomainName(): string {
-    return `${this.environment.environmentName}-${this.environment.deploymentName}.${this.appVariables.CDK_DOMAIN}`;
+    return `${this.environment.environmentName}-${this.deploymentOptions.deploymentName}.${this.appVariables.CDK_DOMAIN}`;
   }
 
   public get apiAllowedOrigins(): string[] {

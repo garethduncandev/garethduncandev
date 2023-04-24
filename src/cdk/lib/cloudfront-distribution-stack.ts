@@ -22,13 +22,13 @@ import {
   IBucket,
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
-import { StackVariables } from '../bin/stackVariables';
+import { StackOptions } from '../bin/stackOptions';
 import { ExportHelper } from './helpers/exports';
 import { ResponseHeadersPolicyHelper } from './helpers/reponse-headers-policy';
 import { Route53Helper } from './helpers/route53';
 
 export interface CloudFrontDistributionStackProps extends NestedStackProps {
-  stackVariables: StackVariables;
+  stackOptions: StackOptions;
   hostedZone: IHostedZone;
   uiHostingS3Bucket: string;
   rootStackName: string;
@@ -48,12 +48,12 @@ export class CloudFrontDistributionStack extends NestedStack {
 
     this.cloudFrontDistributionBucket = this.createCloudFrontDistributionBucket(
       cloudFrontDistributionStackProps.uiHostingS3Bucket,
-      cloudFrontDistributionStackProps.stackVariables.environment.removalPolicy
+      cloudFrontDistributionStackProps.stackOptions.environment.removalPolicy
     );
 
     // S3 bucket to host angular application, to be served up via cloudfront
     const cloudFrontDomainCertificate = this.cloudFrontDomainCertificate(
-      cloudFrontDistributionStackProps.stackVariables.appVariables
+      cloudFrontDistributionStackProps.stackOptions.appVariables
         .CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN
     );
 
@@ -62,15 +62,14 @@ export class CloudFrontDistributionStack extends NestedStack {
         this,
         cloudFrontDistributionStackProps.rootStackName,
         nestedStackName,
-        cloudFrontDistributionStackProps.stackVariables.environment
-          .robotsNoIndex
+        cloudFrontDistributionStackProps.stackOptions.environment.robotsNoIndex
       );
 
     this.distribution = this.cloudFrontDistribution(
       scope,
       nestedStackName,
       cloudFrontDistributionStackProps.rootStackName,
-      cloudFrontDistributionStackProps.stackVariables.fullDomainName,
+      cloudFrontDistributionStackProps.stackOptions.fullDomainName,
       cloudFrontDomainCertificate,
       this.cloudFrontDistributionBucket,
       responseHeadersPolicy
@@ -83,7 +82,16 @@ export class CloudFrontDistributionStack extends NestedStack {
       nestedStackName,
       this.distribution.distributionId,
       'cloudfront distributionId',
-      'appCloudFrontDistributionId'
+      'cloudFrontDistributionId'
+    );
+
+    ExportHelper.createExport(
+      this,
+      cloudFrontDistributionStackProps.rootStackName,
+      nestedStackName,
+      this.distribution.distributionDomainName,
+      'cloudfront domain name',
+      'cloudFrontDistributionDomainName'
     );
 
     Route53Helper.cloudFrontDistributionRoute53ARecord(
@@ -91,14 +99,14 @@ export class CloudFrontDistributionStack extends NestedStack {
       cloudFrontDistributionStackProps.rootStackName,
       nestedStackName,
       cloudFrontDistributionStackProps.hostedZone,
-      cloudFrontDistributionStackProps.stackVariables.fullDomainName,
+      cloudFrontDistributionStackProps.stackOptions.fullDomainName,
       this.distribution
     );
 
     this.addHttpApiOrigin(
       this.distribution,
       cloudFrontDistributionStackProps.httpApi,
-      cloudFrontDistributionStackProps.stackVariables.fullDomainName,
+      cloudFrontDistributionStackProps.stackOptions.fullDomainName,
       responseHeadersPolicy
     );
 

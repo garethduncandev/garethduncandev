@@ -2,11 +2,11 @@ import { Duration, NestedStack, NestedStackProps } from 'aws-cdk-lib';
 import { DockerImageCode, DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import * as path from 'path';
-import { StackVariables } from '../bin/stackVariables';
+import { StackOptions } from '../bin/stackOptions';
 
 export interface ApiLambdaStackProps extends NestedStackProps {
   rootStackName: string;
-  stackVariables: StackVariables;
+  stackOptions: StackOptions;
 }
 
 export class ApiLambdaStack extends NestedStack {
@@ -48,11 +48,11 @@ export class ApiLambdaStack extends NestedStack {
     return new DockerImageFunction(this, functionName, {
       functionName: functionName,
       code: apiCode,
-      memorySize: props.stackVariables.environment.apiDefaultMemoryAllocation,
-      timeout: Duration.seconds(props.stackVariables.environment.apiTimeout),
+      memorySize: props.stackOptions.environment.apiDefaultMemoryAllocation,
+      timeout: Duration.seconds(props.stackOptions.environment.apiTimeout),
       environment: {
         ASPNETCORE_ENVIRONMENT:
-          props.stackVariables.environment.aspNetCoreEnvironment,
+          props.stackOptions.deploymentOptions.aspNetCoreEnvironment,
       },
     });
   }

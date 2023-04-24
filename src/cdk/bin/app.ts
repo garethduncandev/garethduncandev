@@ -1,11 +1,18 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
+import * as environmentOptionsJson from '../environments.json';
+import {
+  DnsSwitchStack,
+  ChosenDeploymentStackProps,
+} from '../lib/dns-switch-stack';
 import { RootStack, RootStackProps } from '../lib/root-stack';
-import { StackVariables as StackVariables } from './stackVariables';
 import { AppVariables } from './appVariables';
-import * as environments from '../environments.json';
-import { Environment } from './environment';
+import {
+  DeploymentStackOptionsModel,
+  EnvironmentOptionsModel,
+} from './environment-deployment';
+import { StackOptions } from './stackOptions';
 
 // load environment variables if .env file is present
 dotenv.config();
@@ -14,22 +21,49 @@ const app = new cdk.App();
 
 const appVariables = parseAppEnv();
 
-for (const environment of environments as Environment[]) {
-  createStackEnvironment(appVariables, environment);
+const environmentOptions = parseEnvironmentsJson();
+
+// Create stacks for all environment deployments e.g. development-blue, test-green, production-blue
+for (const options of environmentOptions) {
+  for (const deploymentOptions of options.deployments) {
+    createStackEnvironmentDeployment(appVariables, options, deploymentOptions);
+  }
 }
 
-function createStackEnvironment(
-  appVariables: AppVariables,
-  environment: Environment
-): void {
-  const stackVariables = new StackVariables(appVariables, environment);
+// Create stack for all environment deployments e.g. development, test, production
+for (const options of environmentOptions) {
+  createDNSSwitchStack(options, appVariables);
+}
 
-  const rootStackName = `${appVariables.CDK_APP_NAME}-${environment.environmentName}-${environment.deploymentName}`;
+function createStackEnvironmentDeployment(
+  appVariables: AppVariables,
+  environmentOptions: EnvironmentOptionsModel,
+  deploymentStackOptions: DeploymentStackOptionsModel
+): void {
+  const stackOptions = new StackOptions(
+    appVariables,
+    environmentOptions,
+    deploymentStackOptions
+  );
+
+  const rootStackName = `${appVariables.CDK_APP_NAME}-${environmentOptions.environmentName}-${deploymentStackOptions.deploymentName}`;
   const rootStackProps: RootStackProps = {
-    stackVariables: stackVariables,
+    stackOptions: stackOptions,
   };
 
   new RootStack(app, rootStackName, rootStackProps);
+}
+
+function createDNSSwitchStack(
+  environmentOptions: EnvironmentOptionsModel,
+  appVariables: AppVariables
+): void {
+  const stackName = `${appVariables.CDK_APP_NAME}-${environmentOptions.environmentName}`;
+  const chosenDeploymentStackProps: ChosenDeploymentStackProps = {
+    appVariables: appVariables,
+  };
+
+  new DnsSwitchStack(app, stackName, chosenDeploymentStackProps);
 }
 
 function parseAppEnv(): AppVariables {
@@ -43,4 +77,8 @@ function parseAppEnv(): AppVariables {
     CDK_HOSTED_ZONE_ID: process.env.CDK_HOSTED_ZONE_ID ?? '',
     CDK_UI_LOCALHOST_URL: process.env.CDK_UI_LOCALHOST_URL ?? '',
   };
+}
+
+function parseEnvironmentsJson(): EnvironmentOptionsModel[] {
+  return environmentOptionsJson as EnvironmentOptionsModel[];
 }
