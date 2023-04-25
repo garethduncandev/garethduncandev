@@ -62,18 +62,29 @@ export class DnsSwitchStack extends cdk.Stack {
       cloudFrontDistributionDomainNameExportName
     );
 
-    const distribution = Distribution.fromDistributionAttributes(
-      this,
-      'distribution',
-      {
-        distributionId: cloudFrontDistributionId,
-        domainName: cloudFrontDistributionDomainName,
-      }
-    );
+    // const distribution = Distribution.fromDistributionAttributes(
+    //   this,
+    //   'distribution',
+    //   {
+    //     distributionId: cloudFrontDistributionId,
+    //     domainName: cloudFrontDistributionDomainName,
+    //   }
+    // );
+
+    // new ARecord(this, `${rootStackName}-alias-record`, {
+    //   recordName: recordName,
+    //   target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+    //   zone: hostedZone,
+    // });
 
     new ARecord(this, `${rootStackName}-alias-record`, {
       recordName: recordName,
-      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      target: RecordTarget.fromAlias({
+        bind: () => ({
+          dnsName: cloudFrontDistributionDomainName,
+          hostedZoneId: hostedZone.hostedZoneId,
+        }),
+      }),
       zone: hostedZone,
     });
 
