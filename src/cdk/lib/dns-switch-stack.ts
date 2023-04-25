@@ -48,9 +48,7 @@ export class DnsSwitchStack extends cdk.Stack {
       props.appVariables.CDK_DOMAIN
     );
 
-    const recordName = aRecordName.valueAsString
-      .replace('{environment}', environmentName.valueAsString)
-      .replace('{domainName}', deploymentName.valueAsString);
+    const recordName = aRecordName.valueAsString;
 
     const cloudFrontDistributionIdExportName = `${props.appVariables.CDK_APP_NAME}-${environmentName.valueAsString}-${deploymentName.valueAsString}-cloudfront-cloudFrontDistributionId`;
     const cloudFrontDistributionId = cdk.Fn.importValue(
