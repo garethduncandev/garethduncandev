@@ -43,6 +43,7 @@ export class DnsSwitchStack extends cdk.Stack {
     });
 
     const hostedZone = this.getHostedZone(
+      this,
       props.appVariables.CDK_HOSTED_ZONE_ID,
       props.appVariables.CDK_DOMAIN
     );
@@ -79,8 +80,12 @@ export class DnsSwitchStack extends cdk.Stack {
     // create dns record
   }
 
-  private getHostedZone(hostedZoneId: string, domain: string): IHostedZone {
-    return HostedZone.fromHostedZoneAttributes(this, 'Zone', {
+  private getHostedZone(
+    scope: Construct,
+    hostedZoneId: string,
+    domain: string
+  ): IHostedZone {
+    return HostedZone.fromHostedZoneAttributes(scope, 'Zone', {
       hostedZoneId: hostedZoneId,
       zoneName: domain,
     });
