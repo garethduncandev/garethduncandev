@@ -3,22 +3,10 @@
         "environmentName": "development",
         "removalPolicy": "destroy",
         "robotsNoIndex": true,
-         "apiTimeout": 300,
-         "apiDefaultMemoryAllocation": 128,
-         "allowLocalHostAccess": false,
-         "domainName": "{environmentName}.{domainName}",
-         "deployments":[
-            {
-                "deploymentName": "blue",
-                "aspNetCoreEnvironment": "Development",
-                "aspNetCoreEnvironmentDeploymentName": "Blue"
-            },
-            {
-                "deploymentName": "green",
-                "aspNetCoreEnvironment": "Development",
-                "aspNetCoreEnvironmentDeploymentName": "Green"
-
-            }
-         ]
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "allowLocalHostAccess": false,
+        "domainNameFormat": "{environmentName}.{domainName}",
+        "aspNetCoreEnvironment": "Development"
     }
 ]

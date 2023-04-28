@@ -1,4 +1,4 @@
-export class AppVariables {
+export class ApplicationOptions {
   public constructor(
     public CDK_DEFAULT_ACCOUNT: string,
     public CDK_DEFAULT_REGION: string,

@@ -2,71 +2,83 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
 import * as environmentOptionsJson from '../environments.json';
+
 import {
-  DnsSwitchStack,
-  ChosenDeploymentStackProps,
-} from '../lib/dns-switch-stack';
-import { RootStack, RootStackProps } from '../lib/root-stack';
-import { AppVariables } from './appVariables';
+  CloudFrontSwitchStack,
+  CloudFrontSwitchStackProps,
+} from '../lib/cloudfront-switch-stack';
+import { ApplicationOptions } from './application-options';
+import { ApplicationStackOptions } from './application-stack-options';
+import { EnvironmentOptionsModel } from './environment-options';
 import {
-  DeploymentStackOptionsModel,
-  EnvironmentOptionsModel,
-} from './environment-deployment';
-import { StackOptions } from './stackOptions';
+  ApplicationStack,
+  ApplicationStackProps,
+} from '../lib/application-stack';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 // load environment variables if .env file is present
 dotenv.config();
 
 const app = new cdk.App();
 
-const appVariables = parseAppEnv();
+// load application options from environment variables
+const applicationOptions = parseApplicationOptions();
 
-const environmentOptions = parseEnvironmentsJson();
+// load individual environment options from environments.json
+const allEnvironmentOptions = parseEnvironmentOptions();
 
-// Create stacks for all environment deployments e.g. development-blue, test-green, production-blue
-for (const options of environmentOptions) {
-  for (const deploymentOptions of options.deployments) {
-    createStackEnvironmentDeployment(appVariables, options, deploymentOptions);
-  }
-}
-
-// Create stack for all environment deployments e.g. development, test, production
-for (const options of environmentOptions) {
-  createDNSSwitchStack(options, appVariables);
-}
-
-function createStackEnvironmentDeployment(
-  appVariables: AppVariables,
-  environmentOptions: EnvironmentOptionsModel,
-  deploymentStackOptions: DeploymentStackOptionsModel
-): void {
-  const stackOptions = new StackOptions(
-    appVariables,
-    environmentOptions,
-    deploymentStackOptions
+// for each environment create 2 stacks, one for blue and one for green
+for (const environmentOptions of allEnvironmentOptions) {
+  // a blue and a green stack allows for zero downtime deployments with the help of a lambda edge function
+  const resultBlue = createApplicationStack(
+    new ApplicationStackOptions('blue', applicationOptions, environmentOptions)
+  );
+  const resultGreen = createApplicationStack(
+    new ApplicationStackOptions('green', applicationOptions, environmentOptions)
   );
 
-  const rootStackName = `${appVariables.CDK_APP_NAME}-${environmentOptions.environmentName}-${deploymentStackOptions.deploymentName}`;
-  const rootStackProps: RootStackProps = {
-    stackOptions: stackOptions,
-  };
+  const buckets = [resultBlue.uiBucket.bucket, resultGreen.uiBucket.bucket];
 
-  new RootStack(app, rootStackName, rootStackProps);
+  // create special cloudfront stack to use either blue or green origins
+  createCloudFrontSwitchStack(environmentOptions, buckets);
 }
 
-function createDNSSwitchStack(
+function createApplicationStack(
+  options: ApplicationStackOptions
+): ApplicationStack {
+  const rootStackProps: ApplicationStackProps = {
+    applicationStackOptions: options,
+  };
+
+  return new ApplicationStack(
+    app,
+    options.applicationStackName,
+    rootStackProps
+  );
+}
+
+function createCloudFrontSwitchStack(
   environmentOptions: EnvironmentOptionsModel,
-  appVariables: AppVariables
+  bucketsToHaveAccess: Bucket[]
 ): void {
-  const stackName = `${appVariables.CDK_APP_NAME}-${environmentOptions.environmentName}`;
-  const chosenDeploymentStackProps: ChosenDeploymentStackProps = {
-    appVariables: appVariables,
+  // create a stack for the lambda edge function that will allow is to switch between blue and green stacks
+  const domainName = environmentOptions.domainNameFormat
+    .replace('{environmentName}', environmentOptions.environmentName)
+    .replace('{domainName}', applicationOptions.CDK_DOMAIN);
+
+  const cloudFrontSwitchStack: CloudFrontSwitchStackProps = {
+    applicationOptions: applicationOptions,
+    environmentOptions: environmentOptions,
+    domainName: domainName,
+    bucketsToHaveAccess: bucketsToHaveAccess,
   };
 
-  new DnsSwitchStack(app, stackName, chosenDeploymentStackProps);
+  // create cloudfront lambda edge function stack
+  const stackName = `${applicationOptions.CDK_APP_NAME}-${environmentOptions.environmentName}`;
+  new CloudFrontSwitchStack(app, stackName, cloudFrontSwitchStack);
 }
 
-function parseAppEnv(): AppVariables {
+function parseApplicationOptions(): ApplicationOptions {
   return {
     CDK_APP_NAME: process.env.CDK_APP_NAME ?? '',
     CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN:
@@ -79,6 +91,6 @@ function parseAppEnv(): AppVariables {
   };
 }
 
-function parseEnvironmentsJson(): EnvironmentOptionsModel[] {
+function parseEnvironmentOptions(): EnvironmentOptionsModel[] {
   return environmentOptionsJson as EnvironmentOptionsModel[];
 }
