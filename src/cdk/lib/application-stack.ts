@@ -15,7 +15,6 @@ import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface ApplicationStackProps extends cdk.StackProps {
   applicationStackOptions: ApplicationStackOptions;
-  originAccessIdentity: OriginAccessIdentity;
 }
 
 export class ApplicationStack extends cdk.Stack {
@@ -47,7 +46,11 @@ export class ApplicationStack extends cdk.Stack {
         props.applicationStackOptions.environmentOptions.removalPolicy,
     });
 
-    this.uiBucket.bucket.grantRead(props.originAccessIdentity);
+    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
+      comment: `created-by-${id}-cdk-OAI`,
+    });
+
+    this.uiBucket.bucket.grantRead(originAccessIdentity);
 
     // cloudfront distribution
     const distribution = new UiDistribution(this, 'ui-distribution', {
@@ -60,7 +63,7 @@ export class ApplicationStack extends cdk.Stack {
       removalPolicy:
         props.applicationStackOptions.environmentOptions.removalPolicy,
       noIndex: props.applicationStackOptions.environmentOptions.robotsNoIndex,
-      originAccessIdentity: props.originAccessIdentity,
+      originAccessIdentity: originAccessIdentity,
     });
 
     // lambda
