@@ -54,8 +54,6 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       s3Origin
     );
 
-    // props.uiBucket.grantRead(originAccessIdentity);
-
     const distribution = new UiDistribution(this, 'ui-distribution-switch', {
       cloudFrontDomainCertificateArn:
         props.applicationOptions.CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN,

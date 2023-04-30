@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib';
-import { CfnOutput } from 'aws-cdk-lib';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
@@ -31,12 +30,6 @@ export class ApplicationStack extends cdk.Stack {
       hostedZoneId:
         props.applicationStackOptions.applicationOptions.CDK_HOSTED_ZONE_ID,
       zoneName: props.applicationStackOptions.applicationOptions.CDK_DOMAIN,
-    });
-
-    new CfnOutput(this, 'domain-name-export', {
-      value: props.applicationStackOptions.fullDomainName,
-      description: 'domain name',
-      exportName: `${props.applicationStackOptions.applicationStackName}-domain-name`,
     });
 
     // s3 hosting bucket
