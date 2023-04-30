@@ -30,7 +30,7 @@ export class UiBucket extends Construct {
 
     new CfnOutput(this, 'domain-name-export', {
       value: this.bucket.bucketName,
-      description: 'domain name',
+      description: 'bucket name',
       exportName: `${props.applicationStackName}-bucket-name`,
     });
   }
