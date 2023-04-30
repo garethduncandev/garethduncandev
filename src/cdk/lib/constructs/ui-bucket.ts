@@ -1,10 +1,11 @@
-import { RemovalPolicy } from 'aws-cdk-lib';
+import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import { BlockPublicAccess, Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
 export interface UiBucketProps {
   bucketName: string;
   removalPolicy: RemovalPolicy;
+  applicationStackName: string;
 }
 
 export class UiBucket extends Construct {
@@ -25,6 +26,12 @@ export class UiBucket extends Construct {
           allowedHeaders: ['*'],
         },
       ],
+    });
+
+    new CfnOutput(this, 'domain-name-export', {
+      value: this.bucket.bucketName,
+      description: 'domain name',
+      exportName: `${props.applicationStackName}-bucket-name`,
     });
   }
 }

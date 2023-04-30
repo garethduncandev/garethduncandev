@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import { CfnOutput } from 'aws-cdk-lib';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
@@ -37,6 +38,7 @@ export class ApplicationStack extends cdk.Stack {
       bucketName: id,
       removalPolicy:
         props.applicationStackOptions.environmentOptions.removalPolicy,
+      applicationStackName: props.applicationStackOptions.applicationStackName,
     });
 
     this.uiBucket.bucket.grantRead(props.originAccessIdentity);

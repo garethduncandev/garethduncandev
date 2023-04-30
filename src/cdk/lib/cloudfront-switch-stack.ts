@@ -47,11 +47,11 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       httpApiId: httpApiId,
     });
 
-    const s3Origin = `${props.applicationOptions.CDK_APP_NAME}-${props.environmentOptions.environmentName}-${color}`;
+    const bucketName = cdk.Fn.importValue(`${rootStackName}-bucket-name`);
     const s3BucketOrigin = Bucket.fromBucketName(
       this,
       `${id}-bucket`,
-      s3Origin
+      bucketName
     );
 
     const distribution = new UiDistribution(this, 'ui-distribution-switch', {
