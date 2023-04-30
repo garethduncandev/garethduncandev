@@ -6,4 +6,5 @@ export class AppSettings {
 	svelteKitVersion!: string; // provided via build
 	environment!: string; // provided via build
 	environmentColor!: string; // provided via build
+	title!: string; // provided via release
 }

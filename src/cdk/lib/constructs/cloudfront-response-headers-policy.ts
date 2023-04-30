@@ -9,6 +9,9 @@ export interface UiBucketProps {
 export class CloudFrontResponseHeadersPolicy extends Construct {
   public readonly responseHeadersPolicy: ResponseHeadersPolicy;
 
+  private readonly noIndexHeaderValue =
+    'noindex, nofollow, noarchive, nositelinkssearchbox, nosnippet, noimageindex, notranslate, max-image-preview:0, max-video-preview:0';
+
   public constructor(scope: Construct, id: string, props: UiBucketProps) {
     super(scope, id);
 
@@ -28,8 +31,7 @@ export class CloudFrontResponseHeadersPolicy extends Construct {
               {
                 override: true,
                 header: 'X-Robots-Tag',
-                value:
-                  'noindex, nofollow, noarchive, nositelinkssearchbox, nosnippet, noimageindex, notranslate, max-image-preview:0, max-video-preview:0',
+                value: this.noIndexHeaderValue,
               },
             ],
           }

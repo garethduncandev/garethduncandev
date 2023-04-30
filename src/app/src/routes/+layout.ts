@@ -5,7 +5,8 @@ import {
 	PUBLIC_SVELTEKIT_VERSION,
 	PUBLIC_BUILD,
 	PUBLIC_ENVIRONMENT,
-	PUBLIC_ENVIRONMENT_COLOR
+	PUBLIC_ENVIRONMENT_COLOR,
+	PUBLIC_TITLE
 } from '$env/static/public';
 import { MarkdownHelper } from '../helper/markdown.helper';
 import { NavHelper } from '../helper/nav.helper';
@@ -21,7 +22,8 @@ export const load = async () => {
 		dotnetVersion: PUBLIC_DOTNET_VERSION,
 		svelteKitVersion: PUBLIC_SVELTEKIT_VERSION,
 		environment: PUBLIC_ENVIRONMENT,
-		environmentColor: PUBLIC_ENVIRONMENT_COLOR
+		environmentColor: PUBLIC_ENVIRONMENT_COLOR,
+		title: PUBLIC_TITLE
 	};
 
 	const markdownHelper = new MarkdownHelper();

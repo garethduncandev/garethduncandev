@@ -3,6 +3,11 @@ import * as cdk from 'aws-cdk-lib';
 import * as dotenv from 'dotenv';
 import * as environmentOptionsJson from '../environments.json';
 
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import {
+  ApplicationStack,
+  ApplicationStackProps,
+} from '../lib/application-stack';
 import {
   CloudFrontSwitchStack,
   CloudFrontSwitchStackProps,
@@ -10,11 +15,6 @@ import {
 import { ApplicationOptions } from './application-options';
 import { ApplicationStackOptions } from './application-stack-options';
 import { EnvironmentOptionsModel } from './environment-options';
-import {
-  ApplicationStack,
-  ApplicationStackProps,
-} from '../lib/application-stack';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
 
 // load environment variables if .env file is present
 dotenv.config();
@@ -27,40 +27,41 @@ const applicationOptions = parseApplicationOptions();
 // load individual environment options from environments.json
 const allEnvironmentOptions = parseEnvironmentOptions();
 
+const environmentColors: ('blue' | 'green')[] = ['blue', 'green'];
+
 // for each environment create 2 stacks, one for blue and one for green
 for (const environmentOptions of allEnvironmentOptions) {
-  // a blue and a green stack allows for zero downtime deployments with the help of a lambda edge function
-  const resultBlue = createApplicationStack(
-    new ApplicationStackOptions('blue', applicationOptions, environmentOptions)
-  );
-  const resultGreen = createApplicationStack(
-    new ApplicationStackOptions('green', applicationOptions, environmentOptions)
-  );
-
-  const buckets = [resultBlue.uiBucket.bucket, resultGreen.uiBucket.bucket];
-
   // create special cloudfront stack to use either blue or green origins
-  createCloudFrontSwitchStack(environmentOptions, buckets);
+  const cloudFrontSwitchStack = createCloudFrontSwitchStack(environmentOptions);
+  // a blue and a green stack allows for zero downtime deployments with the help of a lambda edge function
+
+  environmentColors.forEach((color) => {
+    createApplicationStack(
+      new ApplicationStackOptions(
+        color,
+        applicationOptions,
+        environmentOptions
+      ),
+      cloudFrontSwitchStack.originAccessIdentity
+    );
+  });
 }
 
 function createApplicationStack(
-  options: ApplicationStackOptions
-): ApplicationStack {
-  const rootStackProps: ApplicationStackProps = {
+  options: ApplicationStackOptions,
+  originAccessIdentity: OriginAccessIdentity
+): void {
+  const props: ApplicationStackProps = {
     applicationStackOptions: options,
+    originAccessIdentity: originAccessIdentity,
   };
 
-  return new ApplicationStack(
-    app,
-    options.applicationStackName,
-    rootStackProps
-  );
+  new ApplicationStack(app, options.applicationStackName, props);
 }
 
 function createCloudFrontSwitchStack(
-  environmentOptions: EnvironmentOptionsModel,
-  bucketsToHaveAccess: Bucket[]
-): void {
+  environmentOptions: EnvironmentOptionsModel
+): CloudFrontSwitchStack {
   // create a stack for the lambda edge function that will allow is to switch between blue and green stacks
   const domainName = environmentOptions.domainNameFormat
     .replace('{environmentName}', environmentOptions.environmentName)
@@ -70,12 +71,11 @@ function createCloudFrontSwitchStack(
     applicationOptions: applicationOptions,
     environmentOptions: environmentOptions,
     domainName: domainName,
-    bucketsToHaveAccess: bucketsToHaveAccess,
   };
 
   // create cloudfront lambda edge function stack
-  const stackName = `${applicationOptions.CDK_APP_NAME}-${environmentOptions.environmentName}`;
-  new CloudFrontSwitchStack(app, stackName, cloudFrontSwitchStack);
+  const id = `${applicationOptions.CDK_APP_NAME}-${environmentOptions.environmentName}`;
+  return new CloudFrontSwitchStack(app, id, cloudFrontSwitchStack);
 }
 
 function parseApplicationOptions(): ApplicationOptions {

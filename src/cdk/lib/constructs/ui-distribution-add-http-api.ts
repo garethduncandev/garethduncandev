@@ -12,11 +12,11 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs/lib/construct';
+import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 export interface UiDistributionHttpApiOriginProps {
   distribution: Distribution;
   httpApi: IHttpApi;
   httpApiRegion: string;
-  responseHeadersPolicy: ResponseHeadersPolicy;
 }
 
 export class UiDistributionHttpApiOrigin extends Construct {
@@ -26,6 +26,14 @@ export class UiDistributionHttpApiOrigin extends Construct {
     props: UiDistributionHttpApiOriginProps
   ) {
     super(scope, id);
+
+    const responseHeaderPolicy = new CloudFrontResponseHeadersPolicy(
+      this,
+      `response-headers-policy-${id}-http-api`,
+      {
+        nonIndex: true,
+      }
+    );
 
     const apiOriginPolicy = new OriginRequestPolicy(this, `api-origin-policy`, {
       cookieBehavior: OriginRequestCookieBehavior.all(),
@@ -51,7 +59,7 @@ export class UiDistributionHttpApiOrigin extends Construct {
       compress: false,
       originRequestPolicy: apiOriginPolicy,
       viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      responseHeadersPolicy: props.responseHeadersPolicy,
+      responseHeadersPolicy: responseHeaderPolicy.responseHeadersPolicy,
     });
   }
 }

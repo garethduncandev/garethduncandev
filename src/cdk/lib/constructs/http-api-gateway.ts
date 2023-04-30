@@ -1,9 +1,12 @@
 import { CorsHttpMethod, HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs/lib/construct';
+import { ApplicationStackOptions } from '../../bin/application-stack-options';
 
 export interface HttpApiGatewayProps {
   apiName: string;
   allowOrigins: string[];
+  applicationStackOptions: ApplicationStackOptions;
 }
 
 export class HttpApiGateway extends Construct {
@@ -19,6 +22,12 @@ export class HttpApiGateway extends Construct {
         allowHeaders: ['*'],
         allowMethods: [CorsHttpMethod.ANY],
       },
+    });
+
+    new CfnOutput(this, 'http-api-id-export', {
+      value: this.httpApi.apiId,
+      description: 'http api id',
+      exportName: `${props.applicationStackOptions.applicationStackName}-http-api-id`,
     });
   }
 }

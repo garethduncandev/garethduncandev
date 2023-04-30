@@ -7,20 +7,20 @@ import { ApplicationOptions } from '../bin/application-options';
 import { EnvironmentOptionsModel } from '../bin/environment-options';
 
 import { HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { CloudFrontResponseHeadersPolicy } from './constructs/cloudfront-response-headers-policy';
 import { UiDistribution } from './constructs/ui-distribution';
 import { UiDistributionHttpApiOrigin } from './constructs/ui-distribution-add-http-api';
-import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface CloudFrontSwitchStackProps extends cdk.StackProps {
   applicationOptions: ApplicationOptions;
   environmentOptions: EnvironmentOptionsModel;
   domainName: string;
-  bucketsToHaveAccess: Bucket[];
 }
 
 export class CloudFrontSwitchStack extends cdk.Stack {
+  public readonly originAccessIdentity: OriginAccessIdentity;
+
   public constructor(
     scope: Construct,
     id: string,
@@ -28,27 +28,15 @@ export class CloudFrontSwitchStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
+    // return this for the applications stack to use
+    this.originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
+      comment: `created-by-${id}-${props.domainName}-cdk-OAI`,
+    });
+
     const hostedZone = HostedZone.fromHostedZoneAttributes(this, 'Zone', {
       hostedZoneId: props.applicationOptions.CDK_HOSTED_ZONE_ID,
       zoneName: props.applicationOptions.CDK_DOMAIN,
     });
-
-    const responseHeadersPolicyCloudFrontUi =
-      new CloudFrontResponseHeadersPolicy(
-        this,
-        `response-headers-policy-${id}-cloud-front-ui`,
-        {
-          nonIndex: props.environmentOptions.robotsNoIndex,
-        }
-      );
-
-    const responseHeadersPolicyHttpApi = new CloudFrontResponseHeadersPolicy(
-      this,
-      `response-headers-policy-${id}-http-api`,
-      {
-        nonIndex: props.environmentOptions.robotsNoIndex,
-      }
-    );
 
     // get blue - green from params
     const color = new cdk.CfnParameter(this, 'color', {
@@ -71,14 +59,6 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       s3Origin
     );
 
-    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
-      comment: `created-by-${id}-${props.domainName}-cdk-OAI`,
-    });
-
-    props.bucketsToHaveAccess.forEach((bucket) => {
-      bucket.grantRead(originAccessIdentity);
-    });
-
     // props.uiBucket.grantRead(originAccessIdentity);
 
     const distribution = new UiDistribution(this, 'ui-distribution-switch', {
@@ -89,9 +69,7 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       uiBucket: s3BucketOrigin,
       noIndex: props.environmentOptions.robotsNoIndex,
       removalPolicy: props.environmentOptions.removalPolicy,
-      responseHeadersPolicy:
-        responseHeadersPolicyCloudFrontUi.responseHeadersPolicy,
-      originAccessIdentity: originAccessIdentity,
+      originAccessIdentity: this.originAccessIdentity,
     });
 
     new UiDistributionHttpApiOrigin(
@@ -101,8 +79,6 @@ export class CloudFrontSwitchStack extends cdk.Stack {
         httpApi: httpApi,
         httpApiRegion: props.applicationOptions.CDK_DEFAULT_REGION,
         distribution: distribution.distribution,
-        responseHeadersPolicy:
-          responseHeadersPolicyHttpApi.responseHeadersPolicy,
       }
     );
   }

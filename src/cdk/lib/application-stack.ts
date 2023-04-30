@@ -15,6 +15,7 @@ import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface ApplicationStackProps extends cdk.StackProps {
   applicationStackOptions: ApplicationStackOptions;
+  originAccessIdentity: OriginAccessIdentity;
 }
 
 export class ApplicationStack extends cdk.Stack {
@@ -39,28 +40,6 @@ export class ApplicationStack extends cdk.Stack {
       exportName: `${props.applicationStackOptions.applicationStackName}-domain-name`,
     });
 
-    const responseHeadersPolicyCloudFrontUi =
-      new CloudFrontResponseHeadersPolicy(
-        this,
-        `response-headers-policy-${id}-cloud-front-ui`,
-        {
-          nonIndex:
-            props.applicationStackOptions.environmentOptions.robotsNoIndex,
-        }
-      );
-
-    const responseHeadersPolicyHttpApi = new CloudFrontResponseHeadersPolicy(
-      this,
-      `response-headers-policy-${id}-http-api`,
-      {
-        nonIndex: true,
-      }
-    );
-
-    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
-      comment: `created-by-${id}-${props.applicationStackOptions.fullDomainName}-cdk-OAI`,
-    });
-
     // s3 hosting bucket
     this.uiBucket = new UiBucket(this, 'ui-bucket', {
       bucketName: id,
@@ -68,7 +47,7 @@ export class ApplicationStack extends cdk.Stack {
         props.applicationStackOptions.environmentOptions.removalPolicy,
     });
 
-    this.uiBucket.bucket.grantRead(originAccessIdentity);
+    this.uiBucket.bucket.grantRead(props.originAccessIdentity);
 
     // cloudfront distribution
     const distribution = new UiDistribution(this, 'ui-distribution', {
@@ -81,9 +60,7 @@ export class ApplicationStack extends cdk.Stack {
       removalPolicy:
         props.applicationStackOptions.environmentOptions.removalPolicy,
       noIndex: props.applicationStackOptions.environmentOptions.robotsNoIndex,
-      responseHeadersPolicy:
-        responseHeadersPolicyCloudFrontUi.responseHeadersPolicy,
-      originAccessIdentity: originAccessIdentity,
+      originAccessIdentity: props.originAccessIdentity,
     });
 
     // lambda
@@ -106,12 +83,7 @@ export class ApplicationStack extends cdk.Stack {
     const httpApi = new HttpApiGateway(this, 'http-api', {
       allowOrigins: props.applicationStackOptions.apiAllowedOrigins,
       apiName: id,
-    });
-
-    new CfnOutput(this, 'http-api-id-export', {
-      value: httpApi.httpApi.apiId,
-      description: 'http api id',
-      exportName: `${props.applicationStackOptions.applicationStackName}-http-api-id`,
+      applicationStackOptions: props.applicationStackOptions,
     });
 
     // lambda api gateway integration
@@ -126,7 +98,6 @@ export class ApplicationStack extends cdk.Stack {
       httpApi: httpApi.httpApi,
       httpApiRegion:
         props.applicationStackOptions.applicationOptions.CDK_DEFAULT_REGION,
-      responseHeadersPolicy: responseHeadersPolicyHttpApi.responseHeadersPolicy,
     });
 
     // s3 bucket deployment to cloudfront

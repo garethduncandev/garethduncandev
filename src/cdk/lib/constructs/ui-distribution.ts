@@ -13,6 +13,7 @@ import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
+import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 
 export interface UiDistributionProps {
   removalPolicy: RemovalPolicy;
@@ -21,7 +22,6 @@ export interface UiDistributionProps {
   noIndex: boolean;
   hostedZone: IHostedZone;
   uiBucket: IBucket;
-  responseHeadersPolicy: ResponseHeadersPolicy;
   originAccessIdentity: OriginAccessIdentity;
 }
 
@@ -37,6 +37,15 @@ export class UiDistribution extends Construct {
       props.cloudFrontDomainCertificateArn
     );
 
+    const responseHeadersPolicyCloudFrontUi =
+      new CloudFrontResponseHeadersPolicy(
+        this,
+        `response-headers-policy-${id}-cloud-front-ui`,
+        {
+          nonIndex: props.noIndex,
+        }
+      );
+
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
         origin: new S3Origin(props.uiBucket, {
@@ -46,7 +55,8 @@ export class UiDistribution extends Construct {
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
-        responseHeadersPolicy: props.responseHeadersPolicy,
+        responseHeadersPolicy:
+          responseHeadersPolicyCloudFrontUi.responseHeadersPolicy,
       },
       domainNames: [props.domainName],
       certificate: certificate,

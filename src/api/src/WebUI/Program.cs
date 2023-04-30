@@ -46,6 +46,9 @@ app.UseHttpsRedirection();
 app.UseOpenApi();
 app.UseSwaggerUi3();
 
+app.MapGet("/", () => "Gareth Duncan | Developer");
+app.MapGet("/date", () => DateTimeOffset.UtcNow);
+
 app.MapGet("/diagnostics",
         async ([FromServices] IMediator mediator) => await mediator.Send(new GetDiagnosticsQuery()))
     .WithApiVersionSet(versionSet)
