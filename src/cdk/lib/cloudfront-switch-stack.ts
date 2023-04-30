@@ -16,7 +16,7 @@ export interface CloudFrontSwitchStackProps extends cdk.StackProps {
   applicationOptions: ApplicationOptions;
   environmentOptions: EnvironmentOptionsModel;
   domainName: string;
-  bucketsToGrantReadAccess: Bucket[];
+  originAccessIdentity: OriginAccessIdentity;
 }
 
 export class CloudFrontSwitchStack extends cdk.Stack {
@@ -28,14 +28,6 @@ export class CloudFrontSwitchStack extends cdk.Stack {
     super(scope, id, props);
 
     // return this for the applications stack to use
-    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
-      comment: `created-by-${id}-${props.domainName}-cdk-OAI`,
-    });
-
-    props.bucketsToGrantReadAccess.forEach((bucket) => {
-      bucket.grantRead(originAccessIdentity);
-    });
-
     const hostedZone = HostedZone.fromHostedZoneAttributes(this, 'Zone', {
       hostedZoneId: props.applicationOptions.CDK_HOSTED_ZONE_ID,
       zoneName: props.applicationOptions.CDK_DOMAIN,
@@ -72,7 +64,7 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       uiBucket: s3BucketOrigin,
       noIndex: props.environmentOptions.robotsNoIndex,
       removalPolicy: props.environmentOptions.removalPolicy,
-      originAccessIdentity: originAccessIdentity,
+      originAccessIdentity: props.originAccessIdentity,
     });
 
     new UiDistributionHttpApiOrigin(

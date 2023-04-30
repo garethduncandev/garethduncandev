@@ -1,9 +1,9 @@
 import * as cdk from 'aws-cdk-lib';
 import { CfnOutput } from 'aws-cdk-lib';
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 import { ApplicationStackOptions } from '../bin/application-stack-options';
-import { CloudFrontResponseHeadersPolicy } from './constructs/cloudfront-response-headers-policy';
 import { HttpApiGateway } from './constructs/http-api-gateway';
 import { HttpApiGatewayLambdaIntegration } from './constructs/http-api-gateway-lambda-integration';
 import { LambdaDockerImageFunction } from './constructs/lambda-docker-image-function';
@@ -11,10 +11,10 @@ import { UiBucket } from './constructs/ui-bucket';
 import { UiBucketDeployment } from './constructs/ui-bucket-deployment';
 import { UiDistribution } from './constructs/ui-distribution';
 import { UiDistributionHttpApiOrigin } from './constructs/ui-distribution-add-http-api';
-import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface ApplicationStackProps extends cdk.StackProps {
   applicationStackOptions: ApplicationStackOptions;
+  originAccessIdentity: OriginAccessIdentity;
 }
 
 export class ApplicationStack extends cdk.Stack {
@@ -46,11 +46,7 @@ export class ApplicationStack extends cdk.Stack {
         props.applicationStackOptions.environmentOptions.removalPolicy,
     });
 
-    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
-      comment: `created-by-${id}-cdk-OAI`,
-    });
-
-    this.uiBucket.bucket.grantRead(originAccessIdentity);
+    this.uiBucket.bucket.grantRead(props.originAccessIdentity);
 
     // cloudfront distribution
     const distribution = new UiDistribution(this, 'ui-distribution', {
@@ -63,7 +59,7 @@ export class ApplicationStack extends cdk.Stack {
       removalPolicy:
         props.applicationStackOptions.environmentOptions.removalPolicy,
       noIndex: props.applicationStackOptions.environmentOptions.robotsNoIndex,
-      originAccessIdentity: originAccessIdentity,
+      originAccessIdentity: props.originAccessIdentity,
     });
 
     // lambda
