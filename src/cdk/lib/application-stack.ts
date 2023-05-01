@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib';
-import { CfnOutput } from 'aws-cdk-lib';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
@@ -89,7 +88,9 @@ export class ApplicationStack extends cdk.Stack {
     // add http api as another origin to distribution
     new UiDistributionHttpApiOrigin(this, 'ui-distribution-http-api-origin', {
       distribution: distribution.distribution,
-      httpApiUrl: httpApi.httpApi.url ?? '',
+      httpApiId: httpApi.httpApi.apiId,
+      httpApiRegion:
+        props.applicationStackOptions.applicationOptions.CDK_DEFAULT_REGION,
     });
 
     // s3 bucket deployment to cloudfront

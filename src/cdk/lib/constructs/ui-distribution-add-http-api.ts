@@ -13,7 +13,8 @@ import { Construct } from 'constructs/lib/construct';
 import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 export interface UiDistributionHttpApiOriginProps {
   distribution: Distribution;
-  httpApiUrl: string;
+  httpApiId: string;
+  httpApiRegion: string;
 }
 
 export class UiDistributionHttpApiOrigin extends Construct {
@@ -47,8 +48,8 @@ export class UiDistributionHttpApiOrigin extends Construct {
       comment: 'HTTP API origin policy',
     });
 
-    //const apiUrl = `${props.httpApi.apiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
-    const httpOrigin = new HttpOrigin(props.httpApiUrl);
+    const apiUrl = `${props.httpApiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
+    const httpOrigin = new HttpOrigin(apiUrl);
 
     props.distribution.addBehavior('/api/*', httpOrigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,
