@@ -1,4 +1,3 @@
-import { IHttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
 import {
   AllowedMethods,
   CachePolicy,
@@ -14,8 +13,7 @@ import { Construct } from 'constructs/lib/construct';
 import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 export interface UiDistributionHttpApiOriginProps {
   distribution: Distribution;
-  httpApi: IHttpApi;
-  httpApiRegion: string;
+  httpApiUrl: string;
 }
 
 export class UiDistributionHttpApiOrigin extends Construct {
@@ -49,8 +47,8 @@ export class UiDistributionHttpApiOrigin extends Construct {
       comment: 'HTTP API origin policy',
     });
 
-    const apiUrl = `${props.httpApi.apiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
-    const httpOrigin = new HttpOrigin(apiUrl);
+    //const apiUrl = `${props.httpApi.apiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
+    const httpOrigin = new HttpOrigin(props.httpApiUrl);
 
     props.distribution.addBehavior('/api/*', httpOrigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,

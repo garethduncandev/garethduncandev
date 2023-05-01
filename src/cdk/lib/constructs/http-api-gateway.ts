@@ -17,6 +17,7 @@ export class HttpApiGateway extends Construct {
 
     this.httpApi = new HttpApi(this, `http-api`, {
       apiName: props.apiName,
+      createDefaultStage: true,
       corsPreflight: {
         allowOrigins: props.allowOrigins,
         allowHeaders: ['*'],

@@ -89,9 +89,7 @@ export class ApplicationStack extends cdk.Stack {
     // add http api as another origin to distribution
     new UiDistributionHttpApiOrigin(this, 'ui-distribution-http-api-origin', {
       distribution: distribution.distribution,
-      httpApi: httpApi.httpApi,
-      httpApiRegion:
-        props.applicationStackOptions.applicationOptions.CDK_DEFAULT_REGION,
+      httpApiUrl: httpApi.httpApi.url ?? '',
     });
 
     // s3 bucket deployment to cloudfront
