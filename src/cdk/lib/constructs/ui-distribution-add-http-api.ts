@@ -7,7 +7,6 @@ import {
   OriginRequestHeaderBehavior,
   OriginRequestPolicy,
   OriginRequestQueryStringBehavior,
-  ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';

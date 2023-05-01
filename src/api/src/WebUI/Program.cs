@@ -32,6 +32,8 @@ builder.Services.AddOpenApiDocuments(apiVersions.Select(x => x.MajorVersion ?? 0
 
 var app = builder.Build();
 
+app.UsePathBase(new PathString("/api"));
+
 var versionSet = app.NewApiVersionSet()
     .HasApiVersions(apiVersions)
     .ReportApiVersions()

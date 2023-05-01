@@ -1,4 +1,3 @@
-import { Cors } from 'aws-cdk-lib/aws-apigateway';
 import { ResponseHeadersPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { Construct } from 'constructs/lib/construct';
 
@@ -19,9 +18,9 @@ export class CloudFrontResponseHeadersPolicy extends Construct {
       responseHeadersPolicyName: id,
       corsBehavior: {
         accessControlAllowCredentials: false,
-        accessControlAllowHeaders: Cors.DEFAULT_HEADERS,
-        accessControlAllowMethods: Cors.ALL_METHODS,
-        accessControlAllowOrigins: Cors.ALL_ORIGINS,
+        accessControlAllowHeaders: ['*'],
+        accessControlAllowMethods: ['ALL'],
+        accessControlAllowOrigins: ['*'],
         originOverride: true,
         accessControlExposeHeaders: ['*'],
       },
