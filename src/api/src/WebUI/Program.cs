@@ -1,15 +1,10 @@
-using System.Net;
-using System.Reflection;
 using Application.Diagnostics.Queries.GetDiagnostics;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application;
 using Asp.Versioning;
 using Asp.Versioning.Conventions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using WebUI.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +25,20 @@ var apiVersions = new List<ApiVersion> {new(1), new(2)};
 
 builder.Services.AddOpenApiDocuments(apiVersions.Select(x => x.MajorVersion ?? 0));
 
+const string corsPolicy = "CorsPolicy";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicy,
+        policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:5173",
+                "https://garethduncan.dev",
+                "https://*.garethduncan.dev");
+            policy.AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 app.UsePathBase(new PathString("/api"));
@@ -48,12 +57,21 @@ app.UseHttpsRedirection();
 app.UseOpenApi();
 app.UseSwaggerUi3();
 
-app.MapGet("/", () => "Gareth Duncan | Developer");
-app.MapGet("/date", () => DateTimeOffset.UtcNow);
+
+app.UseCors(corsPolicy);
+
+app.MapGet("/",
+        () => "Gareth Duncan | Developer")
+    .WithApiVersionSet(versionSet)
+    .MapToApiVersion(1)
+    .WithTags("hello")
+    .Produces<string>();
 
 app.MapGet("/diagnostics",
         async ([FromServices] IMediator mediator) => await mediator.Send(new GetDiagnosticsQuery()))
     .WithApiVersionSet(versionSet)
-    .MapToApiVersion(1);
+    .MapToApiVersion(1)
+    .WithTags("diagnostics")
+    .Produces<DiagnosticsVm>();
 
 app.Run();

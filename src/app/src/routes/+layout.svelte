@@ -3,6 +3,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import type { AppSettings } from '..//models/appsettings';
 	import type { NavItem } from '../models/nav-item';
+	import '../styles/global.scss';
 
 	export let data: { nav: NavItem[]; appSettings: AppSettings };
 	const appsettings = data.appSettings;
@@ -35,10 +36,4 @@
 </div>
 
 <style lang="scss">
-	@use '../styles/global.scss';
-
-	.container {
-		background-color: black;
-		height: 100vh;
-	}
 </style>
