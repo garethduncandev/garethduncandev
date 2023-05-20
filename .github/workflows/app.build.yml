@@ -39,7 +39,7 @@ jobs:
 
       - name: build app
         run: |
-          PUBLIC_API_URL=***REPLACE_API_URL***
+          PUBLIC_API_URL=#{API_URL}#
           PUBLIC_VERSION=${{ steps.json_properties.outputs.version }}.${{ github.run_number }}
           npm run build
         working-directory: src/app
