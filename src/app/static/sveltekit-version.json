@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "name": "garethduncandev",
+  "dependencies": {
+    "@sveltejs/kit": {
+      "version": "1.16.2",
+      "resolved": "https://registry.npmjs.org/@sveltejs/kit/-/kit-1.16.2.tgz",
+      "overridden": false
+    }
+  }
+}
