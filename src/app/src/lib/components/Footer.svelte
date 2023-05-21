@@ -26,6 +26,7 @@
 	.NET {dotnetVersion} | SvelteKit {svelteKitVersion} | Build {build} | Commit {commit}
 </div>
 <div>{environment} {environmentColorEmoji}</div>
+<div><a href="/diagnostics">diagnostics</a></div>
 
 <style lang="scss">
 	@use '../../styles/global.scss';
