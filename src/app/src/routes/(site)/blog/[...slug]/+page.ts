@@ -1,5 +1,5 @@
 import type { Load } from '@sveltejs/kit';
-import { MarkdownHelper } from '../../helper/markdown.helper';
+import { MarkdownHelper } from '../../../../helper/markdown.helper';
 
 export const prerender = true;
 export const load: Load = async ({ params }) => {

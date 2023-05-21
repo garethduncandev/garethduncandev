@@ -5,7 +5,7 @@
 	<h1><a href="/">Gareth Duncan</a></h1>
 	<nav>
 		<ul>
-			<li><a href="/posts">posts</a></li>
+			<li><a href="/blog">blog</a></li>
 		</ul>
 	</nav>
 </header>

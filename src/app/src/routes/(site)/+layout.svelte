@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
 	import Footer from '$lib/components/Footer.svelte';
-	import type { AppSettings } from '../models/appsettings';
-	import type { NavItem } from '../models/nav-item';
-	import '../styles/global.scss';
+	import type { AppSettings } from '../../models/appsettings';
+	import type { NavItem } from '../../models/nav-item';
+	import '../../styles/global.scss';
 
 	export let data: { nav: NavItem[]; appSettings: AppSettings };
 	const appsettings = data.appSettings;

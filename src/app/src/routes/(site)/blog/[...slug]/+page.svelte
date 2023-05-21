@@ -17,5 +17,5 @@
 </article>
 
 <style lang="scss">
-	@use '../../styles/global.scss';
+	@use '../../../../styles/global.scss';
 </style>

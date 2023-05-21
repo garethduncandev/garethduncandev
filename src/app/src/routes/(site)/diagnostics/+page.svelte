@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { DiagnosticsClient, DiagnosticsVm } from '../../web-api-client';
+	import { DiagnosticsClient, DiagnosticsVm } from '../../../web-api-client';
 
 	import type { PageData } from './$types';
 	import { PUBLIC_API_URL } from '$env/static/public';
