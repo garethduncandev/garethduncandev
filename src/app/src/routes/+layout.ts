@@ -14,6 +14,8 @@ import * as version from '../../static/sveltekit-version.json';
 import * as dotnetversion from '../../static/dotnet-version.txt?raw';
 
 export const prerender = true;
+export const csr = true;
+export const ssr = true;
 export const load = async () => {
 	const appSettings: AppSettings = {
 		apiUrl: PUBLIC_API_URL,

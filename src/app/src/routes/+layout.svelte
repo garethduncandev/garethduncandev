@@ -13,10 +13,11 @@
 	const svelteKitVersion = appsettings.svelteKitVersion;
 	const environment = appsettings.environment;
 	const environmentColor = appsettings.environmentColor;
+	const title = appsettings.title;
 </script>
 
 <svelte:head>
-	<title>Gareth Duncan | Developer</title>
+	<title>{title}</title>
 </svelte:head>
 <div class="container">
 	<Header />
