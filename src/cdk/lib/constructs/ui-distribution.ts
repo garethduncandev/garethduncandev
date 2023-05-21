@@ -7,7 +7,7 @@ import {
   OriginRequestPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
@@ -47,12 +47,20 @@ export class UiDistribution extends Construct {
         }
       );
 
+    const httpOrigin = new HttpOrigin(
+      props.uiBucket.bucketWebsiteUrl
+        .replace('http://', '')
+        .replace('https://', ''),
+      { originPath: '/app' }
+    );
+
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
-        origin: new S3Origin(props.uiBucket, {
-          originAccessIdentity: props.originAccessIdentity,
-          originPath: `/app`,
-        }),
+        // origin: new S3Origin(props.uiBucket, {
+        //   originAccessIdentity: props.originAccessIdentity,
+        //   originPath: `/app`,
+        // }),
+        origin: httpOrigin,
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
