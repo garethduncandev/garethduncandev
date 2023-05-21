@@ -90,7 +90,7 @@ export class ApplicationStack extends cdk.Stack {
       distribution: distribution.distribution,
       httpApiId: httpApi.httpApi.apiId,
       httpApiRegion:
-        props.applicationStackOptions.applicationOptions.CDK_DEFAULT_REGION,
+        props.applicationStackOptions.applicationOptions.AWS_DEFAULT_REGION,
     });
 
     // s3 bucket deployment to cloudfront

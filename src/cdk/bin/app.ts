@@ -91,11 +91,10 @@ function createCloudFrontSwitchStack(
 
 function parseApplicationOptions(): ApplicationOptions {
   return {
+    AWS_DEFAULT_REGION: process.env.AWS_DEFAULT_REGION ?? '',
     CDK_APP_NAME: process.env.CDK_APP_NAME ?? '',
     CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN:
       process.env.CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN ?? '',
-    CDK_DEFAULT_ACCOUNT: process.env.CDK_DEFAULT_ACCOUNT ?? '',
-    CDK_DEFAULT_REGION: process.env.CDK_DEFAULT_REGION ?? '',
     CDK_DOMAIN: process.env.CDK_DOMAIN ?? '',
     CDK_HOSTED_ZONE_ID: process.env.CDK_HOSTED_ZONE_ID ?? '',
     CDK_UI_LOCALHOST_URL: process.env.CDK_UI_LOCALHOST_URL ?? '',

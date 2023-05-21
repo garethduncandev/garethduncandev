@@ -11,10 +11,13 @@ import {
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs/lib/construct';
 import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
-export interface UiDistributionHttpApiOriginProps {
-  distribution: Distribution;
-  httpApiId: string;
-  httpApiRegion: string;
+
+export class UiDistributionHttpApiOriginProps {
+  public constructor(
+    public readonly distribution: Distribution,
+    public readonly httpApiId: string,
+    public readonly httpApiRegion: string
+  ) {}
 }
 
 export class UiDistributionHttpApiOrigin extends Construct {

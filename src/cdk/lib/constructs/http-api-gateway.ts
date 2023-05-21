@@ -3,10 +3,12 @@ import { CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs/lib/construct';
 import { ApplicationStackOptions } from '../../bin/application-stack-options';
 
-export interface HttpApiGatewayProps {
-  apiName: string;
-  allowOrigins: string[];
-  applicationStackOptions: ApplicationStackOptions;
+export class HttpApiGatewayProps {
+  public constructor(
+    public readonly apiName: string,
+    public readonly allowOrigins: string[],
+    public readonly applicationStackOptions: ApplicationStackOptions
+  ) {}
 }
 
 export class HttpApiGateway extends Construct {

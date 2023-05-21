@@ -4,9 +4,11 @@ import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment';
 import { Construct } from 'constructs/lib/construct';
 import path = require('path');
 
-export interface UiBucketDeploymentProps {
-  destinationBucket: IBucket;
-  distribution: IDistribution;
+export class UiBucketDeploymentProps {
+  public constructor(
+    public readonly destinationBucket: IBucket,
+    public readonly distribution: IDistribution
+  ) {}
 }
 
 export class UiBucketDeployment extends Construct {

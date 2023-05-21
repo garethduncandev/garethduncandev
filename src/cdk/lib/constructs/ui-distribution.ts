@@ -5,7 +5,6 @@ import {
   Distribution,
   OriginAccessIdentity,
   OriginRequestPolicy,
-  ResponseHeadersPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
@@ -15,14 +14,16 @@ import { IBucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 
-export interface UiDistributionProps {
-  removalPolicy: RemovalPolicy;
-  domainName: string;
-  cloudFrontDomainCertificateArn: string;
-  noIndex: boolean;
-  hostedZone: IHostedZone;
-  uiBucket: IBucket;
-  originAccessIdentity: OriginAccessIdentity;
+export class UiDistributionProps {
+  public constructor(
+    public readonly removalPolicy: RemovalPolicy,
+    public readonly domainName: string,
+    public readonly cloudFrontDomainCertificateArn: string,
+    public readonly noIndex: boolean,
+    public readonly hostedZone: IHostedZone,
+    public readonly uiBucket: IBucket,
+    public readonly originAccessIdentity: OriginAccessIdentity
+  ) {}
 }
 
 export class UiDistribution extends Construct {

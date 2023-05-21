@@ -3,11 +3,13 @@ import { DockerImageCode, DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs/lib/construct';
 import path = require('path');
 
-export interface LambdaDockerImageFunctionProps {
-  functionName: string;
-  apiDefaultMemoryAllocation: number;
-  timeout: number;
-  aspNetCoreEnvironment: string;
+export class LambdaDockerImageFunctionProps {
+  public constructor(
+    public readonly functionName: string,
+    public readonly apiDefaultMemoryAllocation: number,
+    public readonly timeout: number,
+    public readonly aspNetCoreEnvironment: string
+  ) {}
 }
 
 export class LambdaDockerImageFunction extends Construct {

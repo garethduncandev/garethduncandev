@@ -2,10 +2,12 @@ import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
 import { BlockPublicAccess, Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
-export interface UiBucketProps {
-  bucketName: string;
-  removalPolicy: RemovalPolicy;
-  applicationStackName: string;
+export class UiBucketProps {
+  public constructor(
+    public readonly bucketName: string,
+    public readonly removalPolicy: RemovalPolicy,
+    public readonly applicationStackName: string
+  ) {}
 }
 
 export class UiBucket extends Construct {

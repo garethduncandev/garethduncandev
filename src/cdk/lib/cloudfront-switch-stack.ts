@@ -70,7 +70,7 @@ export class CloudFrontSwitchStack extends cdk.Stack {
       'ui-distribution-http-api-origin-cloud-front-switch',
       {
         httpApiId: httpApi.apiId,
-        httpApiRegion: props.applicationOptions.CDK_DEFAULT_REGION,
+        httpApiRegion: props.applicationOptions.AWS_DEFAULT_REGION,
         distribution: distribution.distribution,
       }
     );
