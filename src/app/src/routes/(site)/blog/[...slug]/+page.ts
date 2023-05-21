@@ -8,9 +8,12 @@ export const load: Load = async ({ params }) => {
 	}
 
 	const slug = params['slug'].toString();
+	console.log('slug', slug);
 	const markdownHelper = new MarkdownHelper();
 	const posts = await markdownHelper.loadMarkdownFiles();
-	const post = posts.find((x) => x.path === `/${slug}`);
+	console.log('posts', posts);
+
+	const post = posts.find((x) => `${x.path}/` === `/${slug}`);
 	if (!post) {
 		throw new Error('Post not found', post);
 	}

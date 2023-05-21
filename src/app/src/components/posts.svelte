@@ -7,7 +7,7 @@
 <ul>
 	{#each nav as page}
 		<li>
-			<a href={'/blog' + page.url}>{page.title}</a>
+			<a href={'/blog' + page.url + '/'}>{page.title}</a>
 
 			{#if page.children.length > 0}
 				<Posts nav={page.children} />
