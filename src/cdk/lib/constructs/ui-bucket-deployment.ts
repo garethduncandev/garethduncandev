@@ -26,7 +26,7 @@ export class UiBucketDeployment extends Construct {
       prune: false,
       exclude: [],
       distribution: props.distribution,
-      distributionPaths: ['/index.html'],
+      distributionPaths: ['/*'],
     });
   }
 }

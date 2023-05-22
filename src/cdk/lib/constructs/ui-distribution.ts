@@ -52,7 +52,7 @@ export class UiDistribution extends Construct {
 
     const indexHtmlCloudfrontFunction = new Function(
       this,
-      'ViewerResponseFunction',
+      `ViewerResponseFunction-${id}`,
       {
         code: FunctionCode.fromInline(`
         function handler(event) {
