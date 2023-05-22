@@ -3,11 +3,14 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
   Distribution,
+  Function,
+  FunctionCode,
+  FunctionEventType,
   OriginAccessIdentity,
   OriginRequestPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { HttpOrigin, S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
@@ -47,20 +50,45 @@ export class UiDistribution extends Construct {
         }
       );
 
-    const httpOrigin = new HttpOrigin(
-      props.uiBucket.bucketWebsiteUrl
-        .replace('http://', '')
-        .replace('https://', ''),
-      { originPath: '/app' }
+    const indexHtmlCloudfrontFunction = new Function(
+      this,
+      'ViewerResponseFunction',
+      {
+        code: FunctionCode.fromInline(`
+        function handler(event) {
+          var request = event.request;
+          var uri = request.uri;
+      
+          // Check whether the URI is missing a file name.
+          if (uri.endsWith('/')) {
+              request.uri += 'index.html';
+          }
+          // Check whether the URI is missing a file extension.
+          else if (!uri.includes('.')) {
+              request.uri += '/index.html';
+          }
+      
+          return request;
+      }
+        `),
+        comment: 'Comment about the function',
+        functionName: 'ExampleViewerResponseFunction',
+      }
     );
 
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
-        // origin: new S3Origin(props.uiBucket, {
-        //   originAccessIdentity: props.originAccessIdentity,
-        //   originPath: `/app`,
-        // }),
-        origin: httpOrigin,
+        origin: new S3Origin(props.uiBucket, {
+          originAccessIdentity: props.originAccessIdentity,
+          originPath: `/app`,
+        }),
+        functionAssociations: [
+          {
+            function: indexHtmlCloudfrontFunction,
+            eventType: FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
+
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,

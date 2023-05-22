@@ -21,7 +21,6 @@ export class UiBucket extends Construct {
       autoDeleteObjects: props.removalPolicy === RemovalPolicy.DESTROY,
       bucketName: props.bucketName,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      websiteIndexDocument: 'index.html',
       cors: [
         {
           allowedMethods: [HttpMethods.GET],
