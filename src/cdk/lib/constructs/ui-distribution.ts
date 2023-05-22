@@ -52,7 +52,7 @@ export class UiDistribution extends Construct {
 
     const indexHtmlCloudfrontFunction = new Function(
       this,
-      `ViewerResponseFunction-${id}`,
+      `cf-viewer-request-function-${id}`,
       {
         code: FunctionCode.fromInline(`
         function handler(event) {
@@ -69,10 +69,11 @@ export class UiDistribution extends Construct {
           }
       
           return request;
-      }
+        }
         `),
-        comment: 'Comment about the function',
-        functionName: 'ExampleViewerResponseFunction',
+        comment:
+          'Add index.html to the end of the request uri if no extension exists',
+        functionName: `cf-viewer-request-function-${id}`,
       }
     );
 
