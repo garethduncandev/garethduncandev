@@ -1,19 +1,15 @@
 <script lang="ts">
-	import type { ComponentType, SvelteComponentTyped } from 'svelte';
+	import type { PageResponse } from './proxy+page';
 
-	export let data: {
-		content: ComponentType<SvelteComponentTyped>;
-		title: string;
-		date: Date;
-	};
+	export let data: PageResponse;
 </script>
 
 <svelte:head>
-	<title>Gareth Duncan | {data.title}</title>
+	<title>{data.post.metadata.title} | {data.siteTitle}</title>
 </svelte:head>
 
 <article>
-	<svelte:component this={data.content} />
+	<svelte:component this={data.post.content} />
 </article>
 
 <style lang="scss">

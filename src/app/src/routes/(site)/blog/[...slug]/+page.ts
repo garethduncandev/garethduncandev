@@ -1,5 +1,7 @@
 import type { Load } from '@sveltejs/kit';
 import { MarkdownHelper } from '../../../../helper/markdown.helper';
+import { PUBLIC_TITLE } from '$env/static/public';
+import type { MarkdownFile } from '../../../../models/markdown-file';
 
 export const prerender = true;
 export const load: Load = async ({ params }) => {
@@ -17,5 +19,14 @@ export const load: Load = async ({ params }) => {
 	if (!post) {
 		throw new Error('Post not found', post);
 	}
-	return post;
+
+	return {
+		post: post,
+		siteTitle: PUBLIC_TITLE
+	};
+};
+
+export type PageResponse = {
+	post: MarkdownFile;
+	siteTitle: string;
 };

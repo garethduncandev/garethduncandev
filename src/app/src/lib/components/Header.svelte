@@ -16,6 +16,11 @@
 	header {
 		display: flex;
 		align-items: center;
+		h1 {
+			a {
+				text-decoration: none;
+			}
+		}
 	}
 
 	ul {
