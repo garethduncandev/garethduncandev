@@ -21,7 +21,7 @@
 		const end = Date.now();
 		duration = (end - start) / 1000;
 		diagnostics = result;
-		coldStart === duration > 1;
+		coldStart = duration > 0.5;
 		loading = false;
 	});
 </script>
