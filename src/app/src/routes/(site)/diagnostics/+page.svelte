@@ -14,6 +14,10 @@
 	let loading = false;
 
 	onMount(async () => {
+		loadDiagnostics();
+	});
+
+	async function loadDiagnostics() {
 		loading = true;
 		const client = new DiagnosticsClient(PUBLIC_API_URL);
 		const start = Date.now();
@@ -23,7 +27,7 @@
 		diagnostics = result;
 		coldStart = duration > 0.5;
 		loading = false;
-	});
+	}
 </script>
 
 <h1>Diagnostics</h1>
@@ -36,4 +40,5 @@
 	<p>server datetime: {diagnostics.diagnostics.apiDateTime}</p>
 	<p>api call duration: {duration} seconds</p>
 	<p>possible cold start?: {coldStart}</p>
+	<button on:click={loadDiagnostics}>Refresh</button>
 {/if}
