@@ -23,6 +23,7 @@
     }
   ],
   "settings": {
-    "liveServer.settings.multiRootWorkspaceName": "app"
+    "liveServer.settings.multiRootWorkspaceName": "app",
+    "dotnet.defaultSolution": "c:\\Users\\gduncan\\source\\repos\\garethduncandev\\src\\api\\GarethDuncanDev.sln"
   }
 }

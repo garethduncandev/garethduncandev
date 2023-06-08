@@ -42,20 +42,6 @@ export class ApplicationStack extends cdk.Stack {
 
     this.uiBucket.bucket.grantRead(props.originAccessIdentity);
 
-    // cloudfront distribution
-    const distribution = new UiDistribution(this, 'ui-distribution', {
-      cloudFrontDomainCertificateArn:
-        props.applicationStackOptions.applicationOptions
-          .CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN,
-      uiBucket: this.uiBucket.bucket,
-      domainName: props.applicationStackOptions.fullDomainName,
-      hostedZone: hostedZone,
-      removalPolicy:
-        props.applicationStackOptions.environmentOptions.removalPolicy,
-      noIndex: props.applicationStackOptions.environmentOptions.robotsNoIndex,
-      originAccessIdentity: props.originAccessIdentity,
-    });
-
     // lambda
     const lambdaDockerImageFunction = new LambdaDockerImageFunction(
       this,
@@ -71,6 +57,20 @@ export class ApplicationStack extends cdk.Stack {
         functionName: id,
       }
     );
+
+    // cloudfront distribution
+    const distribution = new UiDistribution(this, 'ui-distribution', {
+      cloudFrontDomainCertificateArn:
+        props.applicationStackOptions.applicationOptions
+          .CDK_CLOUD_FRONT_DOMAIN_CERTIFICATE_ARN,
+      uiBucket: this.uiBucket.bucket,
+      domainName: props.applicationStackOptions.fullDomainName,
+      hostedZone: hostedZone,
+      removalPolicy:
+        props.applicationStackOptions.environmentOptions.removalPolicy,
+      noIndex: props.applicationStackOptions.environmentOptions.robotsNoIndex,
+      originAccessIdentity: props.originAccessIdentity,
+    });
 
     // api gateway
     const httpApi = new HttpApiGateway(this, 'http-api', {
