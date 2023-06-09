@@ -34,8 +34,8 @@ export class UiBucket extends Construct {
           allowedHeaders: ['*'],
         },
       ],
-      websiteIndexDocument: 'app/index.html',
-      websiteErrorDocument: 'app/index.html',
+      websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html',
       publicReadAccess: true,
     });
 
