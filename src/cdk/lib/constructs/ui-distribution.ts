@@ -88,7 +88,9 @@ export class UiDistribution extends Construct {
         // }),
         // http://garethduncandev-development-blue.s3-website.eu-west-2.amazonaws.com/
 
-        origin: new HttpOrigin(bucketS3Url),
+        origin: new HttpOrigin(bucketS3Url, {
+          originPath: `/app`,
+        }),
 
         functionAssociations: [
           {
