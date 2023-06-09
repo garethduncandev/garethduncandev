@@ -10,7 +10,7 @@ import {
   OriginRequestPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
@@ -77,12 +77,19 @@ export class UiDistribution extends Construct {
       }
     );
 
+    //const bucketS3Url = `http://${props.uiBucket.bucketDomainName}.s3-website.${this.region}.amazonaws.com`;
+    const bucketS3Url = props.uiBucket.bucketDomainName;
+
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
-        origin: new S3Origin(props.uiBucket, {
-          originAccessIdentity: props.originAccessIdentity,
-          originPath: `/app`,
-        }),
+        // origin: new S3Origin(props.uiBucket, {
+        //   originAccessIdentity: props.originAccessIdentity,
+        //   originPath: `/app`,
+        // }),
+        // http://garethduncandev-development-blue.s3-website.eu-west-2.amazonaws.com/
+
+        origin: new HttpOrigin(bucketS3Url),
+
         functionAssociations: [
           {
             function: indexHtmlCloudfrontFunction,

@@ -1,5 +1,5 @@
 import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
-import { BlockPublicAccess, Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
 export class UiBucketProps {
@@ -20,7 +20,6 @@ export class UiBucket extends Construct {
       removalPolicy: props.removalPolicy,
       autoDeleteObjects: props.removalPolicy === RemovalPolicy.DESTROY,
       bucketName: props.bucketName,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       cors: [
         {
           allowedMethods: [HttpMethods.GET],
@@ -28,6 +27,9 @@ export class UiBucket extends Construct {
           allowedHeaders: ['*'],
         },
       ],
+      websiteIndexDocument: 'index.html',
+      websiteErrorDocument: 'index.html',
+      publicReadAccess: true,
     });
 
     new CfnOutput(this, 'domain-name-export', {

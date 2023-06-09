@@ -5,8 +5,28 @@
         "robotsNoIndex": true,
         "apiTimeout": 300,
         "apiDefaultMemoryAllocation": 128,
-        "allowLocalHostAccess": false,
+        "allowLocalHostAccess": true,
         "domainNameFormat": "{environmentName}.{domainName}",
         "aspNetCoreEnvironment": "Development"
+    },
+    {
+        "environmentName": "test",
+        "removalPolicy": "destroy",
+        "robotsNoIndex": true,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "allowLocalHostAccess": false,
+        "domainNameFormat": "{environmentName}.{domainName}",
+        "aspNetCoreEnvironment": "Test"
+    },
+    {
+        "environmentName": "production",
+        "removalPolicy": "destroy",
+        "robotsNoIndex": true,
+        "apiTimeout": 300,
+        "apiDefaultMemoryAllocation": 128,
+        "allowLocalHostAccess": false,
+        "domainNameFormat": "{environmentName}.{domainName}",
+        "aspNetCoreEnvironment": "Production"
     }
 ]
