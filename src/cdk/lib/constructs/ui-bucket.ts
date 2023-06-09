@@ -1,5 +1,10 @@
 import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
-import { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketAccessControl,
+  HttpMethods,
+} from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
 export class UiBucketProps {
@@ -20,6 +25,8 @@ export class UiBucket extends Construct {
       removalPolicy: props.removalPolicy,
       autoDeleteObjects: props.removalPolicy === RemovalPolicy.DESTROY,
       bucketName: props.bucketName,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
+      accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       cors: [
         {
           allowedMethods: [HttpMethods.GET],
