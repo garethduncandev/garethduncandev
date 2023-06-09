@@ -78,7 +78,7 @@ export class UiDistribution extends Construct {
     );
 
     //const bucketS3Url = `http://${props.uiBucket.bucketDomainName}.s3-website.${this.region}.amazonaws.com`;
-    const bucketS3Url = props.uiBucket.bucketWebsiteUrl;
+    const bucketS3Url = props.uiBucket.bucketWebsiteUrl.replace('http://', '');
 
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
