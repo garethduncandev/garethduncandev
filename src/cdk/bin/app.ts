@@ -10,7 +10,7 @@ dotenv.config();
 const app = new cdk.App();
 
 // for each environment create 2 stacks, one for blue and one for green
-new ApplicationStack(app, 'dev-garethduncandev', {
+new ApplicationStack(app, 'garethduncandev-dev', {
   domain: 'garethduncan.dev',
   subDomain: 'dev',
   robotsNoIndex: true,
