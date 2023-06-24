@@ -89,7 +89,6 @@ export class UiDistribution extends Construct {
             eventType: FunctionEventType.VIEWER_REQUEST,
           },
         ],
-
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: OriginRequestPolicy.CORS_S3_ORIGIN,
