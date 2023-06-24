@@ -4,12 +4,7 @@ import { Construct } from 'constructs/lib/construct';
 import path = require('path');
 
 export class LambdaDockerImageFunctionProps {
-  public constructor(
-    public readonly functionName: string,
-    public readonly apiDefaultMemoryAllocation: number,
-    public readonly timeout: number,
-    public readonly aspNetCoreEnvironment: string
-  ) {}
+  public constructor(public readonly aspNetCoreEnvironment: string) {}
 }
 
 export class LambdaDockerImageFunction extends Construct {
@@ -31,12 +26,11 @@ export class LambdaDockerImageFunction extends Construct {
 
     this.dockerImageFunction = new DockerImageFunction(
       this,
-      props.functionName,
+      'docker-image-function',
       {
-        functionName: props.functionName,
         code: code,
-        memorySize: props.apiDefaultMemoryAllocation,
-        timeout: Duration.seconds(props.timeout),
+        memorySize: 128,
+        timeout: Duration.seconds(30),
         environment: {
           ASPNETCORE_ENVIRONMENT: props.aspNetCoreEnvironment,
         },

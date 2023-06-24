@@ -1,17 +1,15 @@
-import { CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
+import { RemovalPolicy } from 'aws-cdk-lib';
+import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 import {
   BlockPublicAccess,
   Bucket,
   BucketAccessControl,
-  HttpMethods,
 } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
 export class UiBucketProps {
   public constructor(
-    public readonly bucketName: string,
-    public readonly removalPolicy: RemovalPolicy,
-    public readonly applicationStackName: string
+    public readonly originAccessIdentity: OriginAccessIdentity
   ) {}
 }
 
@@ -22,27 +20,12 @@ export class UiBucket extends Construct {
     super(scope, id);
 
     this.bucket = new Bucket(this, id, {
-      removalPolicy: props.removalPolicy,
-      autoDeleteObjects: props.removalPolicy === RemovalPolicy.DESTROY,
-      bucketName: props.bucketName,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ACLS,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
-      cors: [
-        {
-          allowedMethods: [HttpMethods.GET],
-          allowedOrigins: ['*'],
-          allowedHeaders: ['*'],
-        },
-      ],
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html',
-      publicReadAccess: true,
+      publicReadAccess: false,
     });
-
-    new CfnOutput(this, 'domain-name-export', {
-      value: this.bucket.bucketName,
-      description: 'bucket name',
-      exportName: `${props.applicationStackName}-bucket-name`,
-    });
+    this.bucket.grantRead(props.originAccessIdentity);
   }
 }

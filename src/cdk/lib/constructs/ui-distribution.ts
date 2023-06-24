@@ -1,4 +1,3 @@
-import { RemovalPolicy } from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import {
   AllowedMethods,
@@ -10,7 +9,7 @@ import {
   OriginRequestPolicy,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront';
-import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { ARecord, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { IBucket } from 'aws-cdk-lib/aws-s3';
@@ -19,7 +18,6 @@ import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-p
 
 export class UiDistributionProps {
   public constructor(
-    public readonly removalPolicy: RemovalPolicy,
     public readonly domainName: string,
     public readonly cloudFrontDomainCertificateArn: string,
     public readonly noIndex: boolean,
@@ -31,6 +29,24 @@ export class UiDistributionProps {
 
 export class UiDistribution extends Construct {
   public readonly distribution: Distribution;
+
+  private readonly cloudFrontFunction = `
+  function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // Check whether the URI is missing a file name.
+    if (uri.endsWith('/')) {
+        request.uri += 'index.html';
+    }
+    // Check whether the URI is missing a file extension.
+    else if (!uri.includes('.')) {
+        request.uri += '/index.html';
+    }
+
+    return request;
+  }
+  `;
 
   public constructor(scope: Construct, id: string, props: UiDistributionProps) {
     super(scope, id);
@@ -54,44 +70,19 @@ export class UiDistribution extends Construct {
       this,
       `cf-viewer-request-function-${id}`,
       {
-        code: FunctionCode.fromInline(`
-        function handler(event) {
-          var request = event.request;
-          var uri = request.uri;
-      
-          // Check whether the URI is missing a file name.
-          if (uri.endsWith('/')) {
-              request.uri += 'index.html';
-          }
-          // Check whether the URI is missing a file extension.
-          else if (!uri.includes('.')) {
-              request.uri += '/index.html';
-          }
-      
-          return request;
-        }
-        `),
+        code: FunctionCode.fromInline(this.cloudFrontFunction),
         comment:
           'Add index.html to the end of the request uri if no extension exists',
         functionName: `cf-viewer-request-function-${id}`,
       }
     );
 
-    //const bucketS3Url = `http://${props.uiBucket.bucketDomainName}.s3-website.${this.region}.amazonaws.com`;
-    const bucketS3Url = props.uiBucket.bucketWebsiteUrl.replace('http://', '');
-
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
-        // origin: new S3Origin(props.uiBucket, {
-        //   originAccessIdentity: props.originAccessIdentity,
-        //   originPath: `/app`,
-        // }),
-        // http://garethduncandev-development-blue.s3-website.eu-west-2.amazonaws.com/
-
-        origin: new HttpOrigin(bucketS3Url, {
+        origin: new S3Origin(props.uiBucket, {
+          originAccessIdentity: props.originAccessIdentity,
           originPath: `/app`,
         }),
-
         functionAssociations: [
           {
             function: indexHtmlCloudfrontFunction,

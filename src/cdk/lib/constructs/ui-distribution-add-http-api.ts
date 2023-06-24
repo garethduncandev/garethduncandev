@@ -15,8 +15,7 @@ import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-p
 export class UiDistributionHttpApiOriginProps {
   public constructor(
     public readonly distribution: Distribution,
-    public readonly httpApiId: string,
-    public readonly httpApiRegion: string
+    public readonly httpApiUrl: string
   ) {}
 }
 
@@ -55,8 +54,8 @@ export class UiDistributionHttpApiOrigin extends Construct {
       }
     );
 
-    const apiUrl = `${props.httpApiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
-    const httpOrigin = new HttpOrigin(apiUrl);
+    // const apiUrl = `${props.httpApiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
+    const httpOrigin = new HttpOrigin(props.httpApiUrl);
 
     props.distribution.addBehavior('/api/*', httpOrigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,
