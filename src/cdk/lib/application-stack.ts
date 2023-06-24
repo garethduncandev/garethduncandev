@@ -43,17 +43,17 @@ export class ApplicationStack extends cdk.Stack {
       throw new Error("hosted zone id can't be empty");
     }
 
-    const hostedZone = HostedZone.fromHostedZoneAttributes(this, 'Zone', {
+    const hostedZone = HostedZone.fromHostedZoneAttributes(this, `${id}-zone`, {
       hostedZoneId: hostedZoneId,
       zoneName: props.domain,
     });
 
-    const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
+    const originAccessIdentity = new OriginAccessIdentity(this, `${id}-OAI`, {
       comment: `${id}-cdk-OAI`,
     });
 
     // s3 hosting bucket
-    this.uiBucket = new UiBucket(this, 'ui-bucket', {
+    this.uiBucket = new UiBucket(this, `${id}-ui-bucket`, {
       originAccessIdentity: originAccessIdentity,
     });
 
