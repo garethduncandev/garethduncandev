@@ -12,7 +12,7 @@ import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface ApplicationStackProps extends cdk.StackProps {
   domain: string;
-  subDomain: string;
+  subDomain: string | undefined;
   aspNetCoreEnvironment: string;
   robotsNoIndex: boolean;
 }
@@ -35,7 +35,7 @@ export class ApplicationStack extends cdk.Stack {
       throw new Error("cloudfront certificate identifier can't be empty");
     }
 
-    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${props.env?.account}:certificate/${cloudFrontCertificateIdentifier}`;
+    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${cdk.Aws.ACCOUNT_ID}:certificate/${cloudFrontCertificateIdentifier}`;
 
     const hostedZoneId = this.node.tryGetContext('hosted-zone-id');
 
