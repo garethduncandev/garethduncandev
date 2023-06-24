@@ -2,7 +2,7 @@ import { ResponseHeadersPolicy } from 'aws-cdk-lib/aws-cloudfront';
 import { Construct } from 'constructs/lib/construct';
 
 export interface UiBucketProps {
-  nonIndex: boolean;
+  noIndex: boolean;
 }
 
 export class CloudFrontResponseHeadersPolicy extends Construct {
@@ -24,7 +24,7 @@ export class CloudFrontResponseHeadersPolicy extends Construct {
         originOverride: true,
         accessControlExposeHeaders: ['*'],
       },
-      customHeadersBehavior: props.nonIndex
+      customHeadersBehavior: props.noIndex
         ? {
             customHeaders: [
               {

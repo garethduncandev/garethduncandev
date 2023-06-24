@@ -7,6 +7,6 @@ export class HttpApiGateway extends Construct {
   public constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.httpApi = new HttpApi(this, `http-api-${id}`);
+    this.httpApi = new HttpApi(this, `${id}`);
   }
 }

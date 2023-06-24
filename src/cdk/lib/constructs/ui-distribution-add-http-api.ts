@@ -29,15 +29,15 @@ export class UiDistributionHttpApiOrigin extends Construct {
 
     const responseHeaderPolicy = new CloudFrontResponseHeadersPolicy(
       this,
-      `response-headers-policy-${id}-http-api`,
+      `${id}-response-headers-policy-http-api`,
       {
-        nonIndex: true,
+        noIndex: true,
       }
     );
 
     const apiOriginPolicy = new OriginRequestPolicy(
       this,
-      `api-origin-policy-${id}`,
+      `${id}-api-origin-policy`,
       {
         cookieBehavior: OriginRequestCookieBehavior.all(),
         headerBehavior: OriginRequestHeaderBehavior.allowList(
@@ -54,7 +54,6 @@ export class UiDistributionHttpApiOrigin extends Construct {
       }
     );
 
-    // const apiUrl = `${props.httpApiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
     const httpApiUrl = props.httpApiUrl
       .replace('http://', '')
       .replace('https://', '');

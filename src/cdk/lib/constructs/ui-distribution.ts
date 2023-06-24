@@ -53,27 +53,27 @@ export class UiDistribution extends Construct {
 
     const certificate = Certificate.fromCertificateArn(
       this,
-      `certificate`,
+      `${id}-certificate`,
       props.cloudFrontDomainCertificateArn
     );
 
     const responseHeadersPolicyCloudFrontUi =
       new CloudFrontResponseHeadersPolicy(
         this,
-        `response-headers-policy-${id}-cloud-front-ui`,
+        `${id}-response-headers-policy-cloud-front-ui`,
         {
-          nonIndex: props.noIndex,
+          noIndex: props.noIndex,
         }
       );
 
     const indexHtmlCloudfrontFunction = new Function(
       this,
-      `cf-viewer-request-function-${id}`,
+      `${id}-cf-viewer-request-function`,
       {
         code: FunctionCode.fromInline(this.cloudFrontFunction),
         comment:
           'Add index.html to the end of the request uri if no extension exists',
-        functionName: `cf-viewer-request-function-${id}`,
+        functionName: `${id}-cf-viewer-request-function`,
       }
     );
 
@@ -113,7 +113,7 @@ export class UiDistribution extends Construct {
       ],
     });
 
-    new ARecord(this, `alias-record`, {
+    new ARecord(this, `${id}-alias-record`, {
       recordName: props.domainName,
       target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       zone: props.hostedZone,

@@ -49,7 +49,7 @@ export class ApplicationStack extends cdk.Stack {
     });
 
     const originAccessIdentity = new OriginAccessIdentity(this, `OAI`, {
-      comment: `created-by-${id}-cdk-OAI`,
+      comment: `${id}-cdk-OAI`,
     });
 
     // s3 hosting bucket
@@ -67,7 +67,7 @@ export class ApplicationStack extends cdk.Stack {
     );
 
     // cloudfront distribution
-    const distribution = new UiDistribution(this, 'ui-distribution', {
+    const distribution = new UiDistribution(this, `${id}-ui-distribution`, {
       cloudFrontDomainCertificateArn: cloudFrontCertificateARN,
       uiBucket: this.uiBucket.bucket,
       domainName: props.subDomain
@@ -79,24 +79,30 @@ export class ApplicationStack extends cdk.Stack {
     });
 
     // api gateway
-    const httpApi = new HttpApiGateway(this, 'http-api');
+    const httpApi = new HttpApiGateway(this, `${id}-http-api`);
 
     // lambda api gateway integration
-    new HttpApiGatewayLambdaIntegration(this, 'http-api-lambda-integration', {
-      dockerImageFunction: lambdaDockerImageFunction.dockerImageFunction,
-      httpApi: httpApi.httpApi,
-    });
+    new HttpApiGatewayLambdaIntegration(
+      this,
+      `${id}-http-api-lambda-integration`,
+      {
+        dockerImageFunction: lambdaDockerImageFunction.dockerImageFunction,
+        httpApi: httpApi.httpApi,
+      }
+    );
 
     // add http api as another origin to distribution
-    new UiDistributionHttpApiOrigin(this, 'ui-distribution-http-api-origin', {
-      distribution: distribution.distribution,
-      httpApiUrl: httpApi.httpApi.apiEndpoint,
-      //httpApiId: httpApi.httpApi.apiId,
-      //httpApiRegion: props.env?.region ?? '',
-    });
+    new UiDistributionHttpApiOrigin(
+      this,
+      `${id}-ui-distribution-http-api-origin`,
+      {
+        distribution: distribution.distribution,
+        httpApiUrl: httpApi.httpApi.apiEndpoint,
+      }
+    );
 
     // s3 bucket deployment to cloudfront
-    new UiBucketDeployment(this, 'ui-bucket-deployment', {
+    new UiBucketDeployment(this, `${id}-ui-bucket-deployment`, {
       destinationBucket: this.uiBucket.bucket,
       distribution: distribution.distribution,
     });
