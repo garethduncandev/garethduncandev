@@ -55,7 +55,10 @@ export class UiDistributionHttpApiOrigin extends Construct {
     );
 
     // const apiUrl = `${props.httpApiId}.execute-api.${props.httpApiRegion}.amazonaws.com`;
-    const httpOrigin = new HttpOrigin(props.httpApiUrl.split('://')[1]);
+    const httpApiUrl = props.httpApiUrl
+      .replace('http://', '')
+      .replace('https://', '');
+    const httpOrigin = new HttpOrigin(httpApiUrl);
 
     props.distribution.addBehavior('/api/*', httpOrigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,
