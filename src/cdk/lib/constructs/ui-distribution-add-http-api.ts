@@ -29,30 +29,26 @@ export class UiDistributionHttpApiOrigin extends Construct {
 
     const responseHeaderPolicy = new CloudFrontResponseHeadersPolicy(
       this,
-      `${id}-response-headers-policy-http-api`,
+      `response-headers-policy-http-api`,
       {
         noIndex: true,
       }
     );
 
-    const apiOriginPolicy = new OriginRequestPolicy(
-      this,
-      `${id}-api-origin-policy`,
-      {
-        cookieBehavior: OriginRequestCookieBehavior.all(),
-        headerBehavior: OriginRequestHeaderBehavior.allowList(
-          'Accept-Charset',
-          'Origin',
-          'Access-Control-Request-Headers',
-          'Referer',
-          'Accept-Language',
-          'Accept-Datetime',
-          'Access-Control-Request-Method'
-        ),
-        queryStringBehavior: OriginRequestQueryStringBehavior.all(),
-        comment: 'HTTP API origin policy',
-      }
-    );
+    const apiOriginPolicy = new OriginRequestPolicy(this, `api-origin-policy`, {
+      cookieBehavior: OriginRequestCookieBehavior.all(),
+      headerBehavior: OriginRequestHeaderBehavior.allowList(
+        'Accept-Charset',
+        'Origin',
+        'Access-Control-Request-Headers',
+        'Referer',
+        'Accept-Language',
+        'Accept-Datetime',
+        'Access-Control-Request-Method'
+      ),
+      queryStringBehavior: OriginRequestQueryStringBehavior.all(),
+      comment: 'HTTP API origin policy',
+    });
 
     const httpApiUrl = props.httpApiUrl
       .replace('http://', '')

@@ -15,7 +15,6 @@ export class CloudFrontResponseHeadersPolicy extends Construct {
     super(scope, id);
 
     this.responseHeadersPolicy = new ResponseHeadersPolicy(this, id, {
-      responseHeadersPolicyName: id,
       corsBehavior: {
         accessControlAllowCredentials: false,
         accessControlAllowHeaders: ['*'],

@@ -1,10 +1,6 @@
 import { RemovalPolicy } from 'aws-cdk-lib';
 import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
-import {
-  BlockPublicAccess,
-  Bucket,
-  BucketAccessControl,
-} from 'aws-cdk-lib/aws-s3';
+import { BlockPublicAccess, Bucket } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs/lib/construct';
 
 export class UiBucketProps {
@@ -23,7 +19,6 @@ export class UiBucket extends Construct {
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      accessControl: BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
       publicReadAccess: false,
     });
     this.bucket.grantRead(props.originAccessIdentity);

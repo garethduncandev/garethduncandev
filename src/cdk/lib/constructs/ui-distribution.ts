@@ -60,7 +60,7 @@ export class UiDistribution extends Construct {
     const responseHeadersPolicyCloudFrontUi =
       new CloudFrontResponseHeadersPolicy(
         this,
-        `${id}-response-headers-policy-cloud-front-ui`,
+        `response-headers-policy-cloud-front-ui`,
         {
           noIndex: props.noIndex,
         }
@@ -68,7 +68,7 @@ export class UiDistribution extends Construct {
 
     const indexHtmlCloudfrontFunction = new Function(
       this,
-      `${id}-cf-viewer-request-function`,
+      `cf-viewer-request-function`,
       {
         code: FunctionCode.fromInline(this.cloudFrontFunction),
         comment:
@@ -113,7 +113,7 @@ export class UiDistribution extends Construct {
       ],
     });
 
-    new ARecord(this, `${id}-alias-record`, {
+    new ARecord(this, `alias-record`, {
       recordName: props.domainName,
       target: RecordTarget.fromAlias(new CloudFrontTarget(this.distribution)),
       zone: props.hostedZone,
