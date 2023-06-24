@@ -11,11 +11,13 @@ import {
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs/lib/construct';
 import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
+import { HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { Aws } from 'aws-cdk-lib';
 
 export class UiDistributionHttpApiOriginProps {
   public constructor(
     public readonly distribution: Distribution,
-    public readonly httpApiUrl: string
+    public readonly httpApi: HttpApi
   ) {}
 }
 
@@ -50,10 +52,9 @@ export class UiDistributionHttpApiOrigin extends Construct {
       comment: 'HTTP API origin policy',
     });
 
-    const httpApiUrl = props.httpApiUrl
-      .replace('http://', '')
-      .replace('https://', '');
-    const httpOrigin = new HttpOrigin(httpApiUrl);
+    const apiUrl = `${props.httpApi.httpApiId}.execute-api.${Aws.REGION}.amazonaws.com`;
+
+    const httpOrigin = new HttpOrigin(apiUrl);
 
     props.distribution.addBehavior('/api/*', httpOrigin, {
       allowedMethods: AllowedMethods.ALLOW_ALL,

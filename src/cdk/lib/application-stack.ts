@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import { Aws } from 'aws-cdk-lib';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 import { HttpApiGateway } from './constructs/http-api-gateway';
@@ -8,7 +9,6 @@ import { UiBucket } from './constructs/ui-bucket';
 import { UiBucketDeployment } from './constructs/ui-bucket-deployment';
 import { UiDistribution } from './constructs/ui-distribution';
 import { UiDistributionHttpApiOrigin } from './constructs/ui-distribution-add-http-api';
-import { OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
 
 export interface ApplicationStackProps extends cdk.StackProps {
   domain: string;
@@ -35,7 +35,7 @@ export class ApplicationStack extends cdk.Stack {
       throw new Error("cloudfront certificate identifier can't be empty");
     }
 
-    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${cdk.Aws.ACCOUNT_ID}:certificate/${cloudFrontCertificateIdentifier}`;
+    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${Aws.ACCOUNT_ID}:certificate/${cloudFrontCertificateIdentifier}`;
 
     const hostedZoneId = this.node.tryGetContext('hosted-zone-id');
 
@@ -92,7 +92,7 @@ export class ApplicationStack extends cdk.Stack {
       `${id}-ui-distribution-http-api-origin`,
       {
         distribution: distribution.distribution,
-        httpApiUrl: httpApi.httpApi.apiEndpoint,
+        httpApi: httpApi.httpApi,
       }
     );
 
