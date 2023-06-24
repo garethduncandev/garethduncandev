@@ -22,13 +22,13 @@ export class UiDistributionProps {
     public readonly cloudFrontDomainCertificateArn: string,
     public readonly noIndex: boolean,
     public readonly hostedZone: IHostedZone,
-    public readonly uiBucket: IBucket
+    public readonly uiBucket: IBucket,
+    public readonly originAccessIdentity: OriginAccessIdentity
   ) {}
 }
 
 export class UiDistribution extends Construct {
   public readonly distribution: Distribution;
-  public readonly originAccessIdentity: OriginAccessIdentity;
 
   private readonly cloudFrontFunction = `
   function handler(event) {
@@ -77,14 +77,10 @@ export class UiDistribution extends Construct {
       }
     );
 
-    this.originAccessIdentity = new OriginAccessIdentity(this, `${id}-OAI`, {
-      comment: `${id}-cdk-OAI`,
-    });
-
     this.distribution = new Distribution(this, 'distribution', {
       defaultBehavior: {
         origin: new S3Origin(props.uiBucket, {
-          originAccessIdentity: this.originAccessIdentity,
+          originAccessIdentity: props.originAccessIdentity,
           originPath: `/app`,
         }),
         functionAssociations: [

@@ -3,8 +3,8 @@ import {
 	PUBLIC_COMMIT,
 	PUBLIC_BUILD,
 	PUBLIC_ENVIRONMENT,
-	PUBLIC_ENVIRONMENT_COLOR,
-	PUBLIC_TITLE
+	PUBLIC_TITLE,
+	PUBLIC_ENVIRONMENT_CHANNEL
 } from '$env/static/public';
 import { MarkdownHelper } from '../../helper/markdown.helper';
 import { NavHelper } from '../../helper/nav.helper';
@@ -22,7 +22,7 @@ export const load = async () => {
 		dotnetVersion: dotnetversion.default,
 		svelteKitVersion: version.dependencies['@sveltejs/kit'].version,
 		environment: PUBLIC_ENVIRONMENT,
-		environmentColor: PUBLIC_ENVIRONMENT_COLOR,
+		environmentChannel: PUBLIC_ENVIRONMENT_CHANNEL,
 		title: PUBLIC_TITLE
 	};
 

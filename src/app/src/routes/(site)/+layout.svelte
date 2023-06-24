@@ -12,7 +12,7 @@
 	const dotnetVersion = appsettings.dotnetVersion;
 	const svelteKitVersion = appsettings.svelteKitVersion;
 	const environment = appsettings.environment;
-	const environmentColor = appsettings.environmentColor;
+	const environmentChannel = appsettings.environmentChannel;
 	const title = appsettings.title;
 </script>
 
@@ -32,7 +32,7 @@
 		{dotnetVersion}
 		{svelteKitVersion}
 		{environment}
-		{environmentColor}
+		{environmentChannel}
 	/>
 </div>
 

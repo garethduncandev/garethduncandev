@@ -5,6 +5,6 @@ export class AppSettings {
 	dotnetVersion!: string; // provided via build
 	svelteKitVersion!: string; // provided via build
 	environment!: string; // provided via build
-	environmentColor!: string; // provided via build
+	environmentChannel!: string; // provided via build
 	title!: string; // provided via release
 }

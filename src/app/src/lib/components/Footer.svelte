@@ -4,20 +4,20 @@
 	export let dotnetVersion: string;
 	export let svelteKitVersion: string;
 	export let environment: string;
-	export let environmentColor: string;
+	export let environmentChannel: string;
 
 	const year = new Date().getFullYear();
-	let environmentColorEmoji = '🔵';
+	let environmentChannelLabel = '🔵';
 
-	switch (environmentColor) {
+	switch (environmentChannel) {
 		case 'blue':
-			environmentColor = '🔵';
+			environmentChannel = '🔵';
 			break;
 		case 'green':
-			environmentColor = '🟢';
+			environmentChannel = '🟢';
 			break;
 		default:
-			environmentColor = environmentColor;
+			environmentChannel = environmentChannel;
 	}
 </script>
 
@@ -25,7 +25,7 @@
 <div>
 	.NET {dotnetVersion} | SvelteKit {svelteKitVersion} | Build {build} | Commit {commit}
 </div>
-<div>{environment} {environmentColorEmoji}</div>
+<div>{environment} {environmentChannelLabel}</div>
 <div><a href="/diagnostics">diagnostics</a></div>
 
 <style lang="scss">
