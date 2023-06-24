@@ -71,7 +71,7 @@ export class ApplicationStack extends cdk.Stack {
       cloudFrontDomainCertificateArn: cloudFrontCertificateARN,
       uiBucket: this.uiBucket.bucket,
       domainName: props.subDomain
-        ? `${props.domain}.${props.subDomain}`
+        ? `${props.subDomain}.${props.domain}`
         : props.domain,
       hostedZone: hostedZone,
       noIndex: props.robotsNoIndex,
