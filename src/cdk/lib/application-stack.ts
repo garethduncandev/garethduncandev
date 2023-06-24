@@ -48,14 +48,8 @@ export class ApplicationStack extends cdk.Stack {
       zoneName: props.domain,
     });
 
-    const originAccessIdentity = new OriginAccessIdentity(this, `${id}-OAI`, {
-      comment: `${id}-cdk-OAI`,
-    });
-
     // s3 hosting bucket
-    this.uiBucket = new UiBucket(this, `${id}-ui-bucket`, {
-      originAccessIdentity: originAccessIdentity,
-    });
+    this.uiBucket = new UiBucket(this, `${id}-ui-bucket`);
 
     // lambda
     const lambdaDockerImageFunction = new LambdaDockerImageFunction(
@@ -75,8 +69,9 @@ export class ApplicationStack extends cdk.Stack {
         : props.domain,
       hostedZone: hostedZone,
       noIndex: props.robotsNoIndex,
-      originAccessIdentity: originAccessIdentity,
     });
+
+    this.uiBucket.bucket.grantRead(distribution.originAccessIdentity);
 
     // api gateway
     const httpApi = new HttpApiGateway(this, `${id}-http-api`);
