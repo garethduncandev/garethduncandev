@@ -19,13 +19,14 @@
 <svelte:head>
 	<title>{title}</title>
 </svelte:head>
-<div class="container">
-	<Header />
 
-	<main>
-		<slot />
-	</main>
+<Header />
 
+<main>
+	<slot />
+</main>
+
+<footer>
 	<Footer
 		{build}
 		{commit}
@@ -34,7 +35,11 @@
 		{environment}
 		{environmentChannel}
 	/>
-</div>
+</footer>
 
 <style lang="scss">
+	footer {
+		position: fixed;
+		bottom: 0;
+	}
 </style>

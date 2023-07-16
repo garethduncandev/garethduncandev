@@ -1,0 +1,149 @@
+body {
+	/* colour variations */
+	--level-1: 5%;
+	--level-2: 10%;
+
+	/* Primary  */
+	--primary-color: hsla(
+		var(--primary-color-h),
+		var(--primary-color-s),
+		var(--primary-color-l),
+		var(--primary-color-a)
+	);
+
+	--primary-color-lighter: hsla(
+		var(--primary-color-h),
+		var(--primary-color-s),
+		calc(var(--primary-color-l) + var(--level-1)),
+		100%
+	);
+
+	--primary-color-lightest: hsla(
+		var(--primary-color-h),
+		var(--primary-color-s),
+		calc(var(--primary-color-l) + var(--level-2)),
+		100%
+	);
+
+	--primary-color-darker: hsla(
+		var(--primary-color-h),
+		var(--primary-color-s),
+		calc(var(--primary-color-l) - var(--level-1)),
+		var(--primary-color-a)
+	);
+
+	--primary-color-darkest: hsla(
+		var(--primary-color-h),
+		var(--primary-color-s),
+		calc(var(--primary-color-l) - var(--level-2)),
+		var(--primary-color-a)
+	);
+
+	/* Secondary */
+	--secondary-color: hsla(
+		var(--secondary-color-h),
+		var(--secondary-color-s),
+		var(--secondary-color-l),
+		var(--secondary-color-a)
+	);
+
+	--secondary-color-lighter: hsla(
+		var(--secondary-color-h),
+		var(--secondary-color-s),
+		calc(var(--secondary-color-l) + var(--level-1)),
+		var(--secondary-color-a)
+	);
+
+	--secondary-color-lightest: hsla(
+		var(--secondary-color-h),
+		var(--secondary-color-s),
+		calc(var(--secondary-color-l) + var(--level-2)),
+		var(--secondary-color-a)
+	);
+
+	--secondary-color-darker: hsla(
+		var(--secondary-color-h),
+		var(--secondary-color-s),
+		calc(var(--secondary-color-l) - var(--level-1)),
+		var(--secondary-color-a)
+	);
+
+	--secondary-color-darkest: hsla(
+		var(--secondary-color-h),
+		var(--secondary-color-s),
+		calc(var(--secondary-color-l) - var(--level-2)),
+		var(--secondary-color-a)
+	);
+
+	/* Background */
+	--background-color: hsla(
+		var(--background-color-h),
+		var(--background-color-s),
+		var(--background-color-l),
+		var(--background-color-a)
+	);
+
+	--background-color-lighter: hsla(
+		var(--background-color-h),
+		var(--background-color-s),
+		calc(var(--background-color-l) + var(--level-1)),
+		var(--background-color-a)
+	);
+
+	--background-color-lightest: hsla(
+		var(--background-color-h),
+		var(--background-color-s),
+		calc(var(--background-color-l) + var(--level-2)),
+		var(--background-color-a)
+	);
+
+	--background-color-darker: hsla(
+		var(--background-color-h),
+		var(--background-color-s),
+		calc(var(--background-color-l) - var(--level-1)),
+		var(--background-color-a)
+	);
+
+	--background-color-darkest: hsla(
+		var(--background-color-h),
+		var(--background-color-s),
+		calc(var(--background-color-l) - var(--level-2)),
+		var(--background-color-a)
+	);
+
+	/* Font */
+	--font-color: hsla(
+		var(--font-color-h),
+		var(--font-color-s),
+		var(--font-color-l),
+		var(--font-color-a)
+	);
+
+	--font-color-lighter: hsla(
+		var(--font-color-h),
+		var(--font-color-s),
+		calc(var(--font-color-l) + var(--level-1)),
+		var(--font-color-a)
+	);
+
+	--font-color-lightest: hsla(
+		var(--font-color-h),
+		var(--font-color-s),
+		calc(var(--font-color-l) + var(--level-2)),
+		var(--font-color-a)
+	);
+
+	--font-color-darker: hsla(
+		var(--font-color-h),
+		var(--font-color-s),
+		calc(var(--font-color-l) - var(--level-1)),
+		var(--font-color-a)
+	);
+
+	--font-color-darkest: hsla(
+		var(--font-color-h),
+		var(--font-color-s),
+		calc(var(--font-color-l) - var(--level-2)),
+		var(--font-color-a)
+	);
+}

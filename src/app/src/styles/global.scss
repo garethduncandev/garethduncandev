@@ -1,9 +1,4 @@
-* {
-	font-family: 'Courier New', Courier, monospace;
-	background-color: black;
-	color: white;
-}
-
-body {
-	padding: 0.5em;
-}
+@import url('themes/contrasts.scss');
+@import url('themes/light.scss');
+@import url('themes/dark.scss');
+@import url('layout.scss');

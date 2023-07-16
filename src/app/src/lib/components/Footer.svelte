@@ -21,16 +21,18 @@
 	}
 </script>
 
-<div>© Copyright {year}, Gareth Duncan</div>
-<div>
-	.NET {dotnetVersion} | SvelteKit {svelteKitVersion} | Build {build} | Commit {commit}
+<div class="main">
+	<div>© Copyright {year}, Gareth Duncan</div>
+	<div>
+		.NET {dotnetVersion} | SvelteKit {svelteKitVersion} | Build {build} | Commit
+		{commit}
+	</div>
+	<div>{environment} {environmentChannelLabel}</div>
+	<div><a href="/diagnostics">diagnostics</a></div>
 </div>
-<div>{environment} {environmentChannelLabel}</div>
-<div><a href="/diagnostics">diagnostics</a></div>
 
 <style lang="scss">
-	@use '../../styles/global.scss';
-	div {
-		text-align: center;
+	.main {
+		font-size: 0.8em;
 	}
 </style>

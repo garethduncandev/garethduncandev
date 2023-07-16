@@ -1,0 +1,18 @@
+@font-face {
+	font-family: 'CascadiaCode';
+	src: url('../fonts/CascadiaCode.woff2') format('woff2'),
+		url('../fonts/CascadiaCode.ttf') format('truetype');
+}
+
+:root {
+	body {
+		font-family: 'CascadiaCode', 'system-ui';
+		transition: 0.3s;
+		background-color: var(--background-color);
+		color: var(--font-color);
+	}
+
+	a {
+		color: var(--primary-color);
+	}
+}

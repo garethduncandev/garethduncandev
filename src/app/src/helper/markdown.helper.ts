@@ -15,7 +15,17 @@ export class MarkdownHelper {
 
 		const markdownFiles = (await Promise.all(promises)) as MarkdownFile[];
 
-		return markdownFiles;
+		const published = markdownFiles.filter(
+			(x) => x.metadata.published && x.metadata.datePublished
+		);
+
+		console.log(published);
+
+		const active = published.filter(
+			(x) => x.metadata?.datePublished?.getTime() <= Date.now()
+		);
+
+		return active;
 	}
 
 	private async markdownFilesMap([path, resolver]: [
@@ -25,11 +35,15 @@ export class MarkdownHelper {
 		const file = await resolver();
 		const metadata = file['metadata'];
 
+		// parse dates
+		metadata.datePublished = new Date(metadata.datePublished);
+		metadata.dateModified = new Date(metadata.dateModified);
+		metadata.dateCreated = new Date(metadata.dateCreated);
+
 		const content = file[
 			'default'
 		] as unknown as ComponentType<SvelteComponentTyped>;
 
-		// clean the
 		const postPath = path.split('/posts')[1].replace('.md', '');
 
 		return {

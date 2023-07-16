@@ -15,6 +15,7 @@ export class MarkdownMetadata {
 		public dateCreated: Date,
 		public datePublished: Date,
 		public dateUpdated: Date,
+		public dateModified: Date,
 		public published: boolean
 	) {}
 }
