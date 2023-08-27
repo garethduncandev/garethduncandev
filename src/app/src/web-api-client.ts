@@ -156,6 +156,8 @@ export interface IDiagnosticsVm {
 
 export class DiagnosticsDto implements IDiagnosticsDto {
     apiDateTime!: Date;
+    environment!: string;
+    environmentDisplayName!: string;
 
     constructor(data?: IDiagnosticsDto) {
         if (data) {
@@ -169,6 +171,8 @@ export class DiagnosticsDto implements IDiagnosticsDto {
     init(_data?: any) {
         if (_data) {
             this.apiDateTime = _data["apiDateTime"] ? new Date(_data["apiDateTime"].toString()) : <any>undefined;
+            this.environment = _data["environment"];
+            this.environmentDisplayName = _data["environmentDisplayName"];
         }
     }
 
@@ -182,12 +186,16 @@ export class DiagnosticsDto implements IDiagnosticsDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["apiDateTime"] = this.apiDateTime ? this.apiDateTime.toISOString() : <any>undefined;
+        data["environment"] = this.environment;
+        data["environmentDisplayName"] = this.environmentDisplayName;
         return data;
     }
 }
 
 export interface IDiagnosticsDto {
     apiDateTime: Date;
+    environment: string;
+    environmentDisplayName: string;
 }
 
 export class ApiException extends Error {

@@ -12,6 +12,8 @@
 	let duration = 0;
 	let coldStart = false;
 	let loading = false;
+	let environment = '';
+	let environmentDisplayName = '';
 
 	onMount(async () => {
 		loadDiagnostics();
@@ -27,6 +29,8 @@
 		diagnostics = result;
 		coldStart = duration > 0.5;
 		loading = false;
+		environment = result.diagnostics.environment;
+		environmentDisplayName = result.diagnostics.environmentDisplayName;
 	}
 </script>
 

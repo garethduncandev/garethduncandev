@@ -11,3 +11,24 @@ new ApplicationStack(app, 'garethduncandev-dev', {
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'Development',
 });
+
+new ApplicationStack(app, 'garethduncandev-production-blue', {
+  domain: 'garethduncan.dev',
+  subDomain: 'production-blue',
+  robotsNoIndex: true,
+  aspNetCoreEnvironment: 'ProductionBlue',
+});
+
+new ApplicationStack(app, 'garethduncandev-production-green', {
+  domain: 'garethduncan.dev',
+  subDomain: 'production-green',
+  robotsNoIndex: true,
+  aspNetCoreEnvironment: 'ProductionGreen',
+});
+
+new ApplicationStack(app, 'garethduncandev-production', {
+  domain: 'garethduncan.dev',
+  subDomain: undefined,
+  robotsNoIndex: true,
+  aspNetCoreEnvironment: 'Production',
+});

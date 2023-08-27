@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Application;
 using Asp.Versioning;
 using Asp.Versioning.Conventions;
+using WebUI;
 using WebUI.Extensions;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +20,8 @@ builder.Services.AddControllers();
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 builder.Services.SetupApiVersioning();
+
+builder.Services.AddWebUIServices();
 
 var apiVersions = new List<ApiVersion> {new(1), new(2)};
 

@@ -6,8 +6,6 @@ public static class ConfigureServices
     {
         services.AddHttpContextAccessor();
 
-
-
         return services;
     }
 
