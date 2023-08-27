@@ -12,21 +12,21 @@ new ApplicationStack(app, 'garethduncandev-dev', {
   aspNetCoreEnvironment: 'Development',
 });
 
-new ApplicationStack(app, 'garethduncandev-production-blue', {
+new ApplicationStack(app, 'garethduncandev-blue', {
   domain: 'garethduncan.dev',
-  subDomain: 'production-blue',
+  subDomain: 'blue',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionBlue',
 });
 
-new ApplicationStack(app, 'garethduncandev-production-green', {
+new ApplicationStack(app, 'garethduncandev-green', {
   domain: 'garethduncan.dev',
-  subDomain: 'production-green',
+  subDomain: 'green',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionGreen',
 });
 
-new ApplicationStack(app, 'garethduncandev-production', {
+new ApplicationStack(app, 'garethduncandev-prod', {
   domain: 'garethduncan.dev',
   subDomain: undefined,
   robotsNoIndex: true,
