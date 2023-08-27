@@ -44,5 +44,7 @@
 	<p>server datetime: {diagnostics.diagnostics.apiDateTime}</p>
 	<p>api call duration: {duration} seconds</p>
 	<p>possible cold start?: {coldStart}</p>
+	<p>environment variable: {environment}</p>
+	<p>environment display name: {environmentDisplayName}</p>
 	<button on:click={loadDiagnostics}>Refresh</button>
 {/if}
