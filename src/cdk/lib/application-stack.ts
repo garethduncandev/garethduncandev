@@ -59,13 +59,9 @@ export class ApplicationStack extends cdk.Stack {
     });
 
     // lambda
-    const lambdaDockerImageFunction = new LambdaDockerImageFunction(
-      this,
-      'lambda-docker-image-function',
-      {
-        aspNetCoreEnvironment: props.aspNetCoreEnvironment,
-      }
-    );
+    const lambdaDockerImageFunction = new LambdaDockerImageFunction(this, id, {
+      aspNetCoreEnvironment: props.aspNetCoreEnvironment,
+    });
 
     // cloudfront distribution
     const distribution = new UiDistribution(this, `${id}-ui-distribution`, {

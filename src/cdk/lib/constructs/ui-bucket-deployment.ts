@@ -23,7 +23,7 @@ export class UiBucketDeployment extends Construct {
       sources: [Source.asset(path.join(__dirname, '../../../app/build'))],
       destinationKeyPrefix: `app`,
       destinationBucket: props.destinationBucket,
-      prune: false,
+      prune: true,
       exclude: [],
       distribution: props.distribution,
       distributionPaths: ['/*'],
