@@ -102,6 +102,7 @@ export class ApplicationStack extends cdk.Stack {
     new UiBucketDeployment(this, `${id}-ui-bucket-deployment`, {
       destinationBucket: this.uiBucket.bucket,
       distribution: distribution.distribution,
+      applicationStackProps: props,
     });
   }
 }
