@@ -1,24 +1,34 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
 	import { theme } from '../../stores/theme-store';
-	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
+
+	const selectedTheme = theme();
+
+	onMount(() => {
+		const k = get(selectedTheme);
+		document.body.setAttribute('data-theme', k as string);
+	});
 
 	function light() {
-		theme.set('light');
+		selectedTheme.set('light');
 		document.body.setAttribute('data-theme', 'light');
+		localStorage.setItem('theme', 'light');
 	}
 
 	function dark() {
-		theme.set('dark');
+		selectedTheme.set('dark');
 		document.body.setAttribute('data-theme', 'dark');
+		localStorage.setItem('theme', 'dark');
 	}
 </script>
 
 <div class="theme-selector">
 	<span class="group">
-		{#if $theme === 'dark'}
+		{#if $selectedTheme === 'dark'}
 			<button on:click={light}>☀️</button>
 		{/if}
-		{#if $theme === 'light'}
+		{#if $selectedTheme === 'light'}
 			<button on:click={dark}>🌙</button>
 		{/if}
 	</span>

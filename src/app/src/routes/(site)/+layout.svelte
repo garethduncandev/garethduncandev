@@ -2,7 +2,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import '../../styles/global.scss';
-
+	import { navigating } from '$app/stores';
 	const title = 'Gareth Duncan | Developer';
 </script>
 
@@ -13,6 +13,10 @@
 <Header />
 
 <main>
+	<div>{$navigating}</div>
+	{#if Boolean($navigating)}
+		<div>Loading</div>
+	{/if}
 	<slot />
 </main>
 
@@ -22,7 +26,7 @@
 
 <style lang="scss">
 	footer {
-		position: fixed;
-		bottom: 0;
+		// position: sticky;
+		// bottom: 0;
 	}
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DarkMode from './Theme.svelte';
+	import Theme from './Theme.svelte';
 </script>
 
 <header>
@@ -9,7 +9,7 @@
 			<li><a href="/blog">blog 📝</a></li>
 		</ul>
 	</nav>
-	<DarkMode />
+	<Theme />
 </header>
 
 <style lang="scss">

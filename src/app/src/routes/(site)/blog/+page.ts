@@ -9,5 +9,5 @@ export const load: Load = async () => {
 	const menuHelper = new NavHelper();
 	const nav: NavItem[] = menuHelper.createMarkdownMenu(markdownFiles);
 
-	return JSON.parse(JSON.stringify({ nav }));
+	return { nav };
 };
