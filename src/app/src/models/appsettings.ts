@@ -1,10 +1,10 @@
 export class AppSettings {
-	apiUrl!: string; // provided via release
-	build!: string; // provided via build
-	commit!: string; // provided via build
-	dotnetVersion!: string; // provided via build
-	svelteKitVersion!: string; // provided via build
-	environment!: string; // provided via build
-	environmentChannel!: string; // provided via build
-	title!: string; // provided via release
+	public constructor(
+		public buildTime: Date,
+		public domain: string,
+		public subDomain: string,
+		public apiUrl: string,
+		public aspNetCoreEnvironment: string,
+		public stackName: string
+	) {}
 }

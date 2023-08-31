@@ -13,13 +13,20 @@ export class PathTreeHelper {
 					return { name: m, children: [], path: '' } as PathTree;
 				})
 			)
-			.reduce((children, path) => this.insertChild(children, path[0], path.slice(1)), []);
+			.reduce(
+				(children, path) => this.insertChild(children, path[0], path.slice(1)),
+				[]
+			);
 
 		this.populateFullPath(result, '');
 		return result;
 	}
 
-	private insertChild(children: PathTree[], head: PathTree, tail: PathTree[]): PathTree[] {
+	private insertChild(
+		children: PathTree[],
+		head: PathTree,
+		tail: PathTree[]
+	): PathTree[] {
 		let child = children.find((child) => child.name === head.name);
 
 		if (!child) {

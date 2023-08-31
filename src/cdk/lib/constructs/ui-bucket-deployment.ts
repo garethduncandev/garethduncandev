@@ -13,6 +13,17 @@ export class UiBucketDeploymentProps {
   ) {}
 }
 
+export class AppSettings {
+  public constructor(
+    public buildTime: Date,
+    public domain: string,
+    public subDomain: string | undefined,
+    public apiUrl: string,
+    public aspNetCoreEnvironment: string,
+    public stackName: string
+  ) {}
+}
+
 export class UiBucketDeployment extends Construct {
   public constructor(
     scope: Construct,
@@ -21,13 +32,24 @@ export class UiBucketDeployment extends Construct {
   ) {
     super(scope, id);
 
+    const apiUrl = props.applicationStackProps.subDomain
+      ? `https://${props.applicationStackProps.subDomain}.${props.applicationStackProps.domain}/api`
+      : `https://${props.applicationStackProps.domain}/api`;
+
     new BucketDeployment(this, id, {
       sources: [
         Source.asset(path.join(__dirname, '../../../app/build')),
-        Source.jsonData('appsettings.json', {
-          buildTime: new Date().toISOString(),
-          applicationStackProps: props.applicationStackProps,
-        }),
+        Source.jsonData(
+          'appsettings.json',
+          new AppSettings(
+            new Date(),
+            props.applicationStackProps.domain,
+            props.applicationStackProps.subDomain,
+            apiUrl,
+            props.applicationStackProps.aspNetCoreEnvironment,
+            props.applicationStackProps.stackName ?? ''
+          )
+        ),
       ],
       destinationKeyPrefix: `app`,
       destinationBucket: props.destinationBucket,

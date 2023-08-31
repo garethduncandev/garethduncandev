@@ -11,29 +11,17 @@
 		theme.set('dark');
 		document.body.setAttribute('data-theme', 'dark');
 	}
-
-	function random() {
-		theme.set('random');
-		document.body.setAttribute('data-theme', 'random');
-
-		// perform random colour selection here
-	}
-
-	function custom() {
-		theme.set('custom');
-		document.body.setAttribute('data-theme', 'custom');
-		// perform color selection here
-	}
 </script>
 
 <div class="theme-selector">
 	<span class="group">
-		<button on:click={light}>☀️</button>
-		<button on:click={dark}>🌙</button>
+		{#if $theme === 'dark'}
+			<button on:click={light}>☀️</button>
+		{/if}
+		{#if $theme === 'light'}
+			<button on:click={dark}>🌙</button>
+		{/if}
 	</span>
-
-	<button on:click={custom}>🎨</button>
-	<button on:click={random}>🎲</button>
 </div>
 
 <style lang="scss">

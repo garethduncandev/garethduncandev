@@ -1,4 +1,4 @@
-import type { ComponentType, SvelteComponentTyped } from 'svelte';
+import type { ComponentType, SvelteComponent } from 'svelte';
 import type { MarkdownFile, MarkdownMetadata } from '../models/markdown-file';
 
 export class MarkdownHelper {
@@ -18,8 +18,6 @@ export class MarkdownHelper {
 		const published = markdownFiles.filter(
 			(x) => x.metadata.published && x.metadata.datePublished
 		);
-
-		console.log(published);
 
 		const active = published.filter(
 			(x) => x.metadata?.datePublished?.getTime() <= Date.now()
@@ -42,7 +40,7 @@ export class MarkdownHelper {
 
 		const content = file[
 			'default'
-		] as unknown as ComponentType<SvelteComponentTyped>;
+		] as unknown as ComponentType<SvelteComponent>;
 
 		const postPath = path.split('/posts')[1].replace('.md', '');
 
