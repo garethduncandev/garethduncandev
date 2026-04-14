@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "web",
+			"path": "src/web"
+		},
+		{
+			"name": "api",
+			"path": "src/api"
+		},
+		{
+			"name": "mcp",
+			"path": "src/mcp"
+		},
+		{
+			"name": "infra",
+			"path": "src/infra"
+		},
+		{
+			"name": "repo",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
