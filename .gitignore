@@ -1,0 +1,5 @@
+# Claude
+.claude/settings.local.json
+
+# Personal scratch/research
+.scratch/

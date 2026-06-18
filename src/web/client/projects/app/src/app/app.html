@@ -1,0 +1,21 @@
+<main
+  class="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-6 font-mono text-zinc-300"
+>
+  <div class="w-full max-w-2xl">
+    <header class="mb-10">
+      <app-doodle />
+    </header>
+
+    <p class="mb-10 text-zinc-500">software engineer · building things for the web</p>
+
+    <nav class="mb-12" aria-label="Main navigation">
+      <app-command-input />
+    </nav>
+
+    <router-outlet />
+
+    <footer class="fixed bottom-4 right-4 text-xs text-zinc-600">
+      {{ routeName() }}
+    </footer>
+  </div>
+</main>
