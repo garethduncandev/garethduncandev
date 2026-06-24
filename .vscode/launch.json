@@ -24,6 +24,7 @@
         "/@fs/*": "*",
         "*.ts": "${webRoot}/*.ts"
       },
+      "postDebugTask": "stop: angular",
     }
   ]
 }

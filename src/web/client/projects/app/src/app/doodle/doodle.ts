@@ -3,7 +3,7 @@ import { BlockDoodleComponent } from './block/block';
 import { HashDoodleComponent } from './hash/hash';
 import { OutlineDoodleComponent } from './outline/outline';
 
-const DOODLE_COUNT = 4;
+const DOODLE_COUNT = 3;
 
 @Component({
   selector: 'app-doodle',
@@ -14,7 +14,7 @@ const DOODLE_COUNT = 4;
       role="button"
       (click)="next()"
       (keydown.enter)="next()"
-      class="cursor-pointer select-none flex items-center justify-center aspect-[3/1] [container-type:inline-size]"
+      class="cursor-pointer select-none flex items-center justify-center aspect-3/1 @container"
     >
       @switch (index()) {
         @case (0) {

@@ -9,6 +9,9 @@
         "cwd": "${workspaceFolder}/src/web/client"
       },
       "isBackground": true,
+      "presentation": {
+        "close": true
+      },
       "problemMatcher": {
         "owner": "angular",
         "pattern": {
@@ -19,6 +22,18 @@
           "beginsPattern": "Building\\.\\.\\.|Application bundle generation",
           "endsPattern": "Local:\\s+http://localhost:4200/"
         }
+      }
+    },
+    {
+      "label": "stop: angular",
+      "type": "shell",
+      "command": "taskkill /F /IM node.exe /T",
+      "options": {
+        "cwd": "${workspaceFolder}/src/web/client"
+      },
+      "presentation": {
+        "reveal": "silent",
+        "close": true
       }
     }
   ]
