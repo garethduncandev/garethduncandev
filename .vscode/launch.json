@@ -1,5 +1,13 @@
 {
   "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Full Stack",
+      "configurations": [
+        "Debug Angular"
+      ]
+    }
+  ],
   "configurations": [
     {
       "name": "Debug Angular",
@@ -8,17 +16,14 @@
       "preLaunchTask": "npm: start",
       "url": "http://localhost:4200/",
       "webRoot": "${workspaceFolder}/src/web/client",
+      "sourceMaps": true,
+      "disableNetworkCache": true,
+      "pauseForSourceMap": true,
       "sourceMapPathOverrides": {
-        "webpack:///./src/*": "${webRoot}/*"
+        "/*": "${webRoot}/*",
+        "/@fs/*": "*",
+        "*.ts": "${webRoot}/*.ts"
       },
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Full Stack",
-      "configurations": [
-        "Debug Angular"
-      ]
     }
   ]
 }

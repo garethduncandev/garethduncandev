@@ -16,8 +16,8 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "Building\\.\\.\\.",
-          "endsPattern": "Watch mode enabled"
+          "beginsPattern": "Building\\.\\.\\.|Application bundle generation",
+          "endsPattern": "Local:\\s+http://localhost:4200/"
         }
       }
     }
