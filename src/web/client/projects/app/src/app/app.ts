@@ -15,8 +15,8 @@ export class App {
   private readonly router = inject(Router);
   private readonly url = toSignal(
     this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
-      map(e => e.urlAfterRedirects),
+      filter((e) => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects),
     ),
     { initialValue: this.router.url },
   );

@@ -9,11 +9,23 @@ const DOODLE_COUNT = 4;
   selector: 'app-doodle',
   imports: [BlockDoodleComponent, HashDoodleComponent, OutlineDoodleComponent],
   template: `
-    <div (click)="next()" class="cursor-pointer select-none flex items-center justify-center aspect-[3/1] [container-type:inline-size]">
+    <div
+      tabindex="0"
+      role="button"
+      (click)="next()"
+      (keydown.enter)="next()"
+      class="cursor-pointer select-none flex items-center justify-center aspect-[3/1] [container-type:inline-size]"
+    >
       @switch (index()) {
-        @case (0) { <app-block-doodle /> }
-        @case (1) { <app-outline-doodle /> }
-        @case (2) { <app-hash-doodle /> }
+        @case (0) {
+          <app-block-doodle />
+        }
+        @case (1) {
+          <app-outline-doodle />
+        }
+        @case (2) {
+          <app-hash-doodle />
+        }
       }
     </div>
   `,
@@ -22,6 +34,6 @@ export class DoodleComponent {
   protected readonly index = signal(Math.floor(Math.random() * DOODLE_COUNT));
 
   protected next(): void {
-    this.index.update(i => (i + 1) % DOODLE_COUNT);
+    this.index.update((i) => (i + 1) % DOODLE_COUNT);
   }
 }

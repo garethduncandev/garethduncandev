@@ -187,7 +187,6 @@ function fakeSearch(query: string, category: string): SearchResult[] {
             "
             aria-autocomplete="list"
             aria-label="Navigate to page"
-            autofocus
             [placeholder]="activeMode()?.mode?.placeholder ?? ''"
             class="w-full bg-transparent text-zinc-300 caret-zinc-300 outline-none placeholder:text-zinc-600"
             [formField]="inputForm.query"
@@ -227,6 +226,7 @@ function fakeSearch(query: string, category: string): SearchResult[] {
           <li
             [id]="'command-option-' + i"
             role="option"
+            tabindex="0"
             [attr.aria-selected]="i === selectedIndex()"
             [class]="
               i === selectedIndex()
@@ -235,6 +235,7 @@ function fakeSearch(query: string, category: string): SearchResult[] {
             "
             (pointerenter)="selectedIndex.set(i)"
             (click)="execute(cmd)"
+            (keydown.enter)="execute(cmd)"
           >
             /{{ cmd.name === 'home' ? '' : cmd.name }}
           </li>
@@ -469,7 +470,7 @@ export class CommandInput {
           this.selectedIndex.update((i) => (i - 1 + cmds.length) % cmds.length);
         }
         break;
-      case 'Enter':
+      case 'Enter': {
         event.preventDefault();
         const highlighted = this.highlightedCommand();
         if (highlighted) {
@@ -480,6 +481,7 @@ export class CommandInput {
           this.searchQuery.set(this.query());
         }
         break;
+      }
       case 'Escape':
         this.inputModel.set({ query: '' });
         this.activeMode.set(null);
