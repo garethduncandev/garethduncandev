@@ -11,6 +11,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { httpResource } from '@angular/common/http';
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
@@ -41,31 +42,12 @@ export interface SearchResult {
   route: string;
 }
 
-const BLOG_ENTRIES: ModeEntry[] = [
-  { name: 'building a terminal nav in angular', route: '/blog/terminal-nav-angular' },
-  { name: 'signals in angular 22', route: '/blog/signals-angular-22' },
-  { name: 'angular ssr deep dive', route: '/blog/angular-ssr-deep-dive' },
-  { name: 'e2e testing with playwright', route: '/blog/e2e-playwright' },
-  { name: 'tailwind v4 migration guide', route: '/blog/tailwind-v4-migration' },
-  { name: 'mcp servers for dev tooling', route: '/blog/mcp-servers-dev-tooling' },
-  { name: 'zoneless angular apps', route: '/blog/zoneless-angular' },
-  { name: 'httpResource vs observables', route: '/blog/http-resource-vs-observables' },
-  { name: 'web components in 2026', route: '/blog/web-components-2026' },
-  { name: 'deno vs node for scripting', route: '/blog/deno-vs-node-scripting' },
-];
-
-const NOTES_ENTRIES: ModeEntry[] = [
-  { name: 'angular meeting notes jun 2026', route: '/notes/angular-meeting-jun-2026' },
-  { name: 'playwright setup checklist', route: '/notes/playwright-setup' },
-  { name: 'ssr hydration gotchas', route: '/notes/ssr-hydration-gotchas' },
-  { name: 'tailwind custom plugin ideas', route: '/notes/tailwind-plugin-ideas' },
-  { name: 'signal forms api surface', route: '/notes/signal-forms-api' },
-  { name: 'ci pipeline optimisation', route: '/notes/ci-pipeline-optimisation' },
-  { name: 'accessibility audit checklist', route: '/notes/a11y-audit-checklist' },
-  { name: 'mcp server auth flow', route: '/notes/mcp-server-auth' },
-  { name: 'monorepo structure decisions', route: '/notes/monorepo-structure' },
-  { name: 'resource api patterns', route: '/notes/resource-api-patterns' },
-];
+interface ContentIndexEntry {
+  slug: string;
+  title: string;
+  date: string;
+  description: string;
+}
 
 const COMMANDS: Command[] = [
   {
@@ -75,7 +57,7 @@ const COMMANDS: Command[] = [
       placeholder: 'search blog posts',
       searchCategory: 'blog',
       enterActivates: false,
-      entries: BLOG_ENTRIES,
+      entries: [],
     },
     showInDefault: true,
     enterHint: 'view all blog posts',
@@ -108,50 +90,13 @@ const COMMANDS: Command[] = [
       placeholder: 'search notes',
       searchCategory: 'notes',
       enterActivates: false,
-      entries: NOTES_ENTRIES,
+      entries: [],
     },
     showInDefault: true,
     enterHint: 'view all notes',
   },
 ];
 
-const FAKE_SEARCH_DATA: Record<string, Record<string, SearchResult[]>> = {
-  all: {
-    playwright: [
-      { name: 'playwright-cli', route: '/tools/playwright-cli' },
-      { name: 'playwright-mcp', route: '/tools/playwright-mcp' },
-    ],
-    angular: [
-      { name: 'angular-signals', route: '/topics/angular-signals' },
-      { name: 'angular-ssr', route: '/topics/angular-ssr' },
-    ],
-    test: [
-      { name: 'testing-strategies', route: '/topics/testing-strategies' },
-      { name: 'test-harness', route: '/tools/test-harness' },
-    ],
-  },
-  blog: {
-    angular: [
-      { name: 'signals in angular 22', route: '/blog/signals-angular-22' },
-      { name: 'angular ssr deep dive', route: '/blog/angular-ssr-deep-dive' },
-    ],
-    playwright: [{ name: 'e2e testing with playwright', route: '/blog/e2e-playwright' }],
-  },
-  notes: {
-    angular: [{ name: 'angular meeting notes jun 2026', route: '/notes/angular-meeting-jun-2026' }],
-    playwright: [{ name: 'playwright setup checklist', route: '/notes/playwright-setup' }],
-  },
-};
-
-function fakeSearch(query: string, category: string): SearchResult[] {
-  const data = FAKE_SEARCH_DATA[category] ?? FAKE_SEARCH_DATA['all'];
-  for (const [key, results] of Object.entries(data)) {
-    if (key.includes(query.toLowerCase()) || query.toLowerCase().includes(key)) {
-      return results;
-    }
-  }
-  return [];
-}
 
 @Component({
   selector: 'app-command-input',
@@ -171,7 +116,7 @@ function fakeSearch(query: string, category: string): SearchResult[] {
       >
         <span class="select-none text-zinc-500" aria-hidden="true">/</span>
         @if (activeMode()) {
-          <span class="select-none text-zinc-400" aria-hidden="true"
+          <span class="select-none text-green-400" aria-hidden="true"
             >{{ activeMode()!.command }}&nbsp;</span
           >
         }
@@ -188,7 +133,11 @@ function fakeSearch(query: string, category: string): SearchResult[] {
             aria-autocomplete="list"
             aria-label="Navigate to page"
             [placeholder]="activeMode()?.mode?.placeholder ?? ''"
-            class="w-full bg-transparent text-zinc-300 caret-zinc-300 outline-none placeholder:text-zinc-600"
+            [class]="
+              isExactMatch()
+                ? 'w-full bg-transparent text-sky-300 caret-zinc-300 outline-none placeholder:text-zinc-600'
+                : 'w-full bg-transparent text-zinc-300 caret-zinc-300 outline-none placeholder:text-zinc-600'
+            "
             [formField]="inputForm.query"
             (input)="onInput($event)"
             (keydown)="onKeydown($event)"
@@ -251,6 +200,16 @@ export class CommandInput {
   private readonly router = inject(Router);
   private readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
 
+  private readonly blogIndex = httpResource<ContentIndexEntry[]>(() => '/content/blog/index.json');
+  private readonly notesIndex = httpResource<ContentIndexEntry[]>(() => '/content/notes/index.json');
+
+  private readonly blogEntries = computed<ModeEntry[]>(() =>
+    (this.blogIndex.value() ?? []).map((e) => ({ name: e.title.toLowerCase(), route: `/blog/${e.slug}` })),
+  );
+  private readonly notesEntries = computed<ModeEntry[]>(() =>
+    (this.notesIndex.value() ?? []).map((e) => ({ name: e.title.toLowerCase(), route: `/notes/${e.slug}` })),
+  );
+
   private readonly currentRoute = toSignal(
     this.router.events.pipe(
       filter((e) => e instanceof NavigationEnd),
@@ -269,34 +228,46 @@ export class CommandInput {
   protected readonly searchResource = resource({
     params: () => {
       const q = this.searchQuery();
-      const mode = this.activeMode();
       if (!q) return undefined;
+      const mode = this.activeMode();
       return { q, category: mode?.mode.searchCategory ?? 'all' };
     },
     loader: async ({ params }) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      return fakeSearch(params.q, params.category);
+      const term = params.q.toLowerCase();
+      let entries: ModeEntry[] = [];
+      if (params.category === 'blog' || params.category === 'all')
+        entries = [...entries, ...this.blogEntries()];
+      if (params.category === 'notes' || params.category === 'all')
+        entries = [...entries, ...this.notesEntries()];
+      return entries
+        .filter((e) => e.name.includes(term))
+        .map((e) => ({ name: e.name, route: e.route }));
     },
+  });
+
+  protected readonly isExactMatch = computed(() => {
+    if (this.activeMode()) return false;
+    const q = this.query().toLowerCase();
+    if (!q || q !== q.trimEnd()) return false;
+    return COMMANDS.some((cmd) => cmd.name === q);
   });
 
   protected readonly filteredCommands = computed(() => {
     if (this.activeMode()) return [];
-    const q = this.query().toLowerCase().trim();
-    if (!q) {
-      const isHome = this.currentRoute() === '/';
-      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
-      if (isHome) return defaults;
-      const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
-      return [home, ...defaults];
-    }
-    return COMMANDS.filter((cmd) => cmd.name.includes(q));
+    const q = this.query().toLowerCase();
+    if (!q) return COMMANDS.filter((cmd) => cmd.showInDefault);
+    if (q !== q.trimEnd()) return [];
+    return COMMANDS.filter((cmd) => cmd.name.includes(q.trim()));
   });
 
   protected readonly modeEntries = computed((): Command[] => {
     const mode = this.activeMode();
     if (!mode) return [];
     const q = this.query().toLowerCase();
-    const entries = mode.mode.entries;
+    let entries: ModeEntry[] = [];
+    if (mode.command === 'blog') entries = this.blogEntries();
+    else if (mode.command === 'notes') entries = this.notesEntries();
     const filtered = q ? entries.filter((e) => e.name.includes(q)) : entries.slice(0, 10);
     return filtered.map((e) => ({
       name: e.name,
@@ -371,12 +342,13 @@ export class CommandInput {
   });
 
   protected readonly showSuggestions = computed(() => {
-    const isHome = this.currentRoute() === '/';
-    if (!isHome && !this.inputForm.query().dirty() && !this.inputForm.query().touched())
-      return false;
-    return (
-      this.displayedCommands().length > 0 || this.searchResource.isLoading() || this.noResults()
-    );
+    if (this.isExactMatch()) return false;
+    const cmds = this.displayedCommands();
+    if (cmds.length === 1) {
+      const q = this.query().toLowerCase().trim();
+      if (q && cmds[0].name.toLowerCase() === q) return false;
+    }
+    return cmds.length > 0 || this.searchResource.isLoading() || this.noResults();
   });
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -384,16 +356,28 @@ export class CommandInput {
   constructor() {
     effect(() => {
       const url = this.currentRoute();
-      const cmd = COMMANDS.find((c) => c.route === url);
       untracked(() => {
-        this.inputModel.set({ query: cmd && cmd.name !== 'home' ? cmd.name : '' });
-        this.activeMode.set(null);
+        if (url === '/') {
+          this.inputModel.set({ query: '' });
+          this.activeMode.set(null);
+        } else {
+          const segments = url.slice(1).split('/');
+          const cmd = COMMANDS.find((c) => c.name === segments[0]);
+          if (cmd?.mode && segments.length > 1) {
+            this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+            this.inputModel.set({ query: segments.slice(1).join('/') });
+          } else {
+            this.activeMode.set(null);
+            this.inputModel.set({ query: segments[0] });
+          }
+        }
         this.searchQuery.set(undefined);
       });
     });
 
     afterRenderEffect({
       write: () => {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
         const el = this.inputEl().nativeElement;
         if (document.activeElement !== el) {
           el.focus();
@@ -427,7 +411,8 @@ export class CommandInput {
   }
 
   protected onInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
 
     if (!this.activeMode()) {
       const match = value.match(/^(\w+)\s$/);
@@ -435,6 +420,7 @@ export class CommandInput {
         const cmd = COMMANDS.find((c) => c.name === match[1].toLowerCase());
         if (cmd?.mode) {
           this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+          input.value = '';
           this.inputModel.set({ query: '' });
           this.searchQuery.set(undefined);
           return;
