@@ -1,13 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { BlockDoodleComponent } from './block/block';
-import { HashDoodleComponent } from './hash/hash';
 import { OutlineDoodleComponent } from './outline/outline';
 
-const DOODLE_COUNT = 3;
+const DOODLE_COUNT = 2;
 
 @Component({
   selector: 'app-doodle',
-  imports: [BlockDoodleComponent, HashDoodleComponent, OutlineDoodleComponent],
+  imports: [BlockDoodleComponent, OutlineDoodleComponent],
   template: `
     <div
       tabindex="0"
@@ -18,13 +17,10 @@ const DOODLE_COUNT = 3;
     >
       @switch (index()) {
         @case (0) {
-          <app-block-doodle />
+          <app-block-doodle [animate]="true" />
         }
         @case (1) {
-          <app-outline-doodle />
-        }
-        @case (2) {
-          <app-hash-doodle />
+          <app-outline-doodle [animate]="true" />
         }
       }
     </div>
