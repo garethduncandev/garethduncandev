@@ -356,6 +356,8 @@ export class CommandInput {
   constructor() {
     effect(() => {
       const url = this.currentRoute();
+      const blogEntries = this.blogEntries();
+      const notesEntries = this.notesEntries();
       untracked(() => {
         if (url === '/') {
           this.inputModel.set({ query: '' });
@@ -365,7 +367,10 @@ export class CommandInput {
           const cmd = COMMANDS.find((c) => c.name === segments[0]);
           if (cmd?.mode && segments.length > 1) {
             this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-            this.inputModel.set({ query: segments.slice(1).join('/') });
+            const slug = segments.slice(1).join('/');
+            const entries = cmd.name === 'blog' ? blogEntries : cmd.name === 'notes' ? notesEntries : [];
+            const entry = entries.find((e) => e.route === `/${segments[0]}/${slug}`);
+            this.inputModel.set({ query: entry?.name ?? slug });
           } else {
             this.activeMode.set(null);
             this.inputModel.set({ query: segments[0] });
@@ -397,6 +402,10 @@ export class CommandInput {
       const shouldSearch = q && (mode ? !hasModeEntries : !hasNavResults);
 
       if (shouldSearch) {
+        if (!mode) {
+          const findCmd = COMMANDS.find((c) => c.name === 'find')!;
+          this.activeMode.set({ command: findCmd.name, mode: findCmd.mode as CommandMode });
+        }
         this.debounceTimer = setTimeout(() => {
           this.searchQuery.set(q);
         }, 500);
@@ -464,6 +473,10 @@ export class CommandInput {
         } else if (!this.query() && !this.activeMode()) {
           this.router.navigate(['/']);
         } else if (this.query() && this.filteredCommands().length === 0) {
+          if (!this.activeMode()) {
+            const findCmd = COMMANDS.find((c) => c.name === 'find')!;
+            this.activeMode.set({ command: findCmd.name, mode: findCmd.mode as CommandMode });
+          }
           this.searchQuery.set(this.query());
         }
         break;
@@ -504,6 +517,10 @@ export class CommandInput {
       this.searchQuery.set(undefined);
       this.router.navigate(['/']);
     } else if (cmd.route) {
+      if (this.currentRoute() === cmd.route) {
+        this.inputModel.set({ query: cmd.name });
+        return;
+      }
       const navCmd = COMMANDS.find((c) => c.route === cmd.route);
       this.inputModel.set({ query: navCmd?.name ?? '' });
       this.activeMode.set(null);
