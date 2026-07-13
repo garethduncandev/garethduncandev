@@ -4,24 +4,26 @@ import { join } from 'node:path';
 function generateIndex(contentDir) {
   const files = readdirSync(contentDir).filter((f) => f.endsWith('.md'));
 
-  const posts = files.map((file) => {
-    const raw = readFileSync(join(contentDir, file), 'utf-8');
-    const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---/);
-    if (!frontmatterMatch) return null;
+  const posts = files
+    .map((file) => {
+      const raw = readFileSync(join(contentDir, file), 'utf-8');
+      const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---/);
+      if (!frontmatterMatch) return null;
 
-    const frontmatter = frontmatterMatch[1];
-    const get = (key) => {
-      const match = frontmatter.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
-      return match ? match[1].trim() : '';
-    };
+      const frontmatter = frontmatterMatch[1];
+      const get = (key) => {
+        const match = frontmatter.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+        return match ? match[1].trim() : '';
+      };
 
-    return {
-      slug: file.replace('.md', ''),
-      title: get('title'),
-      date: get('date'),
-      description: get('description'),
-    };
-  }).filter(Boolean);
+      return {
+        slug: file.replace('.md', ''),
+        title: get('title'),
+        date: get('date'),
+        description: get('description'),
+      };
+    })
+    .filter(Boolean);
 
   posts.sort((a, b) => b.date.localeCompare(a.date));
 

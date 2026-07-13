@@ -12,6 +12,9 @@ import { parseFrontmatter } from './parse-frontmatter';
         <pre class="text-xs text-zinc-500 mb-6 font-mono"><span class="text-zinc-600">---</span>
 <span class="text-zinc-400">title:</span> {{ frontmatter()!.title }}
 <span class="text-zinc-400">date:</span> {{ frontmatter()!.date }}
+@if (frontmatter()!.updated) {
+<span class="text-zinc-400">updated:</span> {{ frontmatter()!.updated }}
+}
 <span class="text-zinc-400">description:</span> {{ frontmatter()!.description }}
 <span class="text-zinc-600">---</span></pre>
         <div class="prose prose-invert max-w-none" [innerHTML]="htmlContent()"></div>
@@ -36,7 +39,12 @@ export class BlogPostComponent {
   protected readonly frontmatter = computed(() => {
     const data = this.parsed()?.data;
     if (!data) return null;
-    return { title: data['title'] ?? '', date: data['date'] ?? '', description: data['description'] ?? '' };
+    return {
+      title: data['title'] ?? '',
+      date: data['date'] ?? '',
+      updated: data['updated'] ?? '',
+      description: data['description'] ?? '',
+    };
   });
 
   protected readonly htmlContent = computed(() => {

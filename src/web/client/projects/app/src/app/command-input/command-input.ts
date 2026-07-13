@@ -97,7 +97,6 @@ const COMMANDS: Command[] = [
   },
 ];
 
-
 @Component({
   selector: 'app-command-input',
   imports: [FormField],
@@ -201,13 +200,21 @@ export class CommandInput {
   private readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
 
   private readonly blogIndex = httpResource<ContentIndexEntry[]>(() => '/content/blog/index.json');
-  private readonly notesIndex = httpResource<ContentIndexEntry[]>(() => '/content/notes/index.json');
+  private readonly notesIndex = httpResource<ContentIndexEntry[]>(
+    () => '/content/notes/index.json',
+  );
 
   private readonly blogEntries = computed<ModeEntry[]>(() =>
-    (this.blogIndex.value() ?? []).map((e) => ({ name: e.title.toLowerCase(), route: `/blog/${e.slug}` })),
+    (this.blogIndex.value() ?? []).map((e) => ({
+      name: e.title.toLowerCase(),
+      route: `/blog/${e.slug}`,
+    })),
   );
   private readonly notesEntries = computed<ModeEntry[]>(() =>
-    (this.notesIndex.value() ?? []).map((e) => ({ name: e.title.toLowerCase(), route: `/notes/${e.slug}` })),
+    (this.notesIndex.value() ?? []).map((e) => ({
+      name: e.title.toLowerCase(),
+      route: `/notes/${e.slug}`,
+    })),
   );
 
   private readonly currentRoute = toSignal(
@@ -256,7 +263,14 @@ export class CommandInput {
   protected readonly filteredCommands = computed(() => {
     if (this.activeMode()) return [];
     const q = this.query().toLowerCase();
-    if (!q) return COMMANDS.filter((cmd) => cmd.showInDefault);
+    if (!q) {
+      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
+      if (this.currentRoute() !== '/') {
+        const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
+        return [home, ...defaults];
+      }
+      return defaults;
+    }
     if (q !== q.trimEnd()) return [];
     return COMMANDS.filter((cmd) => cmd.name.includes(q.trim()));
   });
@@ -368,7 +382,8 @@ export class CommandInput {
           if (cmd?.mode && segments.length > 1) {
             this.activeMode.set({ command: cmd.name, mode: cmd.mode });
             const slug = segments.slice(1).join('/');
-            const entries = cmd.name === 'blog' ? blogEntries : cmd.name === 'notes' ? notesEntries : [];
+            const entries =
+              cmd.name === 'blog' ? blogEntries : cmd.name === 'notes' ? notesEntries : [];
             const entry = entries.find((e) => e.route === `/${segments[0]}/${slug}`);
             this.inputModel.set({ query: entry?.name ?? slug });
           } else {

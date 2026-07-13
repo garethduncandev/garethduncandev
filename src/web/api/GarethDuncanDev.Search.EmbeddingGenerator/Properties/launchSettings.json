@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GarethDuncanDev.Search.EmbeddingGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../../../client/projects/app/public/content ../../../../GarethDuncanDevWebApi/Embeddings"
+    }
+  }
+}

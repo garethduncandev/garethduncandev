@@ -13,18 +13,15 @@
 ████████╔╝╚███████╔╝██║ ╚████║╚████████╗██║    ██║██║ ╚████║
 ╚═══════╝  ╚══════╝ ╚═╝  ╚═══╝ ╚═══════╝╚═╝    ╚═╝╚═╝  ╚═══╝
 -->
-<pre appTypewriter [animate]="animate()" class="leading-tight text-[1.82cqi]" aria-label="Gareth Duncan" role="img">
-<span class="text-sky-400"> ███████╗  ███████╗ ████████╗ █████████╗█████████╗██╗    ██╗</span>
-<span class="text-sky-400">██╔═════╝ ██╔════██╗██╔════██╗██╔══════╝╚══███╔══╝██║    ██║</span>
-<span class="text-sky-300">██║   ███╗█████████║████████╔╝███████╗     ███║   █████████║</span>
-<span class="text-violet-400">██║    ██║██╔════██║██╔═══██╗ ██╔════╝     ███║   ██╔════██║</span>
-<span class="text-violet-400">╚███████╔╝██║    ██║██║   ██║ █████████╗   ███║   ██║    ██║</span>
-<span class="text-fuchsia-400"> ╚══════╝ ╚═╝    ╚═╝╚═╝   ╚═╝ ╚════════╝   ╚══╝   ╚═╝    ╚═╝</span>
-<span></span>
-<span class="text-fuchsia-400">████████╗ ██╗    ██╗███╗   ██╗ ████████╗ ███████╗ ███╗   ██╗</span>
-<span class="text-fuchsia-500">██╔════██╗██║    ██║████╗  ██║██╔══════╝██╔════██╗████╗  ██║</span>
-<span class="text-fuchsia-500">██║    ██║██║    ██║██╔██╗ ██║██║       █████████║██╔██╗ ██║</span>
-<span class="text-fuchsia-500">██║    ██║██║    ██║██║╚██╗██║██║       ██╔════██║██║╚██╗██║</span>
-<span class="text-fuchsia-500">████████╔╝╚███████╔╝██║ ╚████║╚████████╗██║    ██║██║ ╚████║</span>
-<span class="text-fuchsia-500">╚═══════╝  ╚══════╝ ╚═╝  ╚═══╝ ╚═══════╝╚═╝    ╚═╝╚═╝  ╚═══╝</span>
+<pre
+  [appFlicker]="originals"
+  [appFlickerSegments]="segments"
+  appTypewriter
+  [animate]="animate()"
+  class="leading-tight text-[1.82cqi] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+  aria-label="Gareth Duncan"
+  role="img"
+>
+@for (line of lines; track $index) {<span [class]="line.css" [textContent]="line.text"></span>
+}
 </pre>

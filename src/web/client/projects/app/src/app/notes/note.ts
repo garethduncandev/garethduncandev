@@ -36,7 +36,11 @@ export class NoteComponent {
   protected readonly frontmatter = computed(() => {
     const data = this.parsed()?.data;
     if (!data) return null;
-    return { title: data['title'] ?? '', date: data['date'] ?? '', description: data['description'] ?? '' };
+    return {
+      title: data['title'] ?? '',
+      date: data['date'] ?? '',
+      description: data['description'] ?? '',
+    };
   });
 
   protected readonly htmlContent = computed(() => {

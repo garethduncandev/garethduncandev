@@ -1,0 +1,16 @@
+@GarethDuncanDevWebApi_HostAddress = http://localhost:5177
+
+GET {{GarethDuncanDevWebApi_HostAddress}}/search?query=hello+a+first+note
+Accept: application/json
+
+###
+
+GET {{GarethDuncanDevWebApi_HostAddress}}/search?query=init&type=blog
+Accept: application/json
+
+###
+
+GET {{GarethDuncanDevWebApi_HostAddress}}/search?query=hello&type=notes
+Accept: application/json
+
+###

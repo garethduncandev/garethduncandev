@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="GarethDuncanDev.Search.EmbeddingGenerator/GarethDuncanDev.Search.EmbeddingGenerator.csproj" Id="7d57529f-6749-4cd5-ba3e-0e652fa63e50" />
+  <Project Path="GarethDuncanDev.Search/GarethDuncanDev.Search.csproj" Id="b0a2efc2-2bda-4ead-b7c9-3814e4946f65" />
+  <Project Path="GarethDuncanDevWebApi/GarethDuncanDevWebApi.csproj" />
+</Solution>
