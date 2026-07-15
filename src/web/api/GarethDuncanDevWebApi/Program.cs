@@ -1,7 +1,12 @@
 using System.Text.Json.Serialization;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Serialization.SystemTextJson;
 using GarethDuncanDev.Search.Services;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi,
+    new SourceGeneratorLambdaJsonSerializer<AppJsonSerializerContext>());
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -37,6 +42,8 @@ public record Todo(int Id, string? Title, DateOnly? DueBy = null, bool IsComplet
 public record SearchResult(string? Slug, string? Title, string? Description, string? Date, string Type, int Similarity);
 
 [JsonSerializable(typeof(SearchResult[]))]
+[JsonSerializable(typeof(APIGatewayHttpApiV2ProxyRequest))]
+[JsonSerializable(typeof(APIGatewayHttpApiV2ProxyResponse))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext
 {
 
