@@ -1,21 +1,15 @@
 #!/usr/bin/env node
-import * as cdk from 'aws-cdk-lib/core';
+import * as cdk from 'aws-cdk-lib';
 import { ApplicationStack } from '../lib/application-stack';
-import { GitHubOidcStack } from '../lib/github-oidc-stack';
 
 const app = new cdk.App();
 
-new GitHubOidcStack(app, 'GarethDuncanDev-GitHubOidc', {
-  gitHubOrg: 'garethduncandev',
-  gitHubRepo: 'garethduncandev',
-});
+const sandboxName = app.node.tryGetContext('SANDBOX_NAME');
 
-const prEnvironmentName = app.node.tryGetContext('PR_ENVIRONMENT_NAME');
-
-if (prEnvironmentName) {
-  new ApplicationStack(app, `GarethDuncanDev-${prEnvironmentName}`, {
+if (sandboxName) {
+  new ApplicationStack(app, `GarethDuncanDev-${sandboxName}`, {
     domain: 'garethduncan.dev',
-    subDomain: prEnvironmentName,
+    subDomain: sandboxName,
     robotsNoIndex: true,
     aspNetCoreEnvironment: 'Development',
   });
