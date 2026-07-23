@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, aot_api_and_cdk]
 
 permissions:
   id-token: write
