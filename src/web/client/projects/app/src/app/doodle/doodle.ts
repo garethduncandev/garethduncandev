@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
-import { BlockDoodleComponent } from './block/block';
+import { BlockDoodle } from './block/block';
 
 const DOODLE_COUNT = 1;
 
 @Component({
   selector: 'app-doodle',
-  imports: [BlockDoodleComponent],
+  imports: [BlockDoodle],
   template: `
     <div
       tabindex="0"

@@ -25,16 +25,16 @@
       }
     },
     {
-      "label": "stop: angular",
-      "type": "shell",
-      "command": "taskkill /F /IM node.exe /T",
-      "options": {
-        "cwd": "${workspaceFolder}/src/web/client"
-      },
-      "presentation": {
-        "reveal": "silent",
-        "close": true
-      }
+      "label": "api: build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/web/api/GarethDuncanDevWebApi/GarethDuncanDevWebApi.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "problemMatcher": "$msCompile"
     }
   ]
 }

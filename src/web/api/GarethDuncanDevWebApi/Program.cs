@@ -5,8 +5,11 @@ using GarethDuncanDev.Search.Services;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi,
-    new SourceGeneratorLambdaJsonSerializer<AppJsonSerializerContext>());
+if (Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME") is not null)
+{
+    builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi,
+        new SourceGeneratorLambdaJsonSerializer<AppJsonSerializerContext>());
+}
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -15,7 +18,20 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddOpenApi();
 
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {

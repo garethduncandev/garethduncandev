@@ -1,16 +1,15 @@
 import { Component, input } from '@angular/core';
 import { FlickerDirective } from '../flicker.directive';
-import { TypewriterDirective } from '../typewriter.directive';
 import { corruptLine } from '../corrupt';
 import { BLOCK_LINES } from './block.data';
 
 @Component({
   selector: 'app-block-doodle',
-  imports: [FlickerDirective, TypewriterDirective],
+  imports: [FlickerDirective],
   templateUrl: './block.html',
   host: { class: 'contents' },
 })
-export class BlockDoodleComponent {
+export class BlockDoodle {
   readonly animate = input(false);
   readonly originals = BLOCK_LINES.map((line) => line.text);
   private readonly corrupted = BLOCK_LINES.map((line) =>

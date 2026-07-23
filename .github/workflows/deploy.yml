@@ -32,21 +32,13 @@ jobs:
         working-directory: src/web/client
         run: npm run build
 
-      - name: Build .NET API (AOT via Docker)
-        working-directory: src/web/api
-        run: |
-          docker build -t api-build .
-          docker create --name api-build-container api-build
-          docker cp api-build-container:/app/publish ./publish
-          docker rm api-build-container
-
       - name: Install CDK dependencies
         working-directory: src/infra
         run: npm ci
 
       - name: CDK synth
         working-directory: src/infra
-        run: npx cdk synth --context cloudfront-certificate-identifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} --context hosted-zone-id=${{ vars.CDK_HOSTED_ZONE_ID }}
+        run: npx cdk synth
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -54,7 +46,6 @@ jobs:
           name: build
           path: |
             src/infra/cdk.out
-            src/web/api/publish
             src/web/client/dist
 
   deploy-dev:
@@ -90,7 +81,12 @@ jobs:
 
       - name: CDK deploy dev
         working-directory: src/infra
-        run: npx cdk deploy GarethDuncanDev-dev --require-approval never --context cloudfront-certificate-identifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} --context hosted-zone-id=${{ vars.CDK_HOSTED_ZONE_ID }}
+        run: |
+          npx cdk deploy GarethDuncanDev-dev \
+            --app cdk.out \
+            --require-approval never \
+            --parameters CloudFrontCertificateIdentifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} \
+            --parameters HostedZoneId=${{ vars.CDK_HOSTED_ZONE_ID }}
 
   deploy-prod:
     needs: build
@@ -125,4 +121,9 @@ jobs:
 
       - name: CDK deploy prod
         working-directory: src/infra
-        run: npx cdk deploy GarethDuncanDev-prod --require-approval never --context cloudfront-certificate-identifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} --context hosted-zone-id=${{ vars.CDK_HOSTED_ZONE_ID }}
+        run: |
+          npx cdk deploy GarethDuncanDev-prod \
+            --app cdk.out \
+            --require-approval never \
+            --parameters CloudFrontCertificateIdentifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} \
+            --parameters HostedZoneId=${{ vars.CDK_HOSTED_ZONE_ID }}

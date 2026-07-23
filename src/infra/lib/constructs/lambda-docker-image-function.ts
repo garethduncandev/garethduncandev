@@ -21,8 +21,9 @@ export class ApiLambdaFunction extends Construct {
       runtime: Runtime.PROVIDED_AL2023,
       architecture: Architecture.X86_64,
       handler: 'bootstrap',
-      code: Code.fromAsset(
-        path.join(__dirname, '../../../web/api/publish')
+      code: Code.fromDockerBuild(
+        path.join(__dirname, '../../../web/api'),
+        { imagePath: '/app/publish' }
       ),
       memorySize: 256,
       timeout: Duration.seconds(30),

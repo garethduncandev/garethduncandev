@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import { Aws } from 'aws-cdk-lib';
+import { Aws, CfnParameter } from 'aws-cdk-lib';
 import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 import { HttpApiGateway } from './constructs/http-api-gateway';
@@ -27,24 +27,20 @@ export class ApplicationStack extends cdk.Stack {
   ) {
     super(scope, id, props);
 
-    const cloudFrontCertificateIdentifier = this.node.tryGetContext(
-      'cloudfront-certificate-identifier'
-    );
+    const cloudFrontCertificateIdentifier = new CfnParameter(this, 'CloudFrontCertificateIdentifier', {
+      type: 'String',
+      description: 'ACM certificate identifier for CloudFront distribution',
+    });
 
-    if (!cloudFrontCertificateIdentifier) {
-      throw new Error("cloudfront certificate identifier can't be empty");
-    }
+    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${Aws.ACCOUNT_ID}:certificate/${cloudFrontCertificateIdentifier.valueAsString}`;
 
-    const cloudFrontCertificateARN = `arn:aws:acm:us-east-1:${Aws.ACCOUNT_ID}:certificate/${cloudFrontCertificateIdentifier}`;
-
-    const hostedZoneId = this.node.tryGetContext('hosted-zone-id');
-
-    if (!hostedZoneId) {
-      throw new Error("hosted zone id can't be empty");
-    }
+    const hostedZoneId = new CfnParameter(this, 'HostedZoneId', {
+      type: 'String',
+      description: 'Route53 hosted zone ID',
+    });
 
     const hostedZone = HostedZone.fromHostedZoneAttributes(this, `${id}-zone`, {
-      hostedZoneId: hostedZoneId,
+      hostedZoneId: hostedZoneId.valueAsString,
       zoneName: props.domain,
     });
 

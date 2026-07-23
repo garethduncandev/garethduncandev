@@ -4,4 +4,4 @@ import { Component } from '@angular/core';
   selector: 'app-contact',
   template: `<h1 class="text-2xl text-zinc-200">/contact</h1>`,
 })
-export class ContactComponent {}
+export class Contact {}
