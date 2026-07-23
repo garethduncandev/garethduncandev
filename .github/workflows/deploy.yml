@@ -1,8 +1,16 @@
 name: Deploy
 
 on:
-  push:
-    branches: [main, aot_api_and_cdk]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+          - both
 
 permissions:
   id-token: write
@@ -49,6 +57,7 @@ jobs:
             src/web/client/dist
 
   deploy-dev:
+    if: ${{ inputs.environment == 'dev' || inputs.environment == 'both' }}
     needs: build
     runs-on: ubuntu-latest
     environment: dev
@@ -89,6 +98,7 @@ jobs:
             --parameters HostedZoneId=${{ vars.CDK_HOSTED_ZONE_ID }}
 
   deploy-prod:
+    if: ${{ inputs.environment == 'prod' || inputs.environment == 'both' }}
     needs: build
     runs-on: ubuntu-latest
     environment: prod
