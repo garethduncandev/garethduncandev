@@ -4,14 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        type: choice
-        options:
-          - dev
-          - prod
 
 permissions:
   id-token: write
@@ -58,7 +50,6 @@ jobs:
             src/web/client/dist
 
   deploy-dev:
-    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'dev'
     needs: build
     runs-on: ubuntu-latest
     environment: dev
@@ -99,7 +90,6 @@ jobs:
             --parameters HostedZoneId=${{ vars.CDK_HOSTED_ZONE_ID }}
 
   deploy-prod:
-    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'prod'
     needs: build
     runs-on: ubuntu-latest
     environment: prod
