@@ -55,6 +55,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment: sandbox
 
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +96,7 @@ jobs:
   destroy:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'sandbox/')
     runs-on: ubuntu-latest
+    environment: sandbox
 
     steps:
       - uses: actions/checkout@v4

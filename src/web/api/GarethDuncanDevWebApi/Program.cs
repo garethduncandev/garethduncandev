@@ -17,6 +17,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 builder.Services.AddOpenApi();
+builder.Services.AddHealthChecks();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
@@ -50,6 +51,8 @@ searchApi.MapGet("/", (string query, string? type) =>
     return results.Select(r => new SearchResult(r.Chunk.Slug, r.Chunk.Title, r.Chunk.Description, r.Chunk.Date, r.Chunk.Type, (int)(r.Similarity * 100))).ToArray();
 })
 .WithName("Search");
+
+app.MapHealthChecks("/healthcheck");
 
 app.Run();
 
