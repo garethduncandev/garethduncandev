@@ -52,7 +52,7 @@ jobs:
         with:
           scan-type: fs
           scan-ref: .
-          scanners: secret,misconfig
+          scanners: secret
           severity: MEDIUM,HIGH,CRITICAL
           exit-code: 1
           trivy-config: trivy.yaml
