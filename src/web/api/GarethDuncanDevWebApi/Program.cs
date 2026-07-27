@@ -25,6 +25,12 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins(allowedOrigins)
+              .SetIsOriginAllowed(origin =>
+              {
+                  var uri = new Uri(origin);
+                  return uri.Scheme == "https" &&
+                         (uri.Host == "garethduncan.dev" || uri.Host.EndsWith(".garethduncan.dev"));
+              })
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
