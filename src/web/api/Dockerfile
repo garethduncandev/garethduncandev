@@ -19,3 +19,5 @@ RUN dotnet publish GarethDuncanDevWebApi/GarethDuncanDevWebApi.csproj \
     -r linux-x64 \
     -o /app/publish \
     --self-contained true
+
+USER app
