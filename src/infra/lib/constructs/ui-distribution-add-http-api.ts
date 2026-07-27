@@ -10,14 +10,14 @@ import {
 } from 'aws-cdk-lib/aws-cloudfront';
 import { HttpOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Construct } from 'constructs';
-import { CloudFrontResponseHeadersPolicy } from './cloudfront-response-headers-policy';
+import { CloudFrontApiResponseHeadersPolicy } from './cloudfront-response-headers-policy';
 import { Aws } from 'aws-cdk-lib';
 import { HttpApi } from 'aws-cdk-lib/aws-apigatewayv2';
 
 export interface UiDistributionHttpApiOriginProps {
   distribution: Distribution;
   httpApi: HttpApi;
-  domainName: string;
+  noIndex: boolean;
 }
 
 export class UiDistributionHttpApiOrigin extends Construct {
@@ -28,12 +28,11 @@ export class UiDistributionHttpApiOrigin extends Construct {
   ) {
     super(scope, id);
 
-    const responseHeaderPolicy = new CloudFrontResponseHeadersPolicy(
+    const responseHeaderPolicy = new CloudFrontApiResponseHeadersPolicy(
       this,
       'response-headers-policy',
       {
-        noIndex: true,
-        domainName: props.domainName,
+        noIndex: props.noIndex,
       }
     );
 
