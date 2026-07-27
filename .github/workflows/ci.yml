@@ -37,7 +37,7 @@ jobs:
 
       - name: CDK synth
         working-directory: src/infra
-        run: npx cdk synth
+        run: npx cdk synth --verbose
         env:
           CDK_DOCKER: podman
 

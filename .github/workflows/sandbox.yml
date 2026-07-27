@@ -45,7 +45,7 @@ jobs:
           CDK_DOCKER: podman
         run: |
           SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          npx cdk synth "GarethDuncanDev-sandbox-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}"
+          npx cdk synth "GarethDuncanDev-sandbox-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}" --verbose
 
       - name: Trivy secret scan
         uses: aquasecurity/trivy-action@master
