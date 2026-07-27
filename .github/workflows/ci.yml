@@ -38,3 +38,15 @@ jobs:
       - name: CDK synth
         working-directory: src/infra
         run: npx cdk synth
+        env:
+          CDK_DOCKER: podman
+
+      - name: Trivy secret scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,misconfig
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 1
+          trivy-config: trivy.yaml

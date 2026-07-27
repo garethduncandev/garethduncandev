@@ -1,0 +1,15 @@
+secret:
+  enable-builtin-rules: true
+  rules:
+    - id: aws-account-id
+      category: AWS
+      title: AWS Account ID
+      severity: MEDIUM
+      keywords:
+        - account
+      regex: "(?:account)[^0-9]{0,20}(\\d{12})\\b"
+      allow-rules:
+        - id: ignore-node-modules
+          path: node_modules/
+        - id: ignore-cdk-out
+          path: cdk.out/

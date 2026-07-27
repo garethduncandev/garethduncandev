@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { ApplicationStack } from '../lib/application-stack';
+import { AwsGithubOidcStack } from '../lib/aws-github-oidc-stack';
 
 const app = new cdk.App();
 
@@ -44,4 +45,31 @@ new ApplicationStack(app, `${stackIdPrefix}-prod`, {
   subDomain: undefined,
   robotsNoIndex: false,
   aspNetCoreEnvironment: 'Production',
+});
+
+new AwsGithubOidcStack(app, 'AwsGithubOidcStack-sdlc', {
+  repositories: [
+    {
+      owner: 'garethduncandev',
+      repo: 'garethduncandev',
+      filters: [
+        'environment:dev',
+        'environment:sandbox',
+      ],
+    },
+  ],
+});
+
+new AwsGithubOidcStack(app, 'AwsGithubOidcStack-prod', {
+  repositories: [
+    {
+      owner: 'garethduncandev',
+      repo: 'garethduncandev',
+      filters: [
+        'environment:prod',
+        'environment:production-blue',
+        'environment:production-green',
+      ],
+    },
+  ],
 });

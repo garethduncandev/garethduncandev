@@ -41,9 +41,21 @@ jobs:
 
       - name: CDK synth
         working-directory: src/infra
+        env:
+          CDK_DOCKER: podman
         run: |
           SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          npx cdk synth "GarethDuncanDev-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}"
+          npx cdk synth "GarethDuncanDev-sandbox-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}"
+
+      - name: Trivy secret scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,misconfig
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 1
+          trivy-config: trivy.yaml
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -88,7 +100,7 @@ jobs:
         working-directory: src/infra
         run: |
           SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          npx cdk deploy "GarethDuncanDev-${SANDBOX_NAME}" \
+          npx cdk deploy "GarethDuncanDev-sandbox-${SANDBOX_NAME}" \
             --app cdk.out \
             --require-approval never \
             --parameters CloudFrontCertificateIdentifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} \
@@ -122,7 +134,7 @@ jobs:
       - name: CDK destroy sandbox
         working-directory: src/infra
         run: |
-          SANDBOX_NAME=$(echo "${{ github.event.ref }}" | sed 's|sandbox/||' | tr '/' '-')
-          npx cdk destroy "GarethDuncanDev-${SANDBOX_NAME}" \
-            --context SANDBOX_NAME="${SANDBOX_NAME}" \
+          SANDBOX_NAME=$(echo "${{ github.event.ref }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          npx cdk destroy "GarethDuncanDev-sandbox-${SANDBOX_NAME}" \
+            --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}" \
             --force
