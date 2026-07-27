@@ -12,9 +12,9 @@ secret:
         - id: ignore-node-modules
           path: node_modules/
         - id: ignore-cdk-out
-          path: cdk.out/
+          path: cdk\.out/
 
 misconfiguration:
   skip-dirs:
-    - node_modules
-    - cdk.out
+    - "**/node_modules"
+    - "**/cdk.out"
