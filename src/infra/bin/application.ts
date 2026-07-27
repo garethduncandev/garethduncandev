@@ -4,40 +4,43 @@ import { ApplicationStack } from '../lib/application-stack';
 
 const app = new cdk.App();
 
-const sandboxName = app.node.tryGetContext('SANDBOX_NAME');
+const domain = 'garethduncan.dev';
+const sdlcDomain = 'sdlc.garethduncan.dev';
+const stackIdPrefix = 'GarethDuncanDev';
 
+const sandboxName = `${app.node.tryGetContext('SANDBOX_NAME')}`;
 if (sandboxName) {
-  new ApplicationStack(app, `GarethDuncanDev-${sandboxName}`, {
-    domain: 'garethduncan.dev',
+  new ApplicationStack(app, `${stackIdPrefix}-${sandboxName}`, {
+    domain: sdlcDomain,
     subDomain: sandboxName,
     robotsNoIndex: true,
     aspNetCoreEnvironment: 'Development',
   });
 }
 
-new ApplicationStack(app, 'GarethDuncanDev-dev', {
-  domain: 'garethduncan.dev',
+new ApplicationStack(app, `${stackIdPrefix}-dev`, {
+  domain: sdlcDomain,
   subDomain: 'dev',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'Development',
 });
 
-new ApplicationStack(app, 'GarethDuncanDev-blue', {
-  domain: 'garethduncan.dev',
+new ApplicationStack(app, `${stackIdPrefix}-blue`, {
+  domain: domain,
   subDomain: 'blue',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionBlue',
 });
 
-new ApplicationStack(app, 'GarethDuncanDev-green', {
-  domain: 'garethduncan.dev',
+new ApplicationStack(app, `${stackIdPrefix}-green`, {
+  domain: domain,
   subDomain: 'green',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionGreen',
 });
 
-new ApplicationStack(app, 'GarethDuncanDev-prod', {
-  domain: 'garethduncan.dev',
+new ApplicationStack(app, `${stackIdPrefix}-prod`, {
+  domain: domain,
   subDomain: undefined,
   robotsNoIndex: false,
   aspNetCoreEnvironment: 'Production',

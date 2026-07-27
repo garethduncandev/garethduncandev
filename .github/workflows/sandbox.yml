@@ -42,8 +42,8 @@ jobs:
       - name: CDK synth
         working-directory: src/infra
         run: |
-          SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-')
-          npx cdk synth "GarethDuncanDev-${SANDBOX_NAME}" --context SANDBOX_NAME="${SANDBOX_NAME}"
+          SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          npx cdk synth "GarethDuncanDev-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -87,7 +87,7 @@ jobs:
       - name: CDK deploy sandbox
         working-directory: src/infra
         run: |
-          SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-')
+          SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           npx cdk deploy "GarethDuncanDev-${SANDBOX_NAME}" \
             --app cdk.out \
             --require-approval never \
