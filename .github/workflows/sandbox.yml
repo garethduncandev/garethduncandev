@@ -103,8 +103,8 @@ jobs:
           npx cdk deploy "GarethDuncanDev-sandbox-${SANDBOX_NAME}" \
             --app cdk.out \
             --require-approval never \
-            --parameters CloudFrontCertificateIdentifier=${{ vars.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} \
-            --parameters HostedZoneId=${{ vars.CDK_HOSTED_ZONE_ID }}
+            --parameters CloudFrontCertificateIdentifier=${{ secrets.CDK_CLOUD_FRONT_CERTIFICATE_IDENTIFIER }} \
+            --parameters HostedZoneId=${{ secrets.CDK_HOSTED_ZONE_ID }}
 
   destroy:
     if: github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'sandbox/')
