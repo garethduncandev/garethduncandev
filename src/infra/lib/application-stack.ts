@@ -15,6 +15,7 @@ export interface ApplicationStackProps extends cdk.StackProps {
   subDomain: string | undefined;
   aspNetCoreEnvironment: string;
   robotsNoIndex: boolean;
+  contentSecurityPolicy: string;
 }
 
 export class ApplicationStack extends cdk.Stack {
@@ -61,6 +62,7 @@ export class ApplicationStack extends cdk.Stack {
         : props.domain,
       hostedZone: hostedZone,
       noIndex: props.robotsNoIndex,
+      contentSecurityPolicy: props.contentSecurityPolicy,
     });
 
     // api gateway

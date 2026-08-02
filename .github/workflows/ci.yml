@@ -31,13 +31,20 @@ jobs:
         working-directory: src/web/client
         run: npm run build
 
+      - name: Generate CSP
+        id: csp
+        working-directory: src/web/client
+        run: |
+          CSP=$(npx csp-kit --config .csprc --directory dist/app/browser --ci)
+          echo "value=$CSP" >> $GITHUB_OUTPUT
+
       - name: Install CDK dependencies
         working-directory: src/infra
         run: npm ci
 
       - name: CDK synth
         working-directory: src/infra
-        run: npx cdk synth --verbose
+        run: npx cdk synth --context CONTENT_SECURITY_POLICY="${{ steps.csp.outputs.value }}" --verbose
         env:
           CDK_DOCKER: podman
 

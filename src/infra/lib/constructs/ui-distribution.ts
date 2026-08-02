@@ -21,6 +21,7 @@ export interface UiDistributionProps {
   noIndex: boolean;
   hostedZone: IHostedZone;
   uiBucket: IBucket;
+  contentSecurityPolicy: string;
 }
 
 export class UiDistribution extends Construct {
@@ -56,6 +57,7 @@ export class UiDistribution extends Construct {
       {
         noIndex: props.noIndex,
         domainName: props.domainName,
+        contentSecurityPolicy: props.contentSecurityPolicy,
       }
     );
 

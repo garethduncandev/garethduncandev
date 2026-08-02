@@ -35,6 +35,13 @@ jobs:
         working-directory: src/web/client
         run: npm run build
 
+      - name: Generate CSP
+        id: csp
+        working-directory: src/web/client
+        run: |
+          CSP=$(npx csp-kit --config .csprc --directory dist/app/browser --ci)
+          echo "value=$CSP" >> $GITHUB_OUTPUT
+
       - name: Install CDK dependencies
         working-directory: src/infra
         run: npm ci
@@ -45,7 +52,7 @@ jobs:
           CDK_DOCKER: podman
         run: |
           SANDBOX_NAME=$(echo "${{ github.ref_name }}" | sed 's|sandbox/||' | tr '/' '-' | tr '[:upper:]' '[:lower:]')
-          npx cdk synth "GarethDuncanDev-sandbox-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}" --verbose
+          npx cdk synth "GarethDuncanDev-sandbox-${SANDBOX_NAME}" --context SANDBOX_NAME="sandbox-${SANDBOX_NAME}" --context CONTENT_SECURITY_POLICY="${{ steps.csp.outputs.value }}" --verbose
 
       - name: Trivy secret scan
         uses: aquasecurity/trivy-action@master

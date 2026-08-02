@@ -9,6 +9,7 @@ test('Stack creates successfully', () => {
     subDomain: 'dev',
     aspNetCoreEnvironment: 'Development',
     robotsNoIndex: true,
+    contentSecurityPolicy: "default-src 'none'",
   });
   Template.fromStack(stack);
 });

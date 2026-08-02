@@ -8,6 +8,10 @@ const app = new cdk.App();
 const domain = 'garethduncan.dev';
 const sdlcDomain = 'sdlc.garethduncan.dev';
 const stackIdPrefix = 'GarethDuncanDev';
+const contentSecurityPolicy = `${app.node.tryGetContext('CONTENT_SECURITY_POLICY')}`;
+if (!contentSecurityPolicy) {
+  throw new Error('CONTENT_SECURITY_POLICY context variable is required');
+}
 
 const sandboxName = `${app.node.tryGetContext('SANDBOX_NAME')}`;
 if (sandboxName) {
@@ -16,6 +20,7 @@ if (sandboxName) {
     subDomain: sandboxName,
     robotsNoIndex: true,
     aspNetCoreEnvironment: 'Development',
+    contentSecurityPolicy,
   });
 }
 
@@ -24,6 +29,7 @@ new ApplicationStack(app, `${stackIdPrefix}-dev`, {
   subDomain: 'dev',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'Development',
+  contentSecurityPolicy,
 });
 
 new ApplicationStack(app, `${stackIdPrefix}-blue`, {
@@ -31,6 +37,7 @@ new ApplicationStack(app, `${stackIdPrefix}-blue`, {
   subDomain: 'blue',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionBlue',
+  contentSecurityPolicy,
 });
 
 new ApplicationStack(app, `${stackIdPrefix}-green`, {
@@ -38,6 +45,7 @@ new ApplicationStack(app, `${stackIdPrefix}-green`, {
   subDomain: 'green',
   robotsNoIndex: true,
   aspNetCoreEnvironment: 'ProductionGreen',
+  contentSecurityPolicy,
 });
 
 new ApplicationStack(app, `${stackIdPrefix}-prod`, {
@@ -45,6 +53,7 @@ new ApplicationStack(app, `${stackIdPrefix}-prod`, {
   subDomain: undefined,
   robotsNoIndex: false,
   aspNetCoreEnvironment: 'Production',
+  contentSecurityPolicy,
 });
 
 new AwsGithubOidcStack(app, 'AwsGithubOidcStack-sdlc', {

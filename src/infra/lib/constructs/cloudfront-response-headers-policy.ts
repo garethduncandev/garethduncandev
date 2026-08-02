@@ -5,6 +5,7 @@ import { Construct } from 'constructs';
 export interface CloudFrontResponseHeadersPolicyProps {
   noIndex: boolean;
   domainName: string;
+  contentSecurityPolicy: string;
 }
 
 export interface CloudFrontApiResponseHeadersPolicyProps {
@@ -13,9 +14,6 @@ export interface CloudFrontApiResponseHeadersPolicyProps {
 
 const noIndexHeaderValue =
   'noindex, nofollow, noarchive, nositelinkssearchbox, nosnippet, noimageindex, notranslate, max-image-preview:0, max-video-preview:0';
-
-const contentSecurityPolicyValue =
-  "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'";
 
 export class CloudFrontResponseHeadersPolicy extends Construct {
   public readonly responseHeadersPolicy: ResponseHeadersPolicy;
@@ -33,7 +31,7 @@ export class CloudFrontResponseHeadersPolicy extends Construct {
       },
       securityHeadersBehavior: {
         contentSecurityPolicy: {
-          contentSecurityPolicy: contentSecurityPolicyValue,
+          contentSecurityPolicy: props.contentSecurityPolicy,
           override: true,
         },
         strictTransportSecurity: {
