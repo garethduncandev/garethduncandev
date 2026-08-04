@@ -115,7 +115,9 @@ const COMMANDS: Command[] = [
             class="select-none text-green-400 hover:text-green-300 cursor-pointer"
             [attr.aria-label]="'Show commands. Currently on ' + activeCommand()"
             (click)="toggleCommandSwitcher()"
-          >{{ activeCommand() }}</button>&nbsp;
+          >
+            {{ activeCommand() }}</button
+          >&nbsp;
         }
         <div class="relative flex-1 flex items-center">
           <input
@@ -235,7 +237,6 @@ export class CommandInput {
   private readonly userNavigatedList = signal(false);
   protected readonly showCommandSwitcher = signal(false);
   protected readonly modeAnnouncement = signal('');
-
 
   protected readonly isExactMatch = computed(() => {
     if (this.activeMode()) return false;

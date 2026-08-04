@@ -37,7 +37,16 @@ public class EmbeddingService : IDisposable
             throw new FileNotFoundException($"Vocab file not found at: {vocabPath}");
         }
 
-        var session = new InferenceSession(modelPath);
+        var threadCount = Environment.ProcessorCount;
+        var sessionOptions = new SessionOptions
+        {
+            GraphOptimizationLevel = GraphOptimizationLevel.ORT_ENABLE_ALL,
+            InterOpNumThreads = threadCount,
+            IntraOpNumThreads = threadCount,
+            EnableMemoryPattern = true,
+            ExecutionMode = threadCount == 1 ? ExecutionMode.ORT_SEQUENTIAL : ExecutionMode.ORT_PARALLEL
+        };
+        var session = new InferenceSession(modelPath, sessionOptions);
         var tokenizer = BertTokenizer.Create(
             vocabPath,
             new BertOptions

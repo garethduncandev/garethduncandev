@@ -18,6 +18,7 @@ RUN dotnet publish GarethDuncanDevWebApi/GarethDuncanDevWebApi.csproj \
     -c Release \
     -r linux-x64 \
     -o /app/publish \
-    --self-contained true
+    --self-contained true \
+    /p:DebugType=none
 
 USER app

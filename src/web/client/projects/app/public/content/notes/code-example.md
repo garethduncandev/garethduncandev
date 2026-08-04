@@ -28,47 +28,47 @@ static bool IsPrime(int number)
 
 ```typescript
 function isPrime(num: number): boolean {
-    if (num <= 1) return false;
-    if (num === 2) return true;
-    if (num % 2 === 0) return false;
+  if (num <= 1) return false;
+  if (num === 2) return true;
+  if (num % 2 === 0) return false;
 
-    const boundary = Math.floor(Math.sqrt(num));
+  const boundary = Math.floor(Math.sqrt(num));
 
-    for (let i = 3; i <= boundary; i += 2) {
-        if (num % i === 0) return false;
-    }
+  for (let i = 3; i <= boundary; i += 2) {
+    if (num % i === 0) return false;
+  }
 
-    return true;
+  return true;
 }
 ```
 
 ```js
 function isPrime(num) {
-    if (num <= 1) return false;
-    if (num === 2) return true;
-    if (num % 2 === 0) return false;
+  if (num <= 1) return false;
+  if (num === 2) return true;
+  if (num % 2 === 0) return false;
 
-    const boundary = Math.floor(Math.sqrt(num));
+  const boundary = Math.floor(Math.sqrt(num));
 
-    for (let i = 3; i <= boundary; i += 2) {
-        if (num % i === 0) return false;
-    }
+  for (let i = 3; i <= boundary; i += 2) {
+    if (num % i === 0) return false;
+  }
 
-    return true;
+  return true;
 }
 ```
 
 ```sql
 WITH number_range AS (
     -- Generate all integers from 2 up to our limit (e.g., 100)
-    SELECT n 
+    SELECT n
     FROM generate_series(2, 100) AS n
 )
 SELECT n AS prime_number
 FROM number_range nr
 WHERE NOT EXISTS (
     -- Check if any number smaller than 'n' can divide 'n' perfectly
-    SELECT 1 
+    SELECT 1
     FROM generate_series(2, floor(sqrt(nr.n))::integer) AS divisor
     WHERE nr.n % divisor = 0
 )

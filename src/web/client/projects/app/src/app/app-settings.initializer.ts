@@ -10,6 +10,6 @@ export function appSettingsInitializerFactory() {
 
   return httpClient.get<AppSettings>('app-settings/appsettings.json').pipe(
     tap((settings) => appSettingsService.setAppSettings(settings)),
-    map(() => void 0)
+    map(() => void 0),
   );
 }

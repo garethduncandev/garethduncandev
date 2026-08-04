@@ -29,7 +29,9 @@ export class SearchService {
     return `${base}/search?${params.toString()}`;
   });
 
-  readonly results = computed(() => this.searchResults.hasValue() ? this.searchResults.value() : []);
+  readonly results = computed(() =>
+    this.searchResults.hasValue() ? this.searchResults.value() : [],
+  );
   readonly isLoading = computed(() => this.searchResults.isLoading());
   readonly error = computed(() => this.searchResults.error());
 

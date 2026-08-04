@@ -45,10 +45,11 @@ if (app.Environment.IsDevelopment())
 var embeddingsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Embeddings");
 var modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmbeddingModels", "all-MiniLM-L6-v2", "model.onnx");
 
+var searchService = SearchServiceFactory.GetOrCreate(embeddingsDir, modelPath);
+
 var searchApi = app.MapGroup("/search");
 searchApi.MapGet("/", (string query, string? type) =>
 {
-    var searchService = SearchServiceFactory.GetOrCreate(embeddingsDir, modelPath);
     var results = searchService.Search(query, type);
 
     return results.Select(r => new SearchResult(r.Chunk.Slug, r.Chunk.Title, r.Chunk.Description, r.Chunk.Date, r.Chunk.Type, (int)(r.Similarity * 100))).ToArray();
