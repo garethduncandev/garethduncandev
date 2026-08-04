@@ -12,7 +12,7 @@ const DOODLE_COUNT = 1;
       role="button"
       (click)="next()"
       (keydown.enter)="next()"
-      class="cursor-pointer select-none relative w-full aspect-3/1 @container"
+      class="cursor-pointer select-none relative w-full aspect-4/1 @container"
     >
       @switch (index()) {
         @case (0) {

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
-import { marked } from 'marked';
+import { marked } from '../marked-config';
 import { parseFrontmatter } from '../blog/parse-frontmatter';
 
 @Component({

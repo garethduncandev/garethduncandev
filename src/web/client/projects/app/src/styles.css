@@ -1,4 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import 'highlight.js/styles/github-dark.css';
 @plugin '@tailwindcss/typography';
+
+@font-face {
+  font-family: "Cascadia Code";
+  src: url("/fonts/CascadiaCode.woff2") format("woff2");
+  font-weight: 100 900; /* Adjust according to your file weights */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. Configure the Tailwind v4 Theme Rules */
+@theme {
+  /* This ensures ALL prose body text uses ui-sans-serif */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Bind Cascadia Code to a custom key */
+  --font-mono: "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* FIX FOR THE TYPOGRAPHY PLUGIN:
+     Force the plugin's internal heading tokens to use your header font */
+  --typography-headings-font-weight: 700;
+}
+
+/* 3. Apply styles universally across the Angular application */
+html, body {
+  font-family: var(--font-sans);
+}
+
+/* CSS Override for headings INSIDE prose markdown blocks */
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  font-family: var(--font-mono) !important;
+}

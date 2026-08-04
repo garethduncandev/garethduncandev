@@ -1,5 +1,11 @@
 [
   {
+    "slug": "code-example",
+    "title": "code example",
+    "date": "2026-08-04",
+    "description": "Some code to see how it renders"
+  },
+  {
     "slug": "hello",
     "title": "hello",
     "date": "2026-06-27",

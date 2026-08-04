@@ -43,7 +43,7 @@ export class FlickerDirective {
       const corruptedPositions: number[] = [];
 
       for (let j = 0; j < Math.min(corrupted.length, originalChars.length); j++) {
-        if (corrupted[j] !== originalChars[j]) {
+        if (corrupted[j] !== originalChars[j] && corrupted[j].length === 1) {
           corruptedPositions.push(j);
         }
       }

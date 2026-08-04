@@ -13,13 +13,13 @@ interface BlogPostMeta {
   selector: 'app-blog',
   imports: [RouterLink],
   template: `
-    <h1 class="text-2xl text-zinc-200 mb-6">/blog</h1>
+    <h1 class="text-2xl text-zinc-200 mb-6 font-mono">/blog</h1>
     @for (post of posts(); track post.slug) {
       <article class="mb-4">
-        <a [routerLink]="['/blog', post.slug]" class="text-zinc-300 hover:text-white">
+        <a [routerLink]="['/blog', post.slug]" class="text-zinc-300 hover:text-white font-mono">
           {{ post.title }}
         </a>
-        <p class="text-sm text-zinc-500">{{ post.date }} — {{ post.description }}</p>
+        <p class="text-sm text-zinc-500 font-mono">{{ post.date }} — {{ post.description }}</p>
       </article>
     }
   `,

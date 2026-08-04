@@ -8,7 +8,7 @@ import { SearchResult, SearchService } from '../search.service';
   selector: 'app-find',
   imports: [RouterLink],
   template: `
-    <h1 class="text-2xl text-zinc-200 mb-6">/find {{ queryParam() }}</h1>
+    <h1 class="text-2xl text-zinc-200 mb-6 font-mono">/find {{ queryParam() }}</h1>
     @if (searchService.isLoading()) {
       <p class="text-zinc-500 font-mono">searching...</p>
     } @else if (searchService.error()) {
@@ -18,10 +18,10 @@ import { SearchResult, SearchService } from '../search.service';
     }
     @for (result of searchService.results(); track $index) {
       <article class="mb-4">
-        <a [routerLink]="routeFor(result)" class="text-zinc-300 hover:text-white">
+        <a [routerLink]="routeFor(result)" class="text-zinc-300 hover:text-white font-mono">
           {{ result.title ?? result.slug }}
         </a>
-        <p class="text-sm text-zinc-500">
+        <p class="text-sm text-zinc-500 font-mono">
           @if (result.date) {
             {{ result.date }} —
           }

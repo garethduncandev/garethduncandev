@@ -7,7 +7,7 @@ function generateIndex(contentDir) {
   const posts = files
     .map((file) => {
       const raw = readFileSync(join(contentDir, file), 'utf-8');
-      const frontmatterMatch = raw.match(/^---\n([\s\S]*?)\n---/);
+      const frontmatterMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
       if (!frontmatterMatch) return null;
 
       const frontmatter = frontmatterMatch[1];

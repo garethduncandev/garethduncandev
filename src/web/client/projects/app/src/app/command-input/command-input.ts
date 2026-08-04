@@ -109,10 +109,13 @@ const COMMANDS: Command[] = [
         class="flex items-center gap-0 border-y border-zinc-700/50 px-3 py-2 font-mono text-zinc-300"
       >
         <span class="select-none text-zinc-500" aria-hidden="true">/</span>
-        @if (activeMode()) {
-          <span class="select-none text-green-400" aria-hidden="true"
-            >{{ activeMode()!.command }}&nbsp;</span
-          >
+        @if (activeCommand()) {
+          <button
+            type="button"
+            class="select-none text-green-400 hover:text-green-300 cursor-pointer"
+            [attr.aria-label]="'Show commands. Currently on ' + activeCommand()"
+            (click)="toggleCommandSwitcher()"
+          >{{ activeCommand() }}</button>&nbsp;
         }
         <div class="relative flex-1 flex items-center">
           <input
@@ -187,6 +190,7 @@ const COMMANDS: Command[] = [
           <li class="px-3 py-1 font-mono text-zinc-500">No results for "{{ searchQuery() }}"</li>
         }
       </ul>
+      <span class="sr-only" aria-live="polite" aria-atomic="true">{{ modeAnnouncement() }}</span>
     </div>
   `,
 })
@@ -226,8 +230,11 @@ export class CommandInput {
   protected readonly query = computed(() => this.inputModel().query);
   protected readonly isOpen = signal(false);
   protected readonly activeMode = signal<{ command: string; mode: CommandMode } | null>(null);
+  protected readonly activeCommand = signal<string | null>(null);
   protected readonly searchQuery = signal<string | undefined>(undefined);
   private readonly userNavigatedList = signal(false);
+  protected readonly showCommandSwitcher = signal(false);
+  protected readonly modeAnnouncement = signal('');
 
 
   protected readonly isExactMatch = computed(() => {
@@ -270,6 +277,14 @@ export class CommandInput {
   });
 
   protected readonly displayedCommands = computed((): Command[] => {
+    if (this.showCommandSwitcher()) {
+      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
+      if (this.currentRoute() !== '/') {
+        const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
+        return [home, ...defaults];
+      }
+      return defaults;
+    }
     if (this.activeMode()) {
       const entries = this.modeEntries();
       if (entries.length > 0) return entries;
@@ -312,9 +327,13 @@ export class CommandInput {
 
   protected readonly inputHintText = computed(() => {
     if (!this.inputForm.query().dirty() && !this.inputForm.query().touched()) return '';
+    if (this.showCommandSwitcher()) return '[esc] cancel · [enter] switch';
     const cmd = this.highlightedCommand();
+    if (this.activeMode()) {
+      if (cmd) return '[esc] back · [enter] open';
+      return '[esc] back · [/] commands';
+    }
     if (!cmd) return '';
-    if (this.activeMode()) return '[enter] to open';
     const full = COMMANDS.find((c) => c.name === cmd.name);
     if (!full) return '[enter] to open';
     if (full.mode && full.mode.enterActivates) {
@@ -333,6 +352,7 @@ export class CommandInput {
 
   protected readonly showSuggestions = computed(() => {
     if (this.isExactMatch()) return false;
+    if (this.activeCommand() && !this.query() && !this.showCommandSwitcher()) return false;
     const cmds = this.displayedCommands();
     if (cmds.length === 1) {
       const q = this.query().toLowerCase().trim();
@@ -342,8 +362,22 @@ export class CommandInput {
   });
 
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private blurTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    effect(() => {
+      const mode = this.activeMode();
+      untracked(() => {
+        if (mode) {
+          this.modeAnnouncement.set(
+            `Entered ${mode.command} mode. ${mode.mode.placeholder}. Press Escape to return to commands.`,
+          );
+        } else {
+          this.modeAnnouncement.set('Returned to command navigation.');
+        }
+      });
+    });
+
     effect(() => {
       const rawUrl = this.currentRoute();
       const blogEntries = this.blogEntries();
@@ -353,11 +387,13 @@ export class CommandInput {
         if (url === '/') {
           this.inputModel.set({ query: '' });
           this.activeMode.set(null);
+          this.activeCommand.set(null);
         } else {
           const segments = url.slice(1).split('/');
           const cmd = COMMANDS.find((c) => c.name === segments[0]);
           if (cmd?.mode && segments.length > 1) {
             this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+            this.activeCommand.set(cmd.name);
             const slug = segments.slice(1).join('/');
             const entries =
               cmd.name === 'blog' ? blogEntries : cmd.name === 'notes' ? notesEntries : [];
@@ -365,15 +401,26 @@ export class CommandInput {
             this.inputModel.set({ query: entry?.name ?? slug });
           } else if (cmd && cmd.mode && cmd.mode.enterActivates) {
             this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+            this.activeCommand.set(cmd.name);
             const queryString = rawUrl.split('?')[1] ?? '';
             const q = new URLSearchParams(queryString).get('q') ?? '';
             this.inputModel.set({ query: q });
+          } else if (cmd?.mode) {
+            this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+            this.activeCommand.set(cmd.name);
+            this.inputModel.set({ query: '' });
+          } else if (cmd) {
+            this.activeMode.set(null);
+            this.activeCommand.set(cmd.name);
+            this.inputModel.set({ query: '' });
           } else {
             this.activeMode.set(null);
+            this.activeCommand.set(null);
             this.inputModel.set({ query: segments[0] });
           }
         }
         this.searchQuery.set(undefined);
+        this.showCommandSwitcher.set(false);
       });
     });
 
@@ -404,6 +451,7 @@ export class CommandInput {
         if (!mode) {
           const findCmd = COMMANDS.find((c) => c.name === 'find')!;
           this.activeMode.set({ command: findCmd.name, mode: findCmd.mode as CommandMode });
+          this.activeCommand.set(findCmd.name);
         }
         this.debounceTimer = setTimeout(() => {
           this.searchQuery.set(q);
@@ -424,12 +472,25 @@ export class CommandInput {
     const input = event.target as HTMLInputElement;
     const value = input.value;
 
+    if (this.activeMode() && value === '/') {
+      input.value = '';
+      this.inputModel.set({ query: '' });
+      this.showCommandSwitcher.set(true);
+      this.isOpen.set(true);
+      return;
+    }
+
+    if (this.showCommandSwitcher()) {
+      this.showCommandSwitcher.set(false);
+    }
+
     if (!this.activeMode()) {
       const match = value.match(/^(\w+)\s$/);
       if (match) {
         const cmd = COMMANDS.find((c) => c.name === match[1].toLowerCase());
         if (cmd?.mode) {
           this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+          this.activeCommand.set(cmd.name);
           input.value = '';
           this.inputModel.set({ query: '' });
           this.searchQuery.set(undefined);
@@ -443,11 +504,13 @@ export class CommandInput {
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (this.activeMode() && event.key === 'Backspace' && this.query() === '') {
-      const commandName = this.activeMode()!.command;
+    if (event.key === 'Backspace' && this.query() === '' && this.activeCommand()) {
       this.activeMode.set(null);
+      this.activeCommand.set(null);
       this.searchQuery.set(undefined);
-      this.inputModel.set({ query: commandName });
+      this.inputModel.set({ query: '' });
+      this.showCommandSwitcher.set(true);
+      this.isOpen.set(true);
       event.preventDefault();
       return;
     }
@@ -457,14 +520,20 @@ export class CommandInput {
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        if (cmds.length) {
+        if (this.activeCommand() && !this.showCommandSwitcher() && !this.query()) {
+          this.showCommandSwitcher.set(true);
+          this.isOpen.set(true);
+        } else if (cmds.length) {
           this.selectedIndex.update((i) => (i + 1) % cmds.length);
           this.userNavigatedList.set(true);
         }
         break;
       case 'ArrowUp':
         event.preventDefault();
-        if (cmds.length) {
+        if (this.activeCommand() && !this.showCommandSwitcher() && !this.query()) {
+          this.showCommandSwitcher.set(true);
+          this.isOpen.set(true);
+        } else if (cmds.length) {
           this.selectedIndex.update((i) => (i - 1 + cmds.length) % cmds.length);
           this.userNavigatedList.set(true);
         }
@@ -474,11 +543,16 @@ export class CommandInput {
         const mode = this.activeMode();
         if (mode?.command === 'find' && this.query() && !this.userNavigatedList()) {
           this.router.navigate(['/find'], { queryParams: { q: this.query() } });
-        } else {
+        } else if (this.showSuggestions()) {
           const highlighted = this.highlightedCommand();
           if (highlighted) {
             this.execute(highlighted);
-          } else if (!this.query() && !mode) {
+          }
+        } else {
+          const exactCmd = COMMANDS.find((c) => c.name === this.query().toLowerCase().trim());
+          if (exactCmd) {
+            this.execute(exactCmd);
+          } else if (!this.query() && !mode && !this.activeCommand()) {
             this.router.navigate(['/']);
           } else if (this.query() && this.filteredCommands().length === 0) {
             this.router.navigate(['/find'], { queryParams: { q: this.query() } });
@@ -487,10 +561,15 @@ export class CommandInput {
         break;
       }
       case 'Escape':
-        this.inputModel.set({ query: '' });
-        this.activeMode.set(null);
-        this.searchQuery.set(undefined);
-        this.isOpen.set(false);
+        this.showCommandSwitcher.set(false);
+        if (this.activeMode()) {
+          this.activeMode.set(null);
+          this.searchQuery.set(undefined);
+          this.inputModel.set({ query: '' });
+        } else {
+          this.inputModel.set({ query: '' });
+          this.isOpen.set(false);
+        }
         break;
       case 'Tab':
         event.preventDefault();
@@ -499,6 +578,7 @@ export class CommandInput {
           const full = highlighted ? COMMANDS.find((c) => c.name === highlighted.name) : undefined;
           if (full?.mode) {
             this.activeMode.set({ command: full.name, mode: full.mode });
+            this.activeCommand.set(full.name);
             this.inputModel.set({ query: '' });
             this.searchQuery.set(undefined);
             break;
@@ -512,8 +592,10 @@ export class CommandInput {
   }
 
   protected execute(cmd: Command): void {
+    this.showCommandSwitcher.set(false);
     if (cmd.mode && cmd.mode.enterActivates) {
       this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+      this.activeCommand.set(cmd.name);
       this.inputModel.set({ query: '' });
       this.searchQuery.set(undefined);
     } else if (cmd.name === 'clear') {
@@ -523,7 +605,11 @@ export class CommandInput {
       this.router.navigate(['/']);
     } else if (cmd.route) {
       if (this.currentRoute() === cmd.route) {
-        this.inputModel.set({ query: cmd.name });
+        this.activeCommand.set(cmd.name);
+        if (cmd.mode) {
+          this.activeMode.set({ command: cmd.name, mode: cmd.mode });
+        }
+        this.inputModel.set({ query: '' });
         return;
       }
       const navCmd = COMMANDS.find((c) => c.route === cmd.route);
@@ -534,7 +620,21 @@ export class CommandInput {
     }
   }
 
+  protected toggleCommandSwitcher(): void {
+    if (this.blurTimer) {
+      clearTimeout(this.blurTimer);
+      this.blurTimer = null;
+    }
+    this.showCommandSwitcher.update((v) => !v);
+    this.isOpen.set(true);
+    this.inputEl().nativeElement.focus();
+  }
+
   protected onBlur(): void {
-    setTimeout(() => this.isOpen.set(false), 150);
+    this.blurTimer = setTimeout(() => {
+      this.isOpen.set(false);
+      this.showCommandSwitcher.set(false);
+      this.blurTimer = null;
+    }, 150);
   }
 }

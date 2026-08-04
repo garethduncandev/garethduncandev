@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
-import { marked } from 'marked';
+import { marked } from '../marked-config';
 import { parseFrontmatter } from './parse-frontmatter';
 
 @Component({
@@ -9,7 +9,7 @@ import { parseFrontmatter } from './parse-frontmatter';
   template: `
     @if (frontmatter()) {
       <article>
-        <pre class="text-xs text-zinc-500 mb-6 font-mono"><span class="text-zinc-600">---</span>
+        <pre class="text-xs text-zinc-500 mb-6 "><span class="text-zinc-600">---</span>
 <span class="text-zinc-400">title:</span> {{ frontmatter()!.title }}
 <span class="text-zinc-400">date:</span> {{ frontmatter()!.date }}
 @if (frontmatter()!.updated) {
