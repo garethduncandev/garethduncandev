@@ -15,7 +15,7 @@ export class UiBucketDeploymentProps {
 
 export class AppSettings {
   public constructor(
-    public buildTime: Date,
+    public buildTime: string,
     public domain: string,
     public subDomain: string | undefined,
     public apiUrl: string,
@@ -42,9 +42,9 @@ export class UiBucketDeployment extends Construct {
           path.join(__dirname, '../../../web/client/dist/app/browser')
         ),
         Source.jsonData(
-          'assets/appsettings.json',
+          'app-settings/appsettings.json',
           new AppSettings(
-            new Date(),
+            new Date().toISOString(),
             props.applicationStackProps.domain,
             props.applicationStackProps.subDomain,
             apiUrl,
