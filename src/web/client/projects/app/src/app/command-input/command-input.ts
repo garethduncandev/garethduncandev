@@ -16,6 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { form, FormField } from '@angular/forms/signals';
 import { SearchService } from '../search.service';
+import { COMMAND_COLORS } from '../command-colors';
 
 interface CommandMode {
   placeholder: string;
@@ -44,6 +45,7 @@ interface ContentIndexEntry {
   description: string;
 }
 
+
 const COMMANDS: Command[] = [
   {
     name: 'blog',
@@ -55,7 +57,7 @@ const COMMANDS: Command[] = [
       entries: [],
     },
     showInDefault: true,
-    enterHint: 'view all blog posts',
+    enterHint: 'view',
   },
   { name: 'clear', route: null, mode: false, showInDefault: false, enterHint: 'reset navigation' },
   {
@@ -75,7 +77,7 @@ const COMMANDS: Command[] = [
       entries: [],
     },
     showInDefault: true,
-    enterHint: 'search for something',
+    enterHint: 'search',
   },
   { name: 'home', route: '/', mode: false, showInDefault: false, enterHint: 'go to homepage' },
   {
@@ -88,7 +90,7 @@ const COMMANDS: Command[] = [
       entries: [],
     },
     showInDefault: true,
-    enterHint: 'view all notes',
+    enterHint: 'view',
   },
 ];
 
@@ -105,20 +107,16 @@ const COMMANDS: Command[] = [
           >{{ inputHintText() }}</span
         >
       }
-      <div
-        class="flex items-center gap-0 border-y border-zinc-700/50 px-3 py-2 font-mono text-zinc-300"
-      >
-        <span class="select-none text-zinc-500" aria-hidden="true">/</span>
-        @if (activeCommand()) {
-          <button
-            type="button"
-            class="select-none text-green-400 hover:text-green-300 cursor-pointer"
-            [attr.aria-label]="'Show commands. Currently on ' + activeCommand()"
-            (click)="toggleCommandSwitcher()"
-          >
-            {{ activeCommand() }}</button
-          >&nbsp;
-        }
+      <div [class]="borderClass()">
+        <button
+          type="button"
+          [class]="pillClass()"
+          [attr.aria-label]="activeCommand() ? 'Show commands. Currently on ' + activeCommand() : 'Show commands. Currently at root'"
+          (click)="toggleCommandSwitcher()"
+        >
+          <span aria-hidden="true">▾</span>
+          <span>{{ activeCommand() ?? 'root' }}</span>
+        </button>
         <div class="relative flex-1 flex items-center">
           <input
             #inputEl
@@ -169,6 +167,7 @@ const COMMANDS: Command[] = [
         id="command-listbox"
         role="listbox"
         [class]="showSuggestions() ? 'mt-1 w-full border-zinc-700/50 bg-zinc-900' : 'hidden'"
+        (pointerleave)="selectedIndex.set(-1)"
       >
         @for (cmd of displayedCommands(); track cmd.name; let i = $index) {
           <li
@@ -178,14 +177,14 @@ const COMMANDS: Command[] = [
             [attr.aria-selected]="i === selectedIndex()"
             [class]="
               i === selectedIndex()
-                ? 'cursor-pointer px-3 py-1 font-mono text-white bg-zinc-800'
-                : 'cursor-pointer px-3 py-1 font-mono text-zinc-500'
+                ? 'cursor-pointer px-3 py-1 font-mono bg-zinc-800 ' + commandTextColor(cmd.name)
+                : 'cursor-pointer px-3 py-1 font-mono ' + commandTextColor(cmd.name)
             "
             (pointerenter)="selectedIndex.set(i)"
             (click)="execute(cmd)"
             (keydown.enter)="execute(cmd)"
           >
-            /{{ cmd.name === 'home' ? '' : cmd.name }}
+            <span [class]="commandTextColor(cmd.name)">{{ cmd.name === 'home' ? '/root' : '/' + cmd.name }}</span>
           </li>
         }
         @if (noResults()) {
@@ -327,22 +326,18 @@ export class CommandInput {
   });
 
   protected readonly inputHintText = computed(() => {
-    if (!this.inputForm.query().dirty() && !this.inputForm.query().touched()) return '';
-    if (this.showCommandSwitcher()) return '[esc] cancel · [enter] switch';
-    const cmd = this.highlightedCommand();
-    if (this.activeMode()) {
+    if (this.activeMode() && !this.showCommandSwitcher()) {
+      if (!this.showSuggestions()) return '';
+      const cmd = this.highlightedCommand();
       if (cmd) return '[esc] back · [enter] open';
       return '[esc] back · [/] commands';
     }
+    if (!this.showSuggestions() && !this.isExactMatch()) return '';
+    const cmd = this.highlightedCommand();
     if (!cmd) return '';
     const full = COMMANDS.find((c) => c.name === cmd.name);
     if (!full) return '[enter] to open';
-    if (full.mode && full.mode.enterActivates) {
-      return `[enter/tab] ${full.enterHint}`;
-    }
-    const enter = `[enter] ${full.enterHint}`;
-    if (full.mode) return `${enter} · [tab] ${full.mode.placeholder}`;
-    return enter;
+    return `[enter] ${full.enterHint}`;
   });
 
   protected readonly noResults = computed(() => {
@@ -350,6 +345,28 @@ export class CommandInput {
     const hasSearched = status === 'resolved' || status === 'error';
     return hasSearched && this.displayedCommands().length === 0 && !!this.searchQuery();
   });
+
+  protected readonly activeCommandColor = computed(() => COMMAND_COLORS[this.activeCommand() ?? ''] ?? null);
+
+  protected readonly pillClass = computed(() => {
+    const base = 'select-none cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded ml-1 mr-1';
+    const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
+    return `${base} ${color.pillBg} ${color.pillText}`;
+  });
+
+  protected readonly slashClass = computed(() => {
+    const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
+    return 'select-none ' + color.text;
+  });
+
+  protected readonly borderClass = computed(() => {
+    const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
+    return 'flex items-center gap-0 border-y-2 px-3 py-2 font-mono text-zinc-300 ' + color.border;
+  });
+
+  protected commandTextColor(name: string): string {
+    return COMMAND_COLORS[name]?.text ?? 'text-zinc-500';
+  }
 
   protected readonly showSuggestions = computed(() => {
     if (this.isExactMatch()) return false;
@@ -565,9 +582,11 @@ export class CommandInput {
         this.showCommandSwitcher.set(false);
         if (this.activeMode()) {
           this.activeMode.set(null);
+          this.activeCommand.set(null);
           this.searchQuery.set(undefined);
           this.inputModel.set({ query: '' });
         } else {
+          this.activeCommand.set(null);
           this.inputModel.set({ query: '' });
           this.isOpen.set(false);
         }
