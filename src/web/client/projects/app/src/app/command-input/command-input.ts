@@ -47,6 +47,7 @@ interface ContentIndexEntry {
 
 
 const COMMANDS: Command[] = [
+  { name: 'home', route: '/', mode: false, showInDefault: false, enterHint: 'go to homepage' },
   {
     name: 'blog',
     route: '/blog',
@@ -59,13 +60,17 @@ const COMMANDS: Command[] = [
     showInDefault: true,
     enterHint: 'view',
   },
-  { name: 'clear', route: null, mode: false, showInDefault: false, enterHint: 'reset navigation' },
   {
-    name: 'contact',
-    route: '/contact',
-    mode: false,
+    name: 'notes',
+    route: '/notes',
+    mode: {
+      placeholder: 'search notes',
+      searchCategory: 'notes',
+      enterActivates: false,
+      entries: [],
+    },
     showInDefault: true,
-    enterHint: 'get in touch',
+    enterHint: 'view',
   },
   {
     name: 'find',
@@ -79,19 +84,14 @@ const COMMANDS: Command[] = [
     showInDefault: true,
     enterHint: 'search',
   },
-  { name: 'home', route: '/', mode: false, showInDefault: false, enterHint: 'go to homepage' },
   {
-    name: 'notes',
-    route: '/notes',
-    mode: {
-      placeholder: 'search notes',
-      searchCategory: 'notes',
-      enterActivates: false,
-      entries: [],
-    },
+    name: 'contact',
+    route: '/contact',
+    mode: false,
     showInDefault: true,
-    enterHint: 'view',
+    enterHint: 'get in touch',
   },
+  { name: 'clear', route: null, mode: false, showInDefault: false, enterHint: 'reset navigation' },
 ];
 
 @Component({
@@ -278,7 +278,8 @@ export class CommandInput {
 
   protected readonly displayedCommands = computed((): Command[] => {
     if (this.showCommandSwitcher()) {
-      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
+      const active = this.activeCommand();
+      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault && cmd.name !== active);
       if (this.currentRoute() !== '/') {
         const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
         return [home, ...defaults];

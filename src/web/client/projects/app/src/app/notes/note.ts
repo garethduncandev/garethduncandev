@@ -3,6 +3,7 @@ import { httpResource } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { marked } from '../marked-config';
 import { parseFrontmatter } from '../blog/parse-frontmatter';
+import { COMMAND_COLORS } from '../command-colors';
 
 @Component({
   selector: 'app-note',
@@ -14,13 +15,14 @@ import { parseFrontmatter } from '../blog/parse-frontmatter';
 <span class="text-zinc-400">date:</span> {{ frontmatter()!.date }}
 <span class="text-zinc-400">description:</span> {{ frontmatter()!.description }}
 <span class="text-zinc-600">---</span></pre>
-        <div class="prose prose-invert max-w-none" [innerHTML]="htmlContent()"></div>
+        <div [class]="'prose prose-invert max-w-none ' + colors.proseLink" [innerHTML]="htmlContent()"></div>
       </article>
     }
   `,
 })
 export class NoteComponent {
   private readonly sanitizer = inject(DomSanitizer);
+  protected readonly colors = COMMAND_COLORS['notes'];
 
   readonly slug = input.required<string>();
 
