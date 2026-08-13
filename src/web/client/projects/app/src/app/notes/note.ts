@@ -10,12 +10,30 @@ import { COMMAND_COLORS } from '../command-colors';
   template: `
     @if (frontmatter()) {
       <article>
-        <pre class="text-xs text-zinc-500 mb-6 font-mono"><span class="text-zinc-600">---</span>
-<span class="text-zinc-400">title:</span> {{ frontmatter()!.title }}
-<span class="text-zinc-400">date:</span> {{ frontmatter()!.date }}
-<span class="text-zinc-400">description:</span> {{ frontmatter()!.description }}
-<span class="text-zinc-600">---</span></pre>
-        <div [class]="'prose prose-invert max-w-none ' + colors.proseLink" [innerHTML]="htmlContent()"></div>
+        <pre
+          class="text-xs text-zinc-500 mt-5 mb-8 font-mono"
+        ><span [class]="colors.textDim">---</span>
+<span [class]="colors.textDim">date:</span> <span class="text-zinc-500">{{ frontmatter()!.date }}</span>
+<span [class]="colors.textDim">description:</span> <span class="text-zinc-500">{{ frontmatter()!.description }}</span>
+<span [class]="colors.textDim">---</span></pre>
+        <div [class]="'border mt-4 ' + colors.border">
+          <h1 class="-mt-4 mr-4 text-right">
+            <span
+              [class]="
+                colors.bgSolid + ' ' + colors.titleText + ' px-2 py-1 font-mono text-lg font-bold'
+              "
+              >{{ frontmatter()!.title }}</span
+            >
+          </h1>
+          <div class="p-4">
+            <div
+              [class]="
+                'prose prose-invert max-w-none [&>h1:first-of-type]:hidden ' + colors.proseLink
+              "
+              [innerHTML]="htmlContent()"
+            ></div>
+          </div>
+        </div>
       </article>
     }
   `,
@@ -24,7 +42,7 @@ export class NoteComponent {
   private readonly sanitizer = inject(DomSanitizer);
   protected readonly colors = COMMAND_COLORS['notes'];
 
-  readonly slug = input.required<string>();
+  public readonly slug = input.required<string>();
 
   private readonly markdownResource = httpResource.text(() => `/content/notes/${this.slug()}.md`);
 

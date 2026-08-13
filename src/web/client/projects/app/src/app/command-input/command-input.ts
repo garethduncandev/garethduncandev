@@ -45,7 +45,6 @@ interface ContentIndexEntry {
   description: string;
 }
 
-
 const COMMANDS: Command[] = [
   { name: 'home', route: '/', mode: false, showInDefault: false, enterHint: 'go to homepage' },
   {
@@ -111,7 +110,11 @@ const COMMANDS: Command[] = [
         <button
           type="button"
           [class]="pillClass()"
-          [attr.aria-label]="activeCommand() ? 'Show commands. Currently on ' + activeCommand() : 'Show commands. Currently at root'"
+          [attr.aria-label]="
+            activeCommand()
+              ? 'Show commands. Currently on ' + activeCommand()
+              : 'Show commands. Currently at root'
+          "
           (click)="toggleCommandSwitcher()"
         >
           <span aria-hidden="true">▾</span>
@@ -166,25 +169,34 @@ const COMMANDS: Command[] = [
       <ul
         id="command-listbox"
         role="listbox"
-        [class]="showSuggestions() ? 'mt-1 w-full border-zinc-700/50 bg-zinc-900' : 'hidden'"
+        [class]="
+          showSuggestions()
+            ? 'mt-1 w-full' +
+              (activeCommandColor() ? ' border-b-2 ' + activeCommandColor()!.border : '')
+            : 'hidden'
+        "
         (pointerleave)="selectedIndex.set(-1)"
       >
         @for (cmd of displayedCommands(); track cmd.name; let i = $index) {
           <li
             [id]="'command-option-' + i"
             role="option"
-            tabindex="0"
             [attr.aria-selected]="i === selectedIndex()"
             [class]="
               i === selectedIndex()
-                ? 'cursor-pointer px-3 py-1 font-mono bg-zinc-800 ' + commandTextColor(cmd.name)
+                ? 'cursor-pointer px-3 py-1 font-mono text-white bg-zinc-800/50'
                 : 'cursor-pointer px-3 py-1 font-mono ' + commandTextColor(cmd.name)
             "
             (pointerenter)="selectedIndex.set(i)"
-            (click)="execute(cmd)"
-            (keydown.enter)="execute(cmd)"
           >
-            <span [class]="commandTextColor(cmd.name)">{{ cmd.name === 'home' ? '/root' : '/' + cmd.name }}</span>
+            <button
+              type="button"
+              class="w-full text-left bg-transparent border-none p-0 font-mono cursor-pointer"
+              [class]="i === selectedIndex() ? 'text-white' : commandTextColor(cmd.name)"
+              (click)="execute(cmd)"
+            >
+              {{ cmd.name === 'home' ? '/root' : '/' + cmd.name }}
+            </button>
           </li>
         }
         @if (noResults()) {
@@ -196,36 +208,7 @@ const COMMANDS: Command[] = [
   `,
 })
 export class CommandInput {
-  private readonly router = inject(Router);
   protected readonly searchService = inject(SearchService);
-  private readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
-
-  private readonly blogIndex = httpResource<ContentIndexEntry[]>(() => '/content/blog/index.json');
-  private readonly notesIndex = httpResource<ContentIndexEntry[]>(
-    () => '/content/notes/index.json',
-  );
-
-  private readonly blogEntries = computed<ModeEntry[]>(() =>
-    (this.blogIndex.value() ?? []).map((e) => ({
-      name: e.title.toLowerCase(),
-      route: `/blog/${e.slug}`,
-    })),
-  );
-  private readonly notesEntries = computed<ModeEntry[]>(() =>
-    (this.notesIndex.value() ?? []).map((e) => ({
-      name: e.title.toLowerCase(),
-      route: `/notes/${e.slug}`,
-    })),
-  );
-
-  private readonly currentRoute = toSignal(
-    this.router.events.pipe(
-      filter((e) => e instanceof NavigationEnd),
-      map((e) => e.urlAfterRedirects),
-    ),
-    { initialValue: this.router.url },
-  );
-
   protected readonly inputModel = signal({ query: '' });
   protected readonly inputForm = form(this.inputModel);
   protected readonly query = computed(() => this.inputModel().query);
@@ -233,7 +216,7 @@ export class CommandInput {
   protected readonly activeMode = signal<{ command: string; mode: CommandMode } | null>(null);
   protected readonly activeCommand = signal<string | null>(null);
   protected readonly searchQuery = signal<string | undefined>(undefined);
-  private readonly userNavigatedList = signal(false);
+
   protected readonly showCommandSwitcher = signal(false);
   protected readonly modeAnnouncement = signal('');
 
@@ -279,8 +262,8 @@ export class CommandInput {
   protected readonly displayedCommands = computed((): Command[] => {
     if (this.showCommandSwitcher()) {
       const active = this.activeCommand();
-      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault && cmd.name !== active);
-      if (this.currentRoute() !== '/') {
+      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
+      if (active) {
         const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
         return [home, ...defaults];
       }
@@ -347,12 +330,15 @@ export class CommandInput {
     return hasSearched && this.displayedCommands().length === 0 && !!this.searchQuery();
   });
 
-  protected readonly activeCommandColor = computed(() => COMMAND_COLORS[this.activeCommand() ?? ''] ?? null);
+  protected readonly activeCommandColor = computed(
+    () => COMMAND_COLORS[this.activeCommand() ?? ''] ?? null,
+  );
 
   protected readonly pillClass = computed(() => {
-    const base = 'select-none cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded ml-1 mr-1';
+    const base =
+      'select-none cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded ml-1 mr-1 border-2 bg-zinc-900 hover:bg-zinc-800';
     const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
-    return `${base} ${color.pillBg} ${color.pillText}`;
+    return `${base} ${color.border} ${color.text}`;
   });
 
   protected readonly slashClass = computed(() => {
@@ -365,10 +351,6 @@ export class CommandInput {
     return 'flex items-center gap-0 border-y-2 px-3 py-2 font-mono text-zinc-300 ' + color.border;
   });
 
-  protected commandTextColor(name: string): string {
-    return COMMAND_COLORS[name]?.text ?? 'text-zinc-500';
-  }
-
   protected readonly showSuggestions = computed(() => {
     if (this.isExactMatch()) return false;
     if (this.activeCommand() && !this.query() && !this.showCommandSwitcher()) return false;
@@ -380,8 +362,41 @@ export class CommandInput {
     return cmds.length > 0 || this.searchService.isLoading() || this.noResults();
   });
 
-  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
   private blurTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private readonly router = inject(Router);
+
+  private readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
+
+  private readonly blogIndex = httpResource<ContentIndexEntry[]>(() => '/content/blog/index.json');
+  private readonly notesIndex = httpResource<ContentIndexEntry[]>(
+    () => '/content/notes/index.json',
+  );
+
+  private readonly blogEntries = computed<ModeEntry[]>(() =>
+    (this.blogIndex.value() ?? []).map((e) => ({
+      name: e.title.toLowerCase(),
+      route: `/blog/${e.slug}`,
+    })),
+  );
+  private readonly notesEntries = computed<ModeEntry[]>(() =>
+    (this.notesIndex.value() ?? []).map((e) => ({
+      name: e.title.toLowerCase(),
+      route: `/notes/${e.slug}`,
+    })),
+  );
+
+  private readonly currentRoute = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  private readonly userNavigatedList = signal(false);
 
   constructor() {
     effect(() => {
@@ -485,6 +500,10 @@ export class CommandInput {
         if (this.debounceTimer) clearTimeout(this.debounceTimer);
       });
     });
+  }
+
+  protected commandTextColor(name: string): string {
+    return COMMAND_COLORS[name]?.text ?? 'text-zinc-500';
   }
 
   protected onInput(event: Event): void {

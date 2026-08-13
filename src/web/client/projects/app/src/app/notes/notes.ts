@@ -19,7 +19,10 @@ interface NotePostMeta {
     </h1>
     @for (note of notes(); track note.slug) {
       <article class="mb-4">
-        <a [routerLink]="['/notes', note.slug]" [class]="colors.text + ' hover:text-white font-mono'">
+        <a
+          [routerLink]="['/notes', note.slug]"
+          [class]="colors.text + ' hover:text-white font-mono'"
+        >
           {{ note.title }}
         </a>
         <p class="text-sm text-zinc-500 font-mono">{{ note.date }} — {{ note.description }}</p>

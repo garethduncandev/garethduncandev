@@ -20,8 +20,8 @@ const enum FlickerPhase {
 export class FlickerDirective {
   private readonly el = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
-  readonly appFlicker = input.required<string[]>();
-  readonly appFlickerSegments = input.required<string[][]>();
+  public readonly appFlicker = input.required<string[]>();
+  public readonly appFlickerSegments = input.required<string[][]>();
 
   constructor() {
     afterNextRender(() => this.start());

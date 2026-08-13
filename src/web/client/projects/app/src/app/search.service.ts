@@ -13,13 +13,7 @@ export interface SearchResult {
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
-  private readonly appSettings = inject(AppSettingsService);
-  private readonly apiUrl = this.appSettings.apiUrl;
-
-  private readonly query = signal<string | undefined>(undefined);
-  private readonly type = signal<string | undefined>(undefined);
-
-  readonly searchResults = httpResource<SearchResult[]>(() => {
+  public readonly searchResults = httpResource<SearchResult[]>(() => {
     const q = this.query();
     const base = this.apiUrl();
     if (!q || !base) return undefined;
@@ -29,18 +23,24 @@ export class SearchService {
     return `${base}/search?${params.toString()}`;
   });
 
-  readonly results = computed(() =>
+  public readonly results = computed(() =>
     this.searchResults.hasValue() ? this.searchResults.value() : [],
   );
-  readonly isLoading = computed(() => this.searchResults.isLoading());
-  readonly error = computed(() => this.searchResults.error());
+  public readonly isLoading = computed(() => this.searchResults.isLoading());
+  public readonly error = computed(() => this.searchResults.error());
 
-  search(query: string, type?: string): void {
+  private readonly appSettings = inject(AppSettingsService);
+  private readonly apiUrl = this.appSettings.apiUrl;
+
+  private readonly query = signal<string | undefined>(undefined);
+  private readonly type = signal<string | undefined>(undefined);
+
+  public search(query: string, type?: string): void {
     this.type.set(type);
     this.query.set(query);
   }
 
-  clear(): void {
+  public clear(): void {
     this.query.set(undefined);
     this.type.set(undefined);
   }

@@ -19,7 +19,10 @@ interface BlogPostMeta {
     </h1>
     @for (post of posts(); track post.slug) {
       <article class="mb-4">
-        <a [routerLink]="['/blog', post.slug]" [class]="colors.text + ' hover:text-white font-mono'">
+        <a
+          [routerLink]="['/blog', post.slug]"
+          [class]="colors.text + ' hover:text-white font-mono'"
+        >
           {{ post.title }}
         </a>
         <p class="text-sm text-zinc-500 font-mono">{{ post.date }} — {{ post.description }}</p>
