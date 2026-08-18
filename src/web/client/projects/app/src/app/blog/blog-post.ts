@@ -1,15 +1,22 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 import { marked } from '../marked-config';
 import { parseFrontmatter } from './parse-frontmatter';
 import { COMMAND_COLORS } from '../command-colors';
 
 @Component({
   selector: 'app-blog-post',
+  imports: [RouterLink],
   template: `
     @if (frontmatter()) {
       <article>
+        <a
+          routerLink="/blog"
+          [class]="'inline-block font-mono text-sm mb-4 mt-4 hover:underline ' + colors.text"
+          >← blog</a
+        >
         <pre class="text-xs text-zinc-500 mt-5 mb-8"><span [class]="colors.textDim">---</span>
 <span [class]="colors.textDim">date:</span> <span class="text-zinc-500">{{ frontmatter()!.date }}</span>
 @if (frontmatter()!.updated) {

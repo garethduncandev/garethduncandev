@@ -13,6 +13,7 @@ import { RoleTyper } from './role-typer';
   styleUrl: './app.css',
 })
 export class App {
+  protected readonly routeName = computed(() => this.url());
   private readonly router = inject(Router);
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -21,5 +22,4 @@ export class App {
     ),
     { initialValue: this.router.url },
   );
-  protected readonly routeName = computed(() => this.url());
 }

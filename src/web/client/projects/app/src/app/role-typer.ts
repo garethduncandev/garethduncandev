@@ -20,12 +20,12 @@ const PAUSE_AFTER_DELETE = 500;
   template: `<span aria-hidden="true">{{ text() }}<span class="animate-pulse">▌</span></span>`,
 })
 export class RoleTyper implements OnInit, OnDestroy {
-  protected readonly text = signal('');
-  private roleIndex = Math.floor(Math.random() * ROLES.length);
+  private roleIndex = 0;
+  protected readonly text = signal(ROLES[this.roleIndex]);
   private timeout: ReturnType<typeof setTimeout> | null = null;
 
   public ngOnInit() {
-    this.typeRole();
+    this.timeout = setTimeout(() => this.deleteRole(), PAUSE_AFTER_TYPE);
   }
 
   public ngOnDestroy() {

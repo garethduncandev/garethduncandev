@@ -1,15 +1,22 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 import { marked } from '../marked-config';
 import { parseFrontmatter } from '../blog/parse-frontmatter';
 import { COMMAND_COLORS } from '../command-colors';
 
 @Component({
   selector: 'app-note',
+  imports: [RouterLink],
   template: `
     @if (frontmatter()) {
       <article>
+        <a
+          routerLink="/notes"
+          [class]="'inline-block font-mono text-sm mb-4 mt-4 hover:underline ' + colors.text"
+          >← notes</a
+        >
         <pre
           class="text-xs text-zinc-500 mt-5 mb-8 font-mono"
         ><span [class]="colors.textDim">---</span>

@@ -184,7 +184,7 @@ const COMMANDS: Command[] = [
             [attr.aria-selected]="i === selectedIndex()"
             [class]="
               i === selectedIndex()
-                ? 'cursor-pointer px-3 py-1 font-mono text-white bg-zinc-800/50'
+                ? 'cursor-pointer px-3 py-1 font-mono bg-zinc-800/50 ' + commandTextColor(cmd.name)
                 : 'cursor-pointer px-3 py-1 font-mono ' + commandTextColor(cmd.name)
             "
             (pointerenter)="selectedIndex.set(i)"
@@ -192,7 +192,7 @@ const COMMANDS: Command[] = [
             <button
               type="button"
               class="w-full text-left bg-transparent border-none p-0 font-mono cursor-pointer"
-              [class]="i === selectedIndex() ? 'text-white' : commandTextColor(cmd.name)"
+              [class]="commandTextColor(cmd.name)"
               (click)="execute(cmd)"
             >
               {{ cmd.name === 'home' ? '/root' : '/' + cmd.name }}

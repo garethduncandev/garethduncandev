@@ -55,15 +55,15 @@ export const COMMAND_COLORS: Record<string, CommandColor> = {
     titleText: 'text-black',
   },
   home: {
-    text: 'text-teal-400',
-    textDim: 'text-teal-700',
-    pillBg: 'bg-teal-500',
-    pillText: 'text-white',
-    border: 'border-teal-400',
-    proseLink: 'prose-a:decoration-2 prose-a:decoration-teal-400',
-    bgSolid: 'bg-teal-500',
+    text: 'text-zinc-300',
+    textDim: 'text-zinc-500',
+    pillBg: 'bg-zinc-300',
+    pillText: 'text-black',
+    border: 'border-zinc-300',
+    proseLink: 'prose-a:decoration-2 prose-a:decoration-zinc-300',
+    bgSolid: 'bg-zinc-300',
 
-    titleText: 'text-white',
+    titleText: 'text-black',
   },
   clear: {
     text: 'text-zinc-400',
