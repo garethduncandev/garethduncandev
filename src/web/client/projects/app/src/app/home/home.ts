@@ -9,11 +9,11 @@ import { COMMAND_COLORS } from '../command-colors';
     <p class="font-mono text-zinc-200 leading-relaxed">
       Hi, I'm a Solutions Architect. I design and build full-stack cloud applications using .NET,
       Angular, and AWS CDK. This website is my personal sandbox. Read my
-      <a routerLink="/blog" [class]="blogLink"><span aria-hidden="true">/</span>blog</a>, browse my
-      <a routerLink="/notes" [class]="notesLink"><span aria-hidden="true">/</span>notes</a>,
-      <a routerLink="/find" [class]="findLink"><span aria-hidden="true">/</span>search</a>
+      <a routerLink="/blog" [class]="blogLink">blog</a>, browse my
+      <a routerLink="/notes" [class]="notesLink">notes</a>,
+      <a routerLink="/find" [class]="findLink">search</a>
       for something specific, or get in
-      <a routerLink="/contact" [class]="contactLink"><span aria-hidden="true">/</span>touch</a>.
+      <a routerLink="/contact" [class]="contactLink">touch</a>.
     </p>
   `,
 })
