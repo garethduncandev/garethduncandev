@@ -25,6 +25,9 @@
     ],
     "connect-src": [
       "'self'"
+    ],
+    "manifest-src": [
+      "'self'"
     ]
   }
 }
