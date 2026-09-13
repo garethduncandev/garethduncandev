@@ -2,6 +2,7 @@ import {
   afterRenderEffect,
   Component,
   computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -10,87 +11,26 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { httpResource } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, NavigationEnd } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { form, FormField } from '@angular/forms/signals';
 import { SearchService } from '../search.service';
+import { CommandFocusService } from '../command-focus.service';
 import { COMMAND_COLORS } from '../command-colors';
-
-interface CommandMode {
-  placeholder: string;
-  searchCategory: string;
-  enterActivates: boolean;
-  entries: ModeEntry[];
-}
-
-interface ModeEntry {
-  name: string;
-  route: string;
-}
 
 interface Command {
   name: string;
-  route: string | null;
-  mode: CommandMode | false;
+  route: string;
   showInDefault: boolean;
-  enterHint: string;
-}
-
-interface ContentIndexEntry {
-  slug: string;
-  title: string;
-  date: string;
-  description: string;
 }
 
 const COMMANDS: Command[] = [
-  { name: 'home', route: '/', mode: false, showInDefault: false, enterHint: 'go to homepage' },
-  {
-    name: 'blog',
-    route: '/blog',
-    mode: {
-      placeholder: 'search blog posts',
-      searchCategory: 'blog',
-      enterActivates: false,
-      entries: [],
-    },
-    showInDefault: true,
-    enterHint: 'view',
-  },
-  {
-    name: 'notes',
-    route: '/notes',
-    mode: {
-      placeholder: 'search notes',
-      searchCategory: 'notes',
-      enterActivates: false,
-      entries: [],
-    },
-    showInDefault: true,
-    enterHint: 'view',
-  },
-  {
-    name: 'find',
-    route: '/find',
-    mode: {
-      placeholder: 'type something to find',
-      searchCategory: 'all',
-      enterActivates: true,
-      entries: [],
-    },
-    showInDefault: true,
-    enterHint: 'search',
-  },
-  {
-    name: 'contact',
-    route: '/contact',
-    mode: false,
-    showInDefault: true,
-    enterHint: 'get in touch',
-  },
-  { name: 'clear', route: null, mode: false, showInDefault: false, enterHint: 'reset navigation' },
+  { name: 'home', route: '/', showInDefault: false },
+  { name: 'blog', route: '/blog', showInDefault: true },
+  { name: 'notes', route: '/notes', showInDefault: true },
+  { name: 'contact', route: '/contact', showInDefault: true },
 ];
 
 @Component({
@@ -99,111 +39,82 @@ const COMMANDS: Command[] = [
   host: { class: 'block' },
   template: `
     <div class="relative">
-      @if (inputHintText()) {
-        <span
-          class="block sm:hidden px-3 py-1 text-xs text-zinc-600 select-none font-mono"
-          aria-hidden="true"
-          >{{ inputHintText() }}</span
-        >
-      }
       <div [class]="borderClass()">
-        <button
-          type="button"
-          [class]="pillClass()"
-          [attr.aria-label]="
-            activeCommand()
-              ? 'Show commands. Currently on ' + activeCommand()
-              : 'Show commands. Currently at root'
-          "
-          (click)="toggleCommandSwitcher()"
-        >
-          <span aria-hidden="true">▾</span>
-          <span>{{ activeCommand() ?? 'root' }}</span>
-        </button>
+        <span [class]="pillClass()" aria-hidden="true">/{{ activeCommand() ?? 'root' }}</span>
         <div class="relative flex-1 flex items-center">
           <input
             #inputEl
             type="text"
             role="combobox"
-            [attr.aria-expanded]="showSuggestions()"
+            [attr.aria-expanded]="showSearchResults()"
             aria-controls="command-listbox"
             [attr.aria-activedescendant]="
-              highlightedCommand() ? 'command-option-' + selectedIndex() : null
+              highlightedResult() ? 'command-option-' + selectedIndex() : null
             "
             aria-autocomplete="list"
             aria-label="Navigate to page"
-            [placeholder]="activeMode()?.mode?.placeholder ?? ''"
+            placeholder="search…"
             [class]="
               isExactMatch()
                 ? 'w-full bg-transparent text-sky-300 caret-zinc-300 outline-none placeholder:text-zinc-600'
                 : 'w-full bg-transparent text-zinc-300 caret-zinc-300 outline-none placeholder:text-zinc-600'
             "
             [formField]="inputForm.query"
-            (input)="onInput($event)"
+            (input)="onInput()"
             (keydown)="onKeydown($event)"
             (focus)="isOpen.set(true)"
             (blur)="onBlur()"
           />
-          @if (ghostText()) {
-            <span
-              class="pointer-events-none absolute top-0 left-0 text-zinc-600"
-              aria-hidden="true"
-            >
-              <span class="invisible">{{ query() }}</span
-              >{{ ghostText() }}
-            </span>
-          }
           @if (searchService.isLoading()) {
             <span class="ml-1 text-zinc-500 animate-spin text-xs" aria-label="Searching">⠋</span>
           }
         </div>
-        @if (inputHintText()) {
-          <span
-            class="ml-2 hidden sm:inline text-xs text-zinc-600 select-none whitespace-nowrap"
-            aria-hidden="true"
-            >{{ inputHintText() }}</span
-          >
-        }
       </div>
 
-      <ul
-        id="command-listbox"
-        role="listbox"
-        [class]="
-          showSuggestions()
-            ? 'mt-1 w-full' +
-              (activeCommandColor() ? ' border-b-2 ' + activeCommandColor()!.border : '')
-            : 'hidden'
-        "
-        (pointerleave)="selectedIndex.set(-1)"
-      >
-        @for (cmd of displayedCommands(); track cmd.name; let i = $index) {
-          <li
-            [id]="'command-option-' + i"
-            role="option"
-            [attr.aria-selected]="i === selectedIndex()"
-            [class]="
-              i === selectedIndex()
-                ? 'cursor-pointer px-3 py-1 font-mono bg-zinc-800/50 ' + commandTextColor(cmd.name)
-                : 'cursor-pointer px-3 py-1 font-mono ' + commandTextColor(cmd.name)
-            "
-            (pointerenter)="selectedIndex.set(i)"
-          >
-            <button
-              type="button"
-              class="w-full text-left bg-transparent border-none p-0 font-mono cursor-pointer"
-              [class]="commandTextColor(cmd.name)"
-              (click)="execute(cmd)"
+      <nav aria-label="Site navigation" class="flex gap-4 px-3 py-1 font-mono">
+        @for (cmd of navCommands(); track cmd.name) {
+          <button type="button" [class]="navCommandClass(cmd)" (click)="execute(cmd)">
+            /{{ displayName(cmd) }}
+          </button>
+        }
+      </nav>
+
+      @if (showSearchResults()) {
+        <ul
+          id="command-listbox"
+          role="listbox"
+          [class]="
+            'mt-1 w-full' +
+            (activeCommandColor() ? ' border-b-2 ' + activeCommandColor()!.border : '')
+          "
+          (pointerleave)="selectedIndex.set(-1)"
+        >
+          @for (result of searchResults(); track $index; let i = $index) {
+            <li
+              [id]="'command-option-' + i"
+              role="option"
+              [attr.aria-selected]="i === selectedIndex()"
+              [class]="
+                i === selectedIndex()
+                  ? 'cursor-pointer px-3 py-1 font-mono bg-zinc-800/50 text-zinc-300'
+                  : 'cursor-pointer px-3 py-1 font-mono text-zinc-500'
+              "
+              (pointerenter)="selectedIndex.set(i)"
             >
-              {{ cmd.name === 'home' ? '/root' : '/' + cmd.name }}
-            </button>
-          </li>
-        }
-        @if (noResults()) {
-          <li class="px-3 py-1 font-mono text-zinc-500">No results for "{{ searchQuery() }}"</li>
-        }
-      </ul>
-      <span class="sr-only" aria-live="polite" aria-atomic="true">{{ modeAnnouncement() }}</span>
+              <button
+                type="button"
+                class="w-full text-left bg-transparent border-none p-0 font-mono cursor-pointer"
+                (click)="execute(result)"
+              >
+                {{ result.name }}
+              </button>
+            </li>
+          }
+          @if (noResults()) {
+            <li class="px-3 py-1 font-mono text-zinc-500">No results for "{{ searchQuery() }}"</li>
+          }
+        </ul>
+      }
     </div>
   `,
 })
@@ -213,121 +124,50 @@ export class CommandInput {
   protected readonly inputForm = form(this.inputModel);
   protected readonly query = computed(() => this.inputModel().query);
   protected readonly isOpen = signal(false);
-  protected readonly activeMode = signal<{ command: string; mode: CommandMode } | null>(null);
   protected readonly activeCommand = signal<string | null>(null);
   protected readonly searchQuery = signal<string | undefined>(undefined);
 
-  protected readonly showCommandSwitcher = signal(false);
-  protected readonly modeAnnouncement = signal('');
-
   protected readonly isExactMatch = computed(() => {
-    if (this.activeMode()) return false;
-    const q = this.query().toLowerCase();
-    if (!q || q !== q.trimEnd()) return false;
-    return COMMANDS.some((cmd) => cmd.name === q);
+    const q = this.query().toLowerCase().trim();
+    if (!q) return false;
+    return COMMANDS.some((cmd) => this.displayName(cmd) === q);
   });
 
-  protected readonly filteredCommands = computed(() => {
-    if (this.activeMode()) return [];
-    const q = this.query().toLowerCase();
-    if (!q) {
-      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
-      if (this.currentRoute() !== '/') {
-        const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
-        return [home, ...defaults];
-      }
-      return defaults;
+  protected readonly navCommands = computed(() => {
+    const active = this.activeCommand();
+    const defaults = COMMANDS.filter((c) => c.showInDefault && c.name !== active);
+    if (this.currentRoute() !== '/') {
+      return [COMMANDS.find((c) => c.name === 'home')!, ...defaults];
     }
-    if (q !== q.trimEnd()) return [];
-    return COMMANDS.filter((cmd) => cmd.name.includes(q.trim()));
+    return defaults;
   });
 
-  protected readonly modeEntries = computed((): Command[] => {
-    const mode = this.activeMode();
-    if (!mode) return [];
-    const q = this.query().toLowerCase();
-    let entries: ModeEntry[] = [];
-    if (mode.command === 'blog') entries = this.blogEntries();
-    else if (mode.command === 'notes') entries = this.notesEntries();
-    const filtered = q ? entries.filter((e) => e.name.includes(q)) : entries.slice(0, 10);
-    return filtered.map((e) => ({
-      name: e.name,
-      route: e.route,
-      mode: false,
-      showInDefault: false,
-      enterHint: '',
-    }));
-  });
-
-  protected readonly displayedCommands = computed((): Command[] => {
-    if (this.showCommandSwitcher()) {
-      const active = this.activeCommand();
-      const defaults = COMMANDS.filter((cmd) => cmd.showInDefault);
-      if (active) {
-        const home = COMMANDS.find((cmd) => cmd.name === 'home')!;
-        return [home, ...defaults];
-      }
-      return defaults;
-    }
-    if (this.activeMode()) {
-      const entries = this.modeEntries();
-      if (entries.length > 0) return entries;
-      return this.searchService.results().map((r) => ({
-        name: r.title ?? r.slug ?? '',
-        route: r.slug ? `/${r.type}/${r.slug}` : null,
-        mode: false as const,
-        showInDefault: false,
-        enterHint: '',
-      }));
-    }
-    const q = this.query().toLowerCase();
-    const filtered = this.filteredCommands();
-    if (!q || filtered.length > 0) return filtered;
-    return this.searchService.results().map((r) => ({
+  protected readonly searchResults = computed(() =>
+    this.searchService.results().map((r) => ({
       name: r.title ?? r.slug ?? '',
-      route: r.slug ? `/${r.type}/${r.slug}` : null,
-      mode: false as const,
+      route: r.slug ? `/${r.type}/${r.slug}` : '/',
       showInDefault: false,
-      enterHint: '',
-    }));
-  });
+    })),
+  );
 
   protected readonly selectedIndex = linkedSignal(() => {
-    this.displayedCommands();
+    this.searchResults();
     return 0;
   });
 
-  protected readonly highlightedCommand = computed(() => {
-    const cmds = this.displayedCommands();
-    return cmds[this.selectedIndex()] ?? null;
-  });
-
-  protected readonly ghostText = computed(() => {
-    const cmd = this.highlightedCommand();
-    const q = this.query();
-    if (!cmd || !q || !cmd.name.startsWith(q.toLowerCase())) return '';
-    return cmd.name.slice(q.length);
-  });
-
-  protected readonly inputHintText = computed(() => {
-    if (this.activeMode() && !this.showCommandSwitcher()) {
-      if (!this.showSuggestions()) return '';
-      const cmd = this.highlightedCommand();
-      if (cmd) return '[esc] back · [enter] open';
-      return '[esc] back · [/] commands';
-    }
-    if (!this.showSuggestions() && !this.isExactMatch()) return '';
-    const cmd = this.highlightedCommand();
-    if (!cmd) return '';
-    const full = COMMANDS.find((c) => c.name === cmd.name);
-    if (!full) return '[enter] to open';
-    return `[enter] ${full.enterHint}`;
+  protected readonly highlightedResult = computed(() => {
+    const results = this.searchResults();
+    const i = this.selectedIndex();
+    return i >= 0 && i < results.length ? results[i] : null;
   });
 
   protected readonly noResults = computed(() => {
     const status = this.searchService.searchResults.status();
-    const hasSearched = status === 'resolved' || status === 'error';
-    return hasSearched && this.displayedCommands().length === 0 && !!this.searchQuery();
+    return (
+      (status === 'resolved' || status === 'error') &&
+      this.searchService.results().length === 0 &&
+      !!this.searchQuery()
+    );
   });
 
   protected readonly activeCommandColor = computed(
@@ -335,15 +175,9 @@ export class CommandInput {
   );
 
   protected readonly pillClass = computed(() => {
-    const base =
-      'select-none cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded ml-1 mr-1 border-2 bg-zinc-900 hover:bg-zinc-800';
+    const base = 'select-none inline-flex items-center mr-1 font-mono';
     const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
-    return `${base} ${color.border} ${color.text}`;
-  });
-
-  protected readonly slashClass = computed(() => {
-    const color = COMMAND_COLORS[this.activeCommand() ?? 'home'];
-    return 'select-none ' + color.text;
+    return `${base} ${color.text}`;
   });
 
   protected readonly borderClass = computed(() => {
@@ -351,42 +185,20 @@ export class CommandInput {
     return 'flex items-center gap-0 border-y-2 px-3 py-2 font-mono text-zinc-300 ' + color.border;
   });
 
-  protected readonly showSuggestions = computed(() => {
-    if (this.isExactMatch()) return false;
-    if (this.activeCommand() && !this.query() && !this.showCommandSwitcher()) return false;
-    const cmds = this.displayedCommands();
-    if (cmds.length === 1) {
-      const q = this.query().toLowerCase().trim();
-      if (q && cmds[0].name.toLowerCase() === q) return false;
-    }
-    return cmds.length > 0 || this.searchService.isLoading() || this.noResults();
+  protected readonly showSearchResults = computed(() => {
+    if (!this.isOpen()) return false;
+    return (
+      this.searchService.results().length > 0 || this.searchService.isLoading() || this.noResults()
+    );
   });
 
   private blurTimer: ReturnType<typeof setTimeout> | null = null;
-
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly router = inject(Router);
-
+  private readonly commandFocusService = inject(CommandFocusService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('inputEl');
-
-  private readonly blogIndex = httpResource<ContentIndexEntry[]>(() => '/content/blog/index.json');
-  private readonly notesIndex = httpResource<ContentIndexEntry[]>(
-    () => '/content/notes/index.json',
-  );
-
-  private readonly blogEntries = computed<ModeEntry[]>(() =>
-    (this.blogIndex.value() ?? []).map((e) => ({
-      name: e.title.toLowerCase(),
-      route: `/blog/${e.slug}`,
-    })),
-  );
-  private readonly notesEntries = computed<ModeEntry[]>(() =>
-    (this.notesIndex.value() ?? []).map((e) => ({
-      name: e.title.toLowerCase(),
-      route: `/notes/${e.slug}`,
-    })),
-  );
 
   private readonly currentRoute = toSignal(
     this.router.events.pipe(
@@ -396,65 +208,20 @@ export class CommandInput {
     { initialValue: this.router.url },
   );
 
-  private readonly userNavigatedList = signal(false);
-
   constructor() {
     effect(() => {
-      const mode = this.activeMode();
-      untracked(() => {
-        if (mode) {
-          this.modeAnnouncement.set(
-            `Entered ${mode.command} mode. ${mode.mode.placeholder}. Press Escape to return to commands.`,
-          );
-        } else {
-          this.modeAnnouncement.set('Returned to command navigation.');
-        }
-      });
-    });
-
-    effect(() => {
       const rawUrl = this.currentRoute();
-      const blogEntries = this.blogEntries();
-      const notesEntries = this.notesEntries();
       untracked(() => {
         const url = rawUrl.split('?')[0];
         if (url === '/') {
-          this.inputModel.set({ query: '' });
-          this.activeMode.set(null);
           this.activeCommand.set(null);
         } else {
           const segments = url.slice(1).split('/');
           const cmd = COMMANDS.find((c) => c.name === segments[0]);
-          if (cmd?.mode && segments.length > 1) {
-            this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-            this.activeCommand.set(cmd.name);
-            const slug = segments.slice(1).join('/');
-            const entries =
-              cmd.name === 'blog' ? blogEntries : cmd.name === 'notes' ? notesEntries : [];
-            const entry = entries.find((e) => e.route === `/${segments[0]}/${slug}`);
-            this.inputModel.set({ query: entry?.name ?? slug });
-          } else if (cmd && cmd.mode && cmd.mode.enterActivates) {
-            this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-            this.activeCommand.set(cmd.name);
-            const queryString = rawUrl.split('?')[1] ?? '';
-            const q = new URLSearchParams(queryString).get('q') ?? '';
-            this.inputModel.set({ query: q });
-          } else if (cmd?.mode) {
-            this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-            this.activeCommand.set(cmd.name);
-            this.inputModel.set({ query: '' });
-          } else if (cmd) {
-            this.activeMode.set(null);
-            this.activeCommand.set(cmd.name);
-            this.inputModel.set({ query: '' });
-          } else {
-            this.activeMode.set(null);
-            this.activeCommand.set(null);
-            this.inputModel.set({ query: segments[0] });
-          }
+          this.activeCommand.set(cmd?.name ?? segments[0]);
         }
+        this.inputModel.set({ query: '' });
         this.searchQuery.set(undefined);
-        this.showCommandSwitcher.set(false);
       });
     });
 
@@ -469,29 +236,29 @@ export class CommandInput {
       },
     });
 
+    this.commandFocusService.requestFocus$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.inputEl().nativeElement.focus();
+        this.isOpen.set(true);
+      });
+
     effect((onCleanup) => {
       const q = this.query();
-      const mode = this.activeMode();
       const route = this.currentRoute();
-      const hasNavResults = untracked(() => this.filteredCommands().length > 0);
-      const hasModeEntries = untracked(() => this.modeEntries().length > 0);
 
       if (this.debounceTimer) clearTimeout(this.debounceTimer);
 
-      const onFindPage = route.startsWith('/find');
-      const shouldSearch = q && !onFindPage && (mode ? !hasModeEntries : !hasNavResults);
+      const onSearchPage = route.startsWith('/search');
+      const hasCommandMatch =
+        q && COMMANDS.some((c) => this.displayName(c).includes(q.toLowerCase().trim()));
 
-      if (shouldSearch) {
-        if (!mode) {
-          const findCmd = COMMANDS.find((c) => c.name === 'find')!;
-          this.activeMode.set({ command: findCmd.name, mode: findCmd.mode as CommandMode });
-          this.activeCommand.set(findCmd.name);
-        }
+      if (q && !onSearchPage && !hasCommandMatch) {
         this.debounceTimer = setTimeout(() => {
           this.searchQuery.set(q);
-          this.searchService.search(q, mode?.mode.searchCategory);
+          this.searchService.search(q);
         }, 500);
-      } else if (!onFindPage) {
+      } else if (!onSearchPage) {
         this.searchQuery.set(undefined);
         this.searchService.clear();
       }
@@ -502,178 +269,70 @@ export class CommandInput {
     });
   }
 
-  protected commandTextColor(name: string): string {
-    return COMMAND_COLORS[name]?.text ?? 'text-zinc-500';
+  protected displayName(cmd: Command): string {
+    return cmd.name === 'home' ? 'root' : cmd.name;
   }
 
-  protected onInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value;
+  protected navCommandClass(cmd: Command): string {
+    const color = COMMAND_COLORS[cmd.name]?.text ?? 'text-zinc-500';
+    const q = this.query().toLowerCase().trim();
+    if (!q) return `cursor-pointer hover:text-white transition-colors ${color}`;
+    return this.displayName(cmd).includes(q)
+      ? `cursor-pointer transition-colors ${color}`
+      : 'cursor-pointer transition-colors text-zinc-700 hover:text-zinc-500';
+  }
 
-    if (this.activeMode() && value === '/') {
-      input.value = '';
-      this.inputModel.set({ query: '' });
-      this.showCommandSwitcher.set(true);
-      this.isOpen.set(true);
-      return;
-    }
-
-    if (this.showCommandSwitcher()) {
-      this.showCommandSwitcher.set(false);
-    }
-
-    if (!this.activeMode()) {
-      const match = value.match(/^(\w+)\s$/);
-      if (match) {
-        const cmd = COMMANDS.find((c) => c.name === match[1].toLowerCase());
-        if (cmd?.mode) {
-          this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-          this.activeCommand.set(cmd.name);
-          input.value = '';
-          this.inputModel.set({ query: '' });
-          this.searchQuery.set(undefined);
-          return;
-        }
-      }
-    }
-
+  protected onInput(): void {
     this.isOpen.set(true);
-    this.userNavigatedList.set(false);
   }
 
   protected onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Backspace' && this.query() === '' && this.activeCommand()) {
-      this.activeMode.set(null);
-      this.activeCommand.set(null);
-      this.searchQuery.set(undefined);
-      this.inputModel.set({ query: '' });
-      this.showCommandSwitcher.set(true);
-      this.isOpen.set(true);
-      event.preventDefault();
-      return;
-    }
-
-    const cmds = this.displayedCommands();
+    const results = this.searchResults();
 
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        if (this.activeCommand() && !this.showCommandSwitcher() && !this.query()) {
-          this.showCommandSwitcher.set(true);
-          this.isOpen.set(true);
-        } else if (cmds.length) {
-          this.selectedIndex.update((i) => (i + 1) % cmds.length);
-          this.userNavigatedList.set(true);
+        if (results.length) {
+          this.selectedIndex.update((i) => (i + 1) % results.length);
         }
         break;
       case 'ArrowUp':
         event.preventDefault();
-        if (this.activeCommand() && !this.showCommandSwitcher() && !this.query()) {
-          this.showCommandSwitcher.set(true);
-          this.isOpen.set(true);
-        } else if (cmds.length) {
-          this.selectedIndex.update((i) => (i - 1 + cmds.length) % cmds.length);
-          this.userNavigatedList.set(true);
+        if (results.length) {
+          this.selectedIndex.update((i) => (i - 1 + results.length) % results.length);
         }
         break;
       case 'Enter': {
         event.preventDefault();
-        const mode = this.activeMode();
-        if (mode?.command === 'find' && this.query() && !this.userNavigatedList()) {
-          this.router.navigate(['/find'], { queryParams: { q: this.query() } });
-        } else if (this.showSuggestions()) {
-          const highlighted = this.highlightedCommand();
-          if (highlighted) {
-            this.execute(highlighted);
-          }
+        const highlighted = this.highlightedResult();
+        if (highlighted) {
+          this.execute(highlighted);
+        } else if (this.isExactMatch()) {
+          const q = this.query().toLowerCase().trim();
+          const cmd = COMMANDS.find((c) => this.displayName(c) === q);
+          if (cmd) this.execute(cmd);
+        } else if (this.query().trim()) {
+          this.router.navigate(['/search'], { queryParams: { q: this.query().trim() } });
         } else {
-          const exactCmd = COMMANDS.find((c) => c.name === this.query().toLowerCase().trim());
-          if (exactCmd) {
-            this.execute(exactCmd);
-          } else if (!this.query() && !mode && !this.activeCommand()) {
-            this.router.navigate(['/']);
-          } else if (this.query() && this.filteredCommands().length === 0) {
-            this.router.navigate(['/find'], { queryParams: { q: this.query() } });
-          }
+          this.router.navigate(['/']);
         }
         break;
       }
       case 'Escape':
-        this.showCommandSwitcher.set(false);
-        if (this.activeMode()) {
-          this.activeMode.set(null);
-          this.activeCommand.set(null);
-          this.searchQuery.set(undefined);
-          this.inputModel.set({ query: '' });
-        } else {
-          this.activeCommand.set(null);
-          this.inputModel.set({ query: '' });
-          this.isOpen.set(false);
-        }
-        break;
-      case 'Tab':
-        event.preventDefault();
-        if (!this.activeMode()) {
-          const highlighted = this.highlightedCommand();
-          const full = highlighted ? COMMANDS.find((c) => c.name === highlighted.name) : undefined;
-          if (full?.mode) {
-            this.activeMode.set({ command: full.name, mode: full.mode });
-            this.activeCommand.set(full.name);
-            this.inputModel.set({ query: '' });
-            this.searchQuery.set(undefined);
-            break;
-          }
-        }
-        if (this.ghostText()) {
-          this.inputModel.set({ query: this.highlightedCommand()!.name });
-        }
+        this.inputModel.set({ query: '' });
+        this.isOpen.set(false);
         break;
     }
   }
 
   protected execute(cmd: Command): void {
-    this.showCommandSwitcher.set(false);
-    if (cmd.mode && cmd.mode.enterActivates) {
-      this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-      this.activeCommand.set(cmd.name);
-      this.inputModel.set({ query: '' });
-      this.searchQuery.set(undefined);
-    } else if (cmd.name === 'clear') {
-      this.inputModel.set({ query: '' });
-      this.activeMode.set(null);
-      this.searchQuery.set(undefined);
-      this.router.navigate(['/']);
-    } else if (cmd.route) {
-      if (this.currentRoute() === cmd.route) {
-        this.activeCommand.set(cmd.name);
-        if (cmd.mode) {
-          this.activeMode.set({ command: cmd.name, mode: cmd.mode });
-        }
-        this.inputModel.set({ query: '' });
-        return;
-      }
-      const navCmd = COMMANDS.find((c) => c.route === cmd.route);
-      this.inputModel.set({ query: navCmd?.name ?? '' });
-      this.activeMode.set(null);
-      this.searchQuery.set(undefined);
-      this.router.navigate([cmd.route]);
-    }
-  }
-
-  protected toggleCommandSwitcher(): void {
-    if (this.blurTimer) {
-      clearTimeout(this.blurTimer);
-      this.blurTimer = null;
-    }
-    this.showCommandSwitcher.update((v) => !v);
-    this.isOpen.set(true);
-    this.inputEl().nativeElement.focus();
+    this.isOpen.set(false);
+    this.router.navigate([cmd.route]);
   }
 
   protected onBlur(): void {
     this.blurTimer = setTimeout(() => {
       this.isOpen.set(false);
-      this.showCommandSwitcher.set(false);
       this.blurTimer = null;
     }, 150);
   }

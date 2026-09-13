@@ -21,5 +21,4 @@ export class BlockDoodle {
     text: c.text,
     css: BLOCK_LINES[i].css,
   }));
-  public readonly segments = this.corrupted.map((c) => c.segments);
 }

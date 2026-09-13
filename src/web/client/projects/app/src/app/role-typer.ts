@@ -1,12 +1,12 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 
 const ROLES = [
-  'Architect',
   'Developer',
   'Software Engineer',
   'Solutions Architect',
   'Fullstack Developer',
   'Software Architect',
+  'Platform Engineer',
 ];
 
 const TYPE_SPEED = 80;
@@ -20,8 +20,8 @@ const PAUSE_AFTER_DELETE = 500;
   template: `<span aria-hidden="true">{{ text() }}<span class="animate-pulse">▌</span></span>`,
 })
 export class RoleTyper implements OnInit, OnDestroy {
+  protected readonly text = signal(ROLES[0]);
   private roleIndex = 0;
-  protected readonly text = signal(ROLES[this.roleIndex]);
   private timeout: ReturnType<typeof setTimeout> | null = null;
 
   public ngOnInit() {

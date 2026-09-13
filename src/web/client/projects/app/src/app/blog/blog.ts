@@ -31,7 +31,7 @@ interface BlogPostMeta {
   `,
 })
 export class BlogComponent {
-  private readonly postsResource = httpResource<BlogPostMeta[]>(() => '/content/blog/index.json');
   protected readonly posts = computed(() => this.postsResource.value() ?? []);
   protected readonly colors = COMMAND_COLORS['blog'];
+  private readonly postsResource = httpResource<BlogPostMeta[]>(() => '/content/blog/index.json');
 }

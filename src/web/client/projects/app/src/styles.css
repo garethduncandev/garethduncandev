@@ -16,7 +16,7 @@
 @theme {
   /* This ensures ALL prose body text uses ui-sans-serif */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    system-ui, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Bind Cascadia Code to a custom key */
   --font-mono:

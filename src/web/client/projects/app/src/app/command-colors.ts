@@ -32,7 +32,7 @@ export const COMMAND_COLORS: Record<string, CommandColor> = {
 
     titleText: 'text-black',
   },
-  find: {
+  search: {
     text: 'text-emerald-400',
     textDim: 'text-emerald-700',
     pillBg: 'bg-emerald-600',
@@ -64,16 +64,5 @@ export const COMMAND_COLORS: Record<string, CommandColor> = {
     bgSolid: 'bg-zinc-300',
 
     titleText: 'text-black',
-  },
-  clear: {
-    text: 'text-zinc-400',
-    textDim: 'text-zinc-600',
-    pillBg: 'bg-zinc-500',
-    pillText: 'text-white',
-    border: 'border-zinc-400',
-    proseLink: 'prose-a:decoration-2 prose-a:decoration-zinc-400',
-    bgSolid: 'bg-zinc-500',
-
-    titleText: 'text-white',
   },
 };

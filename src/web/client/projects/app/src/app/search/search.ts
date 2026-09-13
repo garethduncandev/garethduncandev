@@ -3,14 +3,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { SearchResult, SearchService } from '../search.service';
+import { CommandFocusService } from '../command-focus.service';
 import { COMMAND_COLORS } from '../command-colors';
 
 @Component({
-  selector: 'app-find',
+  selector: 'app-search',
   imports: [RouterLink],
   template: `
     <h1 class="text-2xl mb-6 font-mono">
-      <span [class]="colors.text">/</span><span class="text-zinc-200">find {{ queryParam() }}</span>
+      <span [class]="colors.text">/</span
+      ><span class="text-zinc-200">search {{ queryParam() }}</span>
     </h1>
     @if (searchService.isLoading()) {
       <p class="text-zinc-500 font-mono">searching...</p>
@@ -37,17 +39,17 @@ import { COMMAND_COLORS } from '../command-colors';
     }
   `,
 })
-export class Find {
-  private readonly route = inject(ActivatedRoute);
+export class Search {
   protected readonly searchService = inject(SearchService);
-  protected readonly colors = COMMAND_COLORS['find'];
-
+  protected readonly colors = COMMAND_COLORS['search'];
   protected readonly queryParam = toSignal(
-    this.route.queryParamMap.pipe(map((params) => params.get('q') ?? '')),
+    inject(ActivatedRoute).queryParamMap.pipe(map((params) => params.get('q') ?? '')),
     { initialValue: '' },
   );
 
   constructor() {
+    inject(CommandFocusService).requestFocus();
+
     effect(() => {
       const q = this.queryParam();
       if (q) {
