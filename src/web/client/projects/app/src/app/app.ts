@@ -4,14 +4,16 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { CommandInput } from './command-input/command-input';
 import { DoodleComponent } from './doodle/doodle';
+import { RoleTyper } from './role-typer';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, DoodleComponent, CommandInput],
+  imports: [RouterOutlet, DoodleComponent, CommandInput, RoleTyper],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
+  protected readonly routeName = computed(() => this.url());
   private readonly router = inject(Router);
   private readonly url = toSignal(
     this.router.events.pipe(
@@ -20,5 +22,4 @@ export class App {
     ),
     { initialValue: this.router.url },
   );
-  protected readonly routeName = computed(() => this.url());
 }

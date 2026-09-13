@@ -1,12 +1,16 @@
-<main class="flex min-h-dvh flex-col items-center bg-zinc-950 px-6 font-mono text-zinc-300 pt-8">
+<main class="flex min-h-dvh flex-col items-center bg-zinc-950 px-6 text-zinc-300 pt-8 pb-12">
   <div class="w-full max-w-2xl">
     <header>
       <app-doodle />
     </header>
 
-    <p class="mb-10 text-zinc-500 text-center">software engineer · building things for the web</p>
+    <p class="font-mono">
+      <span class="text-emerald-400">cloud, code, and everything between</span>
+      <span class="text-sky-400"> | </span>
+      <span class="text-amber-400"><app-role-typer /></span>
+    </p>
 
-    <nav class="mb-12" aria-label="Main navigation">
+    <nav class="sticky top-0 z-10 bg-zinc-950 py-4" aria-label="Main navigation">
       <app-command-input />
     </nav>
 

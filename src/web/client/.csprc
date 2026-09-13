@@ -1,0 +1,33 @@
+{
+  "options": {
+    "sha": "sha256",
+    "directory": "./",
+    "addMetaTag": false,
+    "addIntegrityAttributes": true,
+    "logLevel": "info",
+    "ci": false
+  },
+  "directives": {
+    "default-src": [
+      "'none'"
+    ],
+    "script-src": [
+      "'self'"
+    ],
+    "style-src": [
+      "'self'"
+    ],
+    "img-src": [
+      "'self'"
+    ],
+    "font-src": [
+      "'self'"
+    ],
+    "connect-src": [
+      "'self'"
+    ],
+    "manifest-src": [
+      "'self'"
+    ]
+  }
+}

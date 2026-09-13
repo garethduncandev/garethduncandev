@@ -4,7 +4,8 @@
     {
       "name": "Full Stack",
       "configurations": [
-        "Debug Angular"
+        "Debug Angular",
+        "Debug API"
       ]
     }
   ],
@@ -24,7 +25,12 @@
         "/@fs/*": "*",
         "*.ts": "${webRoot}/*.ts"
       },
-      "postDebugTask": "stop: angular",
+    },
+    {
+      "name": "Debug API",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/web/api/GarethDuncanDevWebApi/GarethDuncanDevWebApi.csproj"
     }
   ]
 }

@@ -1,18 +1,18 @@
 import { Component, signal } from '@angular/core';
-import { BlockDoodleComponent } from './block/block';
+import { BlockDoodle } from './block/block';
 
 const DOODLE_COUNT = 1;
 
 @Component({
   selector: 'app-doodle',
-  imports: [BlockDoodleComponent],
+  imports: [BlockDoodle],
   template: `
     <div
       tabindex="0"
       role="button"
       (click)="next()"
       (keydown.enter)="next()"
-      class="cursor-pointer select-none relative w-full aspect-3/1 @container"
+      class="cursor-pointer select-none relative w-full aspect-4/1 @container"
     >
       @switch (index()) {
         @case (0) {

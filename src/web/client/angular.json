@@ -42,6 +42,13 @@
           },
           "configurations": {
             "production": {
+              "optimization": {
+                "styles": {
+                  "inlineCritical": false,
+                  "minify": true,
+                  "removeSpecialComments": true
+                }
+              },
               "budgets": [
                 {
                   "type": "initial",
@@ -54,7 +61,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "serviceWorker": "projects/app/ngsw-config.json"
             },
             "development": {
               "optimization": false,

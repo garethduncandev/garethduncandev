@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            src/web/client/package-lock.json
+            src/infra/package-lock.json
+
+      - name: Install Angular dependencies
+        working-directory: src/web/client
+        run: npm ci
+
+      - name: Build Angular app
+        working-directory: src/web/client
+        run: npm run build
+
+      - name: Generate CSP
+        id: csp
+        working-directory: src/web/client
+        run: |
+          CSP=$(npx csp-kit --config .csprc --directory dist/app/browser --ci)
+          echo "value=$CSP" >> $GITHUB_OUTPUT
+
+      - name: Install CDK dependencies
+        working-directory: src/infra
+        run: npm ci
+
+      - name: CDK synth
+        working-directory: src/infra
+        run: npx cdk synth --context CONTENT_SECURITY_POLICY="${{ steps.csp.outputs.value }}" --verbose
+        env:
+          CDK_DOCKER: podman
+
+      - name: Trivy secret scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: secret,misconfig
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 1
+          trivy-config: trivy.yaml
